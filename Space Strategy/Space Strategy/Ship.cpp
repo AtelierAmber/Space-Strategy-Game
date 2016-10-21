@@ -28,6 +28,7 @@ void Ship::init(Grid* grid, Sakura::ResourceManager &resourceManager, std::strin
 	m_position = position;
 	m_newPosition = position;
 	m_enemy = enemy;
+	if (enemy) --(m_position.x);
 	m_absolutePosition = grid->getScreenPos(position);
 	m_shieldMax= shield;
 	m_shield = shield;
@@ -45,8 +46,7 @@ void Ship::init(Grid* grid, Sakura::ResourceManager &resourceManager, std::strin
 
 void Ship::update(float deltaTime, bool isTurn){
 	if (isTurn){
-		//! SPEED IS HOW MANY TILES MOVE PER TURN
-		/* Move 'speed' towards m_newPosition */
+		/* Speed is number of tiles move */
 		if (m_position != m_newPosition){
 			glm::vec2 direction = m_parentGrid->getScreenPos(m_newPosition) - m_parentGrid->getScreenPos(m_position);
 			m_absolutePosition += glm::vec2(direction.x * (1 / m_speed), direction.y * (1/m_speed));
