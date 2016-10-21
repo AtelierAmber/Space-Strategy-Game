@@ -28,7 +28,6 @@ void Ship::init(Grid* grid, Sakura::ResourceManager &resourceManager, std::strin
 	m_position = position;
 	m_newPosition = position;
 	m_enemy = enemy;
-	if (enemy) --(m_position.x);
 	m_absolutePosition = grid->getScreenPos(position);
 	m_shieldMax= shield;
 	m_shield = shield;
@@ -46,10 +45,10 @@ void Ship::init(Grid* grid, Sakura::ResourceManager &resourceManager, std::strin
 
 void Ship::update(float deltaTime, bool isTurn){
 	if (isTurn){
-		/* Implement Smooth Movement between turns */
+		//TODO Implement Smooth Movement between turns
 		m_position = m_newPosition;
-		m_absolutePosition = m_parentGrid->getScreenPos(m_position);
 	}
+	m_absolutePosition = m_parentGrid->getScreenPos(m_position);
 }
 
 void Ship::draw(Sakura::SpriteBatch& spriteBatch){
@@ -58,7 +57,9 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch){
 		uvRect = m_texture.getUVs(0);
 		uvRect.x += 1.0f / m_texture.dims.x;
 		uvRect.z *= -1;
-
+		if (m_tileSpan.x > 1){
+			m_absolutePosition.x -= m_parentGrid->getTileDims().x;
+		}
 	}
 	float shipScale = std::min(m_parentGrid->getTileDims().x / (m_texture.texture.width / m_texture.dims.x), m_parentGrid->getTileDims().y / (m_texture.texture.height / m_texture.dims.y));
 	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
