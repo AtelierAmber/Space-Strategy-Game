@@ -236,7 +236,12 @@ void MainScreen::checkInput() {
 	//Mouse
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		m_ships[0].move(m_grid.getGridPos(mouseCoords));
+		Ship* selectedShip = m_grid.getShip(m_grid.getGridPos(mouseCoords));
+		if (selectedShip){
+			m_selectedShip = selectedShip;
+		}else if (m_selectedShip){
+			m_selectedShip->move(m_grid.getGridPos(mouseCoords));
+		}
 		if (debug_game_events){
 			glm::vec2 mouseSize = glm::vec2(mouseCoords.x - m_previousMouseLocation.x, mouseCoords.y - m_previousMouseLocation.y);
 			printf("Mouse Coords (x, y): %.2f, %.2f\n Size from previous (w, h): %.2f, %.2f\n", mouseCoords.x, mouseCoords.y, mouseSize.x, mouseSize.y);

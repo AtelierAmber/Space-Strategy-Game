@@ -42,10 +42,10 @@ void Grid::resize(glm::ivec2 newSize, Sakura::Window* window, bool keepShips){
 }
 
 int Grid::addShip(glm::ivec2 position, Ship* ship){
-	if (position.y > (int)m_grid.size()){
+	if (position.y > (int)m_grid.size()-1){
 		return -1;
 	}
-	if (position.x > (int)m_grid[position.y].size()){
+	if (position.x > (int)m_grid[position.y].size()-1){
 		return -1;
 	}
 	m_grid[position.y][position.x] = ship;
@@ -53,10 +53,10 @@ int Grid::addShip(glm::ivec2 position, Ship* ship){
 }
 
 int Grid::removeShip(glm::ivec2 position){
-	if (position.y > (int)m_grid.size()){
+	if (position.y > (int)m_grid.size()-1){
 		return -1;
 	}
-	if (position.x > (int)m_grid[position.y].size()){
+	if (position.x > (int)m_grid[position.y].size()-1){
 		return -1;
 	}
 	m_grid[position.y][position.x] = nullptr;
@@ -68,10 +68,10 @@ int Grid::removeShip(Ship* ship){
 }
 
 Ship* Grid::getShip(glm::ivec2 position){
-	if (position.y > (int)m_grid.size()){
+	if (position.y > (int)m_grid.size()-1){
 		return nullptr;
 	}
-	if (position.x > (int)m_grid[position.y].size()){
+	if (position.x > (int)m_grid[position.y].size()-1){
 		return nullptr;
 	}
 	return m_grid[position.y][position.x];
