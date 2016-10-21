@@ -1,11 +1,9 @@
-	#pragma once
+#pragma once
 
 #include <string>
 #include <Sakura/Bounds.h>
 #include <Sakura/SpriteBatch.h>
 #include <Sakura/ResourceManager.h>
-
-class Grid;
 
 enum DamageEffect{
 	NORMAL = 0x1, // Normal damage
@@ -30,17 +28,20 @@ typedef std::string ShipType;
 #define FRIGATE "frigate.png"
 #define INTERCEPTOR "interceptor.png"
 
+class Fleet;
+class Grid;
+
 class Ship
 {
 public:
-	Ship(Grid* grid, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	Ship(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
 	Ship() { /* Empty */ }
 
 	virtual ~Ship();
 
-	virtual void init(Grid* grid, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	virtual void init(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
 	
-	virtual void draw(Sakura::SpriteBatch& spriteBatch);
+	virtual void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid);
 
 	void Damage(int hullDamage, int shieldDamage, int effectStrength, DamageEffect statusEffect = NORMAL);
 
@@ -48,18 +49,15 @@ public:
 
 	void damageOther(glm::ivec2 damagePosition);
 
-	void update(float deltaTime, bool isTurn);
+	void update(float deltaTime, bool isTurn, Grid* grid);
 
 	void move(glm::ivec2 newPosition){ m_newPosition = newPosition; }
 	const glm::ivec2& getPosition(){ return m_position; };
 	const glm::ivec2& getTileSpan(){ return m_tileSpan; }
 	const bool& isEnemy(){ return m_enemy; }
 
-	const unsigned int& getID() const { return m_id; }
-	void setID(unsigned int ID) { m_id = ID; }
-
-	bool hasMoved(){ return m_hasMoved; }
-	void resetMove(){ m_hasMoved = false; }
+	unsigned int getID() const { return m_id; }
+	void setID(unsigned int val) { m_id = val; }
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -70,7 +68,6 @@ protected:
 	float m_speed;
 
 	bool m_enemy = false;
-	bool m_hasMoved = false;
 
 	int m_shieldMax= 5;
 	int m_hullMax= 5;
@@ -83,10 +80,10 @@ protected:
 	ShipType m_shipType;
 	unsigned int m_id;
 
-	Grid* m_parentGrid;
+	Fleet* m_fleet;
 	glm::ivec2 m_tileSpan;
 	glm::ivec2 m_position;
-	glm::vec2 m_absolutePosition;
+	glm::vec2 m_absolutePosition = glm::vec2();
 	glm::ivec2 m_newPosition;
 	Sakura::Rect m_selectRect;
 	Sakura::TileSheet m_texture;

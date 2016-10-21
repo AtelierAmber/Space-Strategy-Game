@@ -131,8 +131,8 @@ void MainScreen::onEntry(){
 	m_interface.initButtons(m_window);
 	m_grid.init(glm::ivec2(21, 14), glm::ivec2(5, 5), m_window);
 	//HACK
-	m_grid.addShip(m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
-	m_grid.addShip(m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
@@ -144,7 +144,6 @@ void MainScreen::onExit(){
 	m_userFont.dispose();
 	m_enemyFont.dispose();
 	m_debugFont.dispose();
-	m_grid.destroy();
 }
 
 void MainScreen::update(float deltaTime){

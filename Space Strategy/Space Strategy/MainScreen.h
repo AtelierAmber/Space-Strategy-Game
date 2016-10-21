@@ -9,7 +9,9 @@
 #include <Sakura/GLSLProgram.h>
 #include <Sakura/Camera2D.h>
 #include <Sakura/ResourceManager.h>
+
 #include "Grid.h"
+#include "Fleet.h"
 
 enum GUIState{
 	GAMEPLAY = 0,
@@ -99,6 +101,7 @@ private:
 	MainGUI m_interface;
 
 	Grid m_grid;
+	Fleet m_fleet;
 	Ship* m_selectedShip = nullptr;
 
 	Sakura::Music m_mainMusic;
