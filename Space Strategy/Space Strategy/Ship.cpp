@@ -46,15 +46,9 @@ void Ship::init(Grid* grid, Sakura::ResourceManager &resourceManager, std::strin
 
 void Ship::update(float deltaTime, bool isTurn){
 	if (isTurn){
-		/* Speed is number of tiles move */
-		if (m_position != m_newPosition){
-			glm::vec2 direction = m_parentGrid->getScreenPos(m_newPosition) - m_parentGrid->getScreenPos(m_position);
-			m_absolutePosition += glm::vec2(direction.x * (1 / m_speed), direction.y * (1/m_speed));
-			m_position = m_parentGrid->getGridPos(m_absolutePosition);
-		}
-		else{
-			m_absolutePosition = m_parentGrid->getScreenPos(m_position);
-		}
+		/* Implement Smooth Movement between turns */
+		m_position = m_newPosition;
+		m_absolutePosition = m_parentGrid->getScreenPos(m_position);
 	}
 }
 
