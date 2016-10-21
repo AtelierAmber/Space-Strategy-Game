@@ -131,14 +131,8 @@ void MainScreen::onEntry(){
 	m_interface.initButtons(m_window);
 	m_grid.init(glm::ivec2(21, 14), glm::ivec2(5, 5), m_window);
 	//HACK
-	Ship tempShip;
-	tempShip.init(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
-	m_ships.push_back(tempShip);
-	m_grid.addShip(tempShip.getPosition(), &m_ships.back());
-	Ship tempShip2;
-	tempShip2.init(&m_grid, m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
-	m_ships.push_back(tempShip2);
-	m_grid.addShip(tempShip2.getPosition(), &m_ships.back());
+	m_grid.addShip(m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+	m_grid.addShip(m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
@@ -151,7 +145,6 @@ void MainScreen::onExit(){
 	m_enemyFont.dispose();
 	m_debugFont.dispose();
 	m_grid.destroy();
-	m_ships.clear();
 }
 
 void MainScreen::update(float deltaTime){
@@ -159,9 +152,7 @@ void MainScreen::update(float deltaTime){
 	glm::vec2 mouseCoords = m_camera.convertScreenToWorld(m_game->inputManager.getMouseCoords());
 	/* Update game objects */
 
-	for (auto& ship : m_ships){
-		ship.update(deltaTime, true);
-	}
+	m_grid.update(deltaTime, true);
 
 	m_camera.update();
 	m_interface.update(m_game->inputManager);
@@ -179,9 +170,7 @@ void MainScreen::draw(){
 
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255,255,255,255));
 
-	for (auto& ship : m_ships){
-		ship.draw(m_spriteBatch);
-	}
+	m_grid.drawShips(m_spriteBatch);
 
 	//x m_userFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(0.0f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
 	//x m_enemyFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(m_window->getScreenWidth() - m_enemyFont.getFontHeight() * 25 * .2f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
@@ -190,6 +179,9 @@ void MainScreen::draw(){
 	if (debug_game_events){
 		drawDebugElements();
 		m_grid.drawDebug(m_debugRenderer);
+	}
+	if (m_selectedShip){
+		m_debugRenderer.drawBox(glm::vec4(m_grid.getScreenPos(m_selectedShip->getPosition()), m_grid.getTileDims() * (glm::vec2)m_selectedShip->getTileSpan()), Sakura::ColorRGBA8(255, 0, 255, 255), 0);
 	}
 	/* Finish draw */
 }
@@ -220,7 +212,7 @@ void MainScreen::checkInput() {
 	}
 
 	if (m_game->inputManager.isKeyPressed(KeyID::F1)){
-		m_ships[0].move(glm::ivec2(10,5));
+		
 	}
 
 	/* Reset Screen */
@@ -234,6 +226,11 @@ void MainScreen::checkInput() {
 	}
 
 	//Mouse
+	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT)){
+		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+		m_grid.addShip(m_resourceManager, "Gray", ASSUALT_CARRIER, m_grid.getGridPos(mouseCoords), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+	}
+
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
 		Ship* selectedShip = m_grid.getShip(m_grid.getGridPos(mouseCoords));
@@ -246,6 +243,13 @@ void MainScreen::checkInput() {
 			glm::vec2 mouseSize = glm::vec2(mouseCoords.x - m_previousMouseLocation.x, mouseCoords.y - m_previousMouseLocation.y);
 			printf("Mouse Coords (x, y): %.2f, %.2f\n Size from previous (w, h): %.2f, %.2f\n", mouseCoords.x, mouseCoords.y, mouseSize.x, mouseSize.y);
 			m_previousMouseLocation = mouseCoords;
+		}
+	}
+	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_RIGHT)){
+		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+		Ship* selectedShip = m_grid.getShip(m_grid.getGridPos(mouseCoords));
+		if (selectedShip){
+			m_grid.destroyShip(selectedShip->getID());
 		}
 	}
 }

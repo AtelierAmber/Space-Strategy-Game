@@ -3,8 +3,9 @@
 
 #include <Sakura/Window.h>
 #include <Sakura/DebugRenderer.h>
+#include "Ship.h"
 
-class Ship;
+#include <memory>
 
 class Grid
 {
@@ -16,12 +17,19 @@ public:
 	void init(glm::ivec2 gridSize, glm::vec2 borderOffset, Sakura::Window* window);
 	void destroy();
 
+	void update(float deltaTime, bool playerTurn);
+
 	void resize(glm::ivec2 newSize, Sakura::Window* window, bool keepShips = true);
 
-	int addShip(glm::ivec2 position, Ship* ship);
-	int removeShip(glm::ivec2 position);
-	int removeShip(Ship* ship);
+	int addShip(Sakura::ResourceManager &resourceManager, 
+		std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, 
+		bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, 
+		int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/);
+	int destroyShip(const unsigned int& shipID);
 	Ship* getShip(glm::ivec2 position);
+	int setTile(glm::ivec2 position, Ship* ship);
+	
+	const std::vector<std::unique_ptr<Ship>>& getShips(){ return m_ships; }
 
 	const glm::ivec2 getDims(){ return glm::ivec2((float)m_grid[0].size(), (float)m_grid.size()); }
 	const glm::vec2 getScreenPos(const glm::ivec2& tilePos){ return glm::vec2((tilePos.x * m_tileDims.x) + m_gridPos.x, 
@@ -31,8 +39,10 @@ public:
 	const glm::vec2& getTileDims(){ return m_tileDims; }
 
 	void drawDebug(Sakura::DebugRenderer &debugRenderer);
+	void drawShips(Sakura::SpriteBatch& spriteBatch);
 private:
 	std::vector<std::vector<Ship*>> m_grid;
+	std::vector<std::unique_ptr<Ship>> m_ships;
 	glm::vec2 m_tileDims;
 	glm::vec2 m_gridPos;
 };

@@ -45,10 +45,33 @@ void Ship::init(Grid* grid, Sakura::ResourceManager &resourceManager, std::strin
 
 void Ship::update(float deltaTime, bool isTurn){
 	if (isTurn){
-		//TODO Implement Smooth Movement between turns
-		m_position = m_newPosition;
+		if (m_position != m_newPosition){
+			if (!m_parentGrid->getShip(m_newPosition)){
+				//TODO Implement Smooth Movement between turns
+				m_parentGrid->setTile(m_position, nullptr);
+				if (m_tileSpan.x > 1){
+					if (m_enemy){
+						m_parentGrid->setTile(glm::ivec2(m_position.x-1, m_position.y), nullptr);
+					}
+					else {
+						m_parentGrid->setTile(glm::ivec2(m_position.x+1, m_position.y), nullptr);
+					}
+				}
+				m_position = m_newPosition;
+				m_parentGrid->setTile(m_position, this);
+				if (m_tileSpan.x > 1){
+					if (m_enemy){
+						m_parentGrid->setTile(glm::ivec2(m_position.x - 1, m_position.y), this);
+					}
+					else {
+						m_parentGrid->setTile(glm::ivec2(m_position.x + 1, m_position.y), this);
+					}
+				}
+				m_hasMoved = true;
+			}
+		}
+		m_absolutePosition = m_parentGrid->getScreenPos(m_position);
 	}
-	m_absolutePosition = m_parentGrid->getScreenPos(m_position);
 }
 
 void Ship::draw(Sakura::SpriteBatch& spriteBatch){

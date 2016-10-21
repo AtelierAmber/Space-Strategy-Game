@@ -99,7 +99,6 @@ private:
 	MainGUI m_interface;
 
 	Grid m_grid;
-	std::vector<Ship> m_ships;
 	Ship* m_selectedShip = nullptr;
 
 	Sakura::Music m_mainMusic;

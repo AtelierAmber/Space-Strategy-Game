@@ -51,8 +51,15 @@ public:
 	void update(float deltaTime, bool isTurn);
 
 	void move(glm::ivec2 newPosition){ m_newPosition = newPosition; }
-	glm::ivec2 getPosition(){ return m_position; };
+	const glm::ivec2& getPosition(){ return m_position; };
+	const glm::ivec2& getTileSpan(){ return m_tileSpan; }
+	const bool& isEnemy(){ return m_enemy; }
 
+	const unsigned int& getID() const { return m_id; }
+	void setID(unsigned int ID) { m_id = ID; }
+
+	bool hasMoved(){ return m_hasMoved; }
+	void resetMove(){ m_hasMoved = false; }
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -63,6 +70,7 @@ protected:
 	float m_speed;
 
 	bool m_enemy = false;
+	bool m_hasMoved = false;
 
 	int m_shieldMax= 5;
 	int m_hullMax= 5;
@@ -73,6 +81,7 @@ protected:
 
 	std::string m_team = "Nuetral";
 	ShipType m_shipType;
+	unsigned int m_id;
 
 	Grid* m_parentGrid;
 	glm::ivec2 m_tileSpan;
