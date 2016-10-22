@@ -8,15 +8,15 @@
 //! Initialize texture
 //! Setup Functions
 
-Ship::Ship(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
-	init(fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, damageEffectStrength, damageEffect);
+Ship::Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
+	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, damageEffectStrength, damageEffect);
 }
 
 Ship::~Ship(){
 
 }
 
-void Ship::init(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
+void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
 	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + shipType;
 	glm::ivec2 tileDims = (shipType == CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
 	m_texture = resourceManager.getTileSheet(texturePath.c_str(), tileDims, MIPMAP | PIXELATED | EDGE_CLAMP);
@@ -40,36 +40,41 @@ void Ship::init(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::str
 		m_tileSpan = glm::vec2(2, 1);
 	}
 	else m_tileSpan = glm::vec2(1, 1);
+	m_bounds.initialize(grid->getScreenPos(position).x, grid->getScreenPos(position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
 }
 
-void Ship::update(float deltaTime, bool isTurn, Grid* grid){
-	m_absolutePosition = grid->getScreenPos(m_position);
+bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
 	if (isTurn){
 		if (m_position != m_newPosition){
+			glm::vec2 distToNew = glm::vec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
 			m_position = m_newPosition;
+			m_bounds.move(distToNew.x, distToNew.y);
 		}
 	}
+	//TODO
+	return true;
 }
 
-void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid){
+void Ship::draw(Sakura::SpriteBatch& spriteBatch){
 	glm::vec4 uvRect = m_texture.getUVs(0);
 	if (m_enemy){
 		uvRect = m_texture.getUVs(0);
 		uvRect.x += 1.0f / m_texture.dims.x;
 		uvRect.z *= -1;
-		if (m_tileSpan.x > 1){
-			m_absolutePosition.x -= grid->getTileDims().x;
-		}
 	}
-	float shipScale = std::min(grid->getTileDims().x / (m_texture.texture.width / m_texture.dims.x), grid->getTileDims().y / (m_texture.texture.height / m_texture.dims.y));
-	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
-	glm::vec4 destRect = glm::vec4(m_absolutePosition.x, m_absolutePosition.y + ((grid->getTileDims().y/2.0f) - (shipSize.y/2.0f)), shipSize.x, shipSize.y);
+	float shipScale = std::min(m_bounds.width / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / (m_texture.texture.height / m_texture.dims.y));
+	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale, (m_texture.texture.height / m_texture.dims.y) * shipScale);
+	glm::vec4 destRect = glm::vec4(m_bounds.x1, m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
 	//destRect = glm::vec4(m_absolutePosition, glm::vec2(m_hearts.texture.width, m_hearts.texture.height));
 // 	for (int i = 0; i < m_shield; ++i){
 // 		destRect.x -= ((m_hearts.texture.width / 3))*(i+1);
 // 		spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 // 	}
+}
+
+void Ship::drawDebug(Sakura::DebugRenderer& debugRenderer){
+	debugRenderer.drawBox(glm::vec4(m_bounds.x1, m_bounds.y2, m_bounds.width, m_bounds.height), Sakura::ColorRGBA8(255, 0, 0, 255), 0);
 }
 
 void Ship::Damage(int hullDamage, int shieldDamage, int effectStrength, DamageEffect statusEffect /*= NORMAL*/){

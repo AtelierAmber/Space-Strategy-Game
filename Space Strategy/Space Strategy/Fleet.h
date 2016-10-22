@@ -10,12 +10,20 @@ public:
 	Fleet();
 	~Fleet();
 	
-	int addShip(Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	int addShip(Grid* grid, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
 	int removeShip(unsigned int shipIndex);
 
-	const std::vector<std::shared_ptr<Ship>>& getShips(){ return m_ships; }
+	/* Return true when finished with concurrent updates */
+	bool update(float deltaTime, Grid* grid);
+
+	void draw(Sakura::SpriteBatch& spriteBatch);
+	void drawDebug(Sakura::DebugRenderer& debugRenderer);
+
+	const std::vector<std::shared_ptr<Ship>>& getShips() const{ return m_ships; }
+	Ship* shipAtPosition(glm::vec2 absPos);
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
+	bool m_isTurn = false;
 };
 

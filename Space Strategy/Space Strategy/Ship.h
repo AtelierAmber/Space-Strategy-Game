@@ -4,6 +4,7 @@
 #include <Sakura/Bounds.h>
 #include <Sakura/SpriteBatch.h>
 #include <Sakura/ResourceManager.h>
+#include <Sakura/DebugRenderer.h>
 
 enum DamageEffect{
 	NORMAL = 0x1, // Normal damage
@@ -29,19 +30,20 @@ typedef std::string ShipType;
 #define INTERCEPTOR "interceptor.png"
 
 class Fleet;
-class Grid;
+struct Grid;
 
 class Ship
 {
 public:
-	Ship(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
 	Ship() { /* Empty */ }
 
 	virtual ~Ship();
 
-	virtual void init(Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	virtual void init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
 	
-	virtual void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid);
+	virtual void draw(Sakura::SpriteBatch& spriteBatch);
+	virtual void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
 	void Damage(int hullDamage, int shieldDamage, int effectStrength, DamageEffect statusEffect = NORMAL);
 
@@ -49,7 +51,8 @@ public:
 
 	void damageOther(glm::ivec2 damagePosition);
 
-	void update(float deltaTime, bool isTurn, Grid* grid);
+	/* Return true when finished with concurrent updates */
+	bool update(float deltaTime, bool isTurn, Grid* grid);
 
 	void move(glm::ivec2 newPosition){ m_newPosition = newPosition; }
 	const glm::ivec2& getPosition(){ return m_position; };
@@ -58,6 +61,9 @@ public:
 
 	unsigned int getID() const { return m_id; }
 	void setID(unsigned int val) { m_id = val; }
+
+	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
+	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -83,9 +89,8 @@ protected:
 	Fleet* m_fleet;
 	glm::ivec2 m_tileSpan;
 	glm::ivec2 m_position;
-	glm::vec2 m_absolutePosition = glm::vec2();
 	glm::ivec2 m_newPosition;
-	Sakura::Rect m_selectRect;
+	Sakura::Rect m_bounds;
 	Sakura::TileSheet m_texture;
 	Sakura::TileSheet m_hearts;
 };

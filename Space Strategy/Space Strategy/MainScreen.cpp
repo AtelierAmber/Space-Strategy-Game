@@ -131,8 +131,8 @@ void MainScreen::onEntry(){
 	m_interface.initButtons(m_window);
 	m_grid.init(glm::ivec2(21, 14), glm::ivec2(5, 5), m_window);
 	//HACK
-	m_fleet.addShip(m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
-	m_fleet.addShip(m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
@@ -151,7 +151,7 @@ void MainScreen::update(float deltaTime){
 	glm::vec2 mouseCoords = m_camera.convertScreenToWorld(m_game->inputManager.getMouseCoords());
 	/* Update game objects */
 
-	m_grid.update(deltaTime, true);
+	m_fleet.update(deltaTime, &m_grid);
 
 	m_camera.update();
 	m_interface.update(m_game->inputManager);
@@ -169,7 +169,7 @@ void MainScreen::draw(){
 
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255,255,255,255));
 
-	m_grid.drawShips(m_spriteBatch);
+	m_fleet.draw(m_spriteBatch);
 
 	//x m_userFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(0.0f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
 	//x m_enemyFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(m_window->getScreenWidth() - m_enemyFont.getFontHeight() * 25 * .2f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
@@ -179,6 +179,7 @@ void MainScreen::draw(){
 		drawDebugElements();
 		m_grid.drawDebug(m_debugRenderer);
 	}
+	m_fleet.drawDebug(m_debugRenderer);
 	if (m_selectedShip){
 		m_debugRenderer.drawBox(glm::vec4(m_grid.getScreenPos(m_selectedShip->getPosition()), m_grid.getTileDims() * (glm::vec2)m_selectedShip->getTileSpan()), Sakura::ColorRGBA8(255, 0, 255, 255), 0);
 	}
@@ -189,7 +190,7 @@ void MainScreen::drawDebugElements(){
 	std::string fps = "FPS: " + std::to_string(m_game->getFps());
 	m_debugFont.draw(m_spriteBatch, fps.c_str(), glm::vec2(0.0f, m_window->getScreenHeight() - (float)m_debugFont.getFontHeight()*0.2f), glm::vec2(0.2f), ALWAYS_ON_TOP + 500.0f, Sakura::ColorRGBA8(255,255,255,255), Sakura::Justification::LEFT);
 	if (show_boxes){
-
+		
 	}
 }
 
@@ -211,7 +212,7 @@ void MainScreen::checkInput() {
 	}
 
 	if (m_game->inputManager.isKeyPressed(KeyID::F1)){
-		
+		show_boxes = true;
 	}
 
 	/* Reset Screen */
@@ -227,12 +228,12 @@ void MainScreen::checkInput() {
 	//Mouse
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		m_grid.addShip(m_resourceManager, "Gray", ASSUALT_CARRIER, m_grid.getGridPos(mouseCoords), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+		m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, m_grid.getGridPos(mouseCoords), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
 	}
 
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		Ship* selectedShip = m_grid.getShip(m_grid.getGridPos(mouseCoords));
+		Ship* selectedShip = m_fleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
 			m_selectedShip = selectedShip;
 		}else if (m_selectedShip){
@@ -246,9 +247,9 @@ void MainScreen::checkInput() {
 	}
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_RIGHT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		Ship* selectedShip = m_grid.getShip(m_grid.getGridPos(mouseCoords));
+		Ship* selectedShip = m_fleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
-			m_grid.destroyShip(selectedShip->getID());
+			m_fleet.removeShip(selectedShip->getID());
 		}
 	}
 }
