@@ -2,12 +2,6 @@
 #include "Grid.h"
 #include <algorithm>
 
-//   TODO
-//! Incorporate grid positioning
-//! Initialize collision grid
-//! Initialize texture
-//! Setup Functions
-
 Ship::Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
 	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, damageEffectStrength, damageEffect);
 }
@@ -62,8 +56,8 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch){
 		uvRect.x += 1.0f / m_texture.dims.x;
 		uvRect.z *= -1;
 	}
-	float shipScale = std::min(m_bounds.width / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / (m_texture.texture.height / m_texture.dims.y));
-	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale, (m_texture.texture.height / m_texture.dims.y) * shipScale);
+	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
+	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1, m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
 	//destRect = glm::vec4(m_absolutePosition, glm::vec2(m_hearts.texture.width, m_hearts.texture.height));

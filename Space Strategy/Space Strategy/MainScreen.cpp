@@ -133,6 +133,7 @@ void MainScreen::onEntry(){
 	//HACK
 	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
 	m_fleet.addShip(&m_grid, m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", INTERCEPTOR, glm::ivec2(10, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
