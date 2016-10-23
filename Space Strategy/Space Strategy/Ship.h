@@ -16,18 +16,18 @@ enum DamageEffect{
 	REPAIR = 0x80, // FRIENDLY: Periodically repair the hull
 };
 
-typedef std::string ShipType;
-
-#define ASSUALT_CARRIER "assault_carrier.png"
-#define BATTLESHIP "battleship.png"
-#define CARRIER "carrier.png"
-#define CORVETTE "corvette.png"
-#define CRUISER "cruiser.png"
-#define CUTTER "cutter.png"
-#define DESTROYER "destoyer.png"
-#define FIGHTER "fighter.png"
-#define FRIGATE "frigate.png"
-#define INTERCEPTOR "interceptor.png"
+enum class ShipType{
+	ASSAULT_CARRIER = 0,
+	INTERCEPTOR = 1,
+	FIGHTER = 2,
+	DESTROYER = 3,
+	CUTTER = 4,
+	CRUISER = 5,
+	CORVETTE = 6,
+	CARRIER = 7,
+	BATTLESHIP = 8,
+	CARGO_SHIP = 9
+};
 
 class Fleet;
 struct Grid;
@@ -61,6 +61,8 @@ public:
 
 	unsigned int getID() const { return m_id; }
 	void setID(unsigned int val) { m_id = val; }
+
+	const std::string getShipName(ShipType shipType) const;
 
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
 	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }

@@ -11,8 +11,9 @@ Ship::~Ship(){
 }
 
 void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
-	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + shipType;
-	glm::ivec2 tileDims = (shipType == CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
+	
+	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + getShipName(shipType) + ".png";
+	glm::ivec2 tileDims = (shipType == ShipType::CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
 	m_texture = resourceManager.getTileSheet(texturePath.c_str(), tileDims, MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_hearts = resourceManager.getTileSheet("Assets/Sprites/UI/ship_health.png", glm::ivec2(3,1), MIPMAP | PIXELATED | EDGE_CLAMP);
 	//HACK Temporary heart display. Display hearts in fleet informational window
@@ -22,6 +23,9 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_speed = speed;
 	m_shipType = shipType;
 	m_position = position;
+	if (enemy){
+		--m_position.x;
+	}
 	m_newPosition = position;
 	m_enemy = enemy;
 	m_shieldMax= shield;
@@ -32,11 +36,11 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_hullDamage = hullDamage;
 	m_damageEffectStrength = damageEffectStrength;
 	m_damageEffect = damageEffect;
-	if (shipType == DESTROYER || shipType == ASSUALT_CARRIER || shipType == CARRIER || shipType == BATTLESHIP || shipType == CRUISER){
+	if (shipType == ShipType::DESTROYER || shipType == ShipType::ASSAULT_CARRIER || shipType == ShipType::CARRIER || shipType == ShipType::BATTLESHIP || shipType == ShipType::CRUISER){
 		m_tileSpan = glm::vec2(2, 1);
 	}
 	else m_tileSpan = glm::vec2(1, 1);
-	m_bounds.initialize(grid->getScreenPos(position).x, grid->getScreenPos(position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
+	m_bounds.initialize(grid->getScreenPos(m_position).x, grid->getScreenPos(m_position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
 }
 
 bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
@@ -50,6 +54,45 @@ bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
 	}
 	//TODO
 	return true;
+}
+
+const std::string Ship::getShipName(ShipType shipType) const{
+	switch (shipType)
+	{
+	case ShipType::ASSAULT_CARRIER:
+		return "assault_carrier";
+		break;
+	case ShipType::BATTLESHIP:
+		return "battleship";
+		break;
+	case ShipType::CARGO_SHIP:
+		return "frigate";
+		break;
+	case ShipType::CARRIER:
+		return "carrier";
+		break;
+	case ShipType::CORVETTE:
+		return "corvette";
+		break;
+	case ShipType::CRUISER:
+		return "crusier";
+		break;
+	case ShipType::CUTTER:
+		return "cutter";
+		break;
+	case ShipType::DESTROYER:
+		return "destroyer";
+		break;
+	case ShipType::FIGHTER:
+		return "fighter";
+		break;
+	case ShipType::INTERCEPTOR:
+		return "interceptor";
+		break;
+	default:
+		return "";
+		break;
+	}
 }
 
 #define heart_spacing 2

@@ -58,6 +58,7 @@ void MainGUI::IDraw(float fps){
 
 void MainGUI::initComponents(){
 	m_GUISpritefont.initTTF("Assets/Fonts/destructobeambb_reg.ttf", 48, MIPMAP | LINEAR | TRANS_BORDER);
+	m_shipIcons = m_resourceManager->getTileSheet("Assets/Sprites/Ships/ship_icons.png", glm::ivec2(5, 2), MIPMAP | PIXELATED | EDGE_CLAMP);
 }
 
 #define BUTTON_SCALE 2.0f
@@ -131,9 +132,9 @@ void MainScreen::onEntry(){
 	m_interface.initButtons(m_window);
 	m_grid.init(glm::ivec2(27, 27), glm::ivec2(), m_window);
 	//HACK
-	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
-	m_fleet.addShip(&m_grid, m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
-	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", FIGHTER, glm::ivec2(10, 7), true, 5.0f, 3, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::BATTLESHIP, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Red", ShipType::ASSAULT_CARRIER, glm::ivec2(26, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::FIGHTER, glm::ivec2(10, 7), true, 5.0f, 3, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
@@ -232,7 +233,7 @@ void MainScreen::checkInput() {
 	//Mouse
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, m_grid.getGridPos(mouseCoords), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+		m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::ASSAULT_CARRIER, m_grid.getGridPos(mouseCoords), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
 	}
 
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){

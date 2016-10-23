@@ -49,6 +49,7 @@ private:
 
 	/* Fleet Managment */
 	Sakura::GUIButton m_warshipsButton;
+	Sakura::TileSheet m_shipIcons;
 
 	Sakura::Window* m_parentWindow;
 	GUIState state = GAMEPLAY;
