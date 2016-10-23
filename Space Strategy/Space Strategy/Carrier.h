@@ -4,7 +4,10 @@ class Carrier :
 	public Ship
 {
 public:
-	Carrier();
+	Carrier(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team,
+		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy);
 	~Carrier();
+
+	int createCutter(glm::ivec2 position, Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager& resourceManager);
 };
 

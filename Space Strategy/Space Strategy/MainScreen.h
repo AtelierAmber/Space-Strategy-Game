@@ -100,7 +100,7 @@ public:
 private:
 	//HACK DEBUG ELEMENTS | REMOVE BEFORE RELEASE
 	bool debug_game_events = false;
-	bool show_boxes = true;
+	bool show_boxes = false;
 	Sakura::SpriteFont m_debugFont;
 	Sakura::Rect m_debugRects[1];
 	//////////////////////////////////////////////////////////////////////////

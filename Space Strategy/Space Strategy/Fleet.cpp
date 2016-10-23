@@ -1,6 +1,13 @@
 #include "Fleet.h"
 #include "Grid.h"
 
+/* Unique Ships */
+#include "AssaultCarrier.h"
+#include "Carrier.h"
+#include "Corvette.h"
+#include "Cutter.h"
+#include "Interceptor.h"
+
 Fleet::Fleet(){ /* Empty */}
 
 Fleet::~Fleet(){
@@ -12,7 +19,7 @@ void Fleet::init(bool isEnemy, std::string fleetColor){
 	m_fleetColor = fleetColor;
 }
 
-int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::ivec2 position /* Position on GRID */){
+int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP){
 	if (position.x > grid->getDims().x - 1 || position.y > grid->getDims().y - 1 || position.x < 0 || position.y < 0){
 		return -1;
 	}
@@ -20,7 +27,7 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 		return -1;
 	}
 	/* Ship Base Stats (speed, shield, hull, shield damage, hull damage, range, damage effect(strength, chance), cost)
-	 * Cutter: low shield, low health, very fast, travels in groups, can evade attacks with a 1/groupSize % chance
+	 * Cutter: low shield, low health, very fast, travels in groups, attacks on have a 1/groupSize % chance to hit
 	 * -> 10, 2, 2, 1, 1, 1, Normal, 1CP
 	 * Fighter: low shield, average health, very fast
 	 * -> 8, 3, 5, 1, 1, 2, Normal, 2CP
@@ -29,7 +36,7 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 	 * Bomber: average shield, high health, slow, long range high damage attacks, can set fire to ships
 	 * -> 2, 5, 2, 1, 1, 10, Fire(5, 15%), 10CP
 	 * Corvette: average shield, average health, can boost other ships, damage enemy shields
-	 * -> 5, 5, 7, 5, null, 5, SuperCharge(125%, 100%) | DamageBoost(125%, 100%) | Repair(2, 100%), 12CP
+	 * -> 5, 5, 7, 5, 0, 5, SuperCharge(125%, 100%) | DamageBoost(125%, 100%) | Repair(2, 100%), 12CP
 	 * Cruiser: average shield, average health, average ship
 	 * -> 5, 7, 7, 3, 3, 3, Normal, 12CP
 	 * Carrier: average shield, average health, can deploy cutter units with no cost to CP, and disable enemy systems
@@ -44,37 +51,35 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 	switch (shipType)
 	{
 	case ShipType::CUTTER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 10.0f, 2, 2, 1, 1, 1, 1, 0, 0.0f, NORMAL));
+		//! TODO IMPLEMENT SEPERATE SHIP CLASSES
+		m_ships.emplace_back(new Cutter(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, costsCP));
 		break;
 	case ShipType::FIGHTER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 8, 3, 5, 1, 1, 2, 2, 0, 0.0f, NORMAL));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 8, 3, 5, 1, 1, 2, 2 * (int)costsCP, DamageEffect()));
 		break;
 	case ShipType::INTERCEPTOR:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 10, 5, 2, 1, 0, 3, 5, 2, 0.05f, POWERSHORTAGE));
+		m_ships.emplace_back(new Interceptor(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, additionalData != 0));
 		break;
 	case ShipType::BOMBER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 2, 5, 2, 1, 1, 10, 10, 5, 0.15f, FIRE));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 2, 5, 2, 1, 1, 10, 10 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::CORVETTE:
-		//! TODO IMPLEMENT SEPERATE SHIP CLASSES
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 5, 5, 7, 5, 0, 5, 12, 0, 0.0f, NORMAL));
+		m_ships.emplace_back(new Corvette(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet));
 		break;
 	case ShipType::CRUISER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 5, 7, 7, 3, 3, 3, 12, 0, 0.0f, NORMAL));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 5, 7, 7, 3, 3, 3, 12 * (int)costsCP, DamageEffect()));
 		break;
 	case ShipType::CARRIER:
-		//! TODO IMPLEMENT SEPERATE SHIP CLASSES
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 5, 7, 7, 0, 0, 2, 15, 2, 0.25f, EMP));
+		m_ships.emplace_back(new Carrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet));
 		break;
 	case ShipType::DESTROYER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 10, 10, 2, 7, 3, 20, 5, 0.15f, FIRE));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 10, 10, 2, 7, 3, 20 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::ASSAULT_CARRIER:
-		//! TODO IMPLEMENT SEPERATE SHIP CLASSES
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 15, 7, 3, 3, 3, 20, 0, 0.0f, NORMAL));
+		m_ships.emplace_back(new AssaultCarrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet));
 		break;
 	case ShipType::BATTLESHIP:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 15, 15, 7, 7, 3, 5, 0.25f, FIRE));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 15, 15, 7, 7, 3, 40 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.25f, 5)));
 		break;
 	default:
 		return -2;
@@ -93,8 +98,10 @@ int Fleet::removeShip(unsigned int shipIndex){
 }
 
 bool Fleet::update(float deltaTime, Grid* grid){
-	for (auto& ship : m_ships){
-		ship->update(deltaTime, m_isTurn, grid);
+	if (m_isTurn){
+		for (auto& ship : m_ships){
+			ship->update(deltaTime, grid);
+		}
 	}
 	return true;
 }

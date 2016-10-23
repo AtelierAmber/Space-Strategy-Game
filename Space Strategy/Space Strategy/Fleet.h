@@ -13,7 +13,7 @@ public:
 
 	void init(bool isEnemy, std::string fleetColor);
 	
-	int addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::ivec2 position /* Position on GRID */);
+	int addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP = true);
 	int removeShip(unsigned int shipIndex);
 
 	/* Return true when finished with concurrent updates */

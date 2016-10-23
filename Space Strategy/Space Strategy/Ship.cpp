@@ -1,13 +1,14 @@
 #include "Ship.h"
 #include "Grid.h"
+#include "Fleet.h"
 #include <algorithm>
+
+#define PI 3.141592
 
 Ship::Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, 
-	int shield, int hull, int shieldDamage, int hullDamage, int range, CP CPcost, int damageEffectStrength, 
-	float damageEffectChance, DamageEffect damageEffect /*= NORMAL*/){
-
-	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, range, CPcost, damageEffectStrength, damageEffectChance, damageEffect);
+	int shield, int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect){
+	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, range, CPcost, damageEffect);
 }
 
 Ship::~Ship(){
@@ -16,7 +17,7 @@ Ship::~Ship(){
 
 void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, 
-	int hull, int shieldDamage, int hullDamage, int range, CP CPcost, int damageEffectStrength, float damageEffectChance, DamageEffect damageEffect /*= NORMAL*/){
+	int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect){
 
 	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + getShipName(shipType) + ".png";
 	glm::ivec2 tileDims = (shipType == ShipType::CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
@@ -42,8 +43,6 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_hullDamage = hullDamage;
 	m_range = range;
 	m_CPcost = CPcost;
-	m_damageEffectStrength = damageEffectStrength;
-	m_damageEffectChance = damageEffectChance;
 	m_damageEffect = damageEffect;
 	if (shipType == ShipType::DESTROYER || shipType == ShipType::ASSAULT_CARRIER || shipType == ShipType::CARRIER || shipType == ShipType::BATTLESHIP || shipType == ShipType::CRUISER){
 		m_tileSpan = glm::vec2(2, 1);
@@ -52,17 +51,112 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_bounds.initialize(grid->getScreenPos(m_position).x, grid->getScreenPos(m_position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
 }
 
-bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
-	if (isTurn){
-		if (m_position != m_newPosition){
-			glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
-			m_position = m_newPosition;
-			distToNew = grid->getScreenPos(distToNew);
-			m_bounds.move(-distToNew.x, -distToNew.y);
-		}
+void Ship::destroy(){
+	m_fleet->removeShip(this->m_id);
+}
+
+bool Ship::update(float deltaTime, Grid* grid){
+	if (!m_hasUpdatedOnce){
+		calculateFriendlyEffects();
+		calculateBadEffects();
+		m_hasUpdatedOnce = true;
+	}
+	if (m_position != m_newPosition){
+		glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
+		m_position = m_newPosition;
+		distToNew = grid->getScreenPos(distToNew);
+		m_bounds.move(-distToNew.x, -distToNew.y);
 	}
 	//TODO
 	return true;
+}
+
+void Ship::endTurn(){
+	m_hasUpdatedOnce = false;
+}
+
+void Ship::calculateFriendlyEffects(){
+	for (std::size_t i = 0; i < m_appliedEffects.size(); ++i){
+		switch (m_appliedEffects[i].effect){
+		case SUPERCHARGE:
+			if (m_appliedEffects[i].duration > 0){
+				m_shield = (int)std::round((float)m_shield * m_appliedEffects[i].strength);
+				--m_appliedEffects[i].duration;
+			}
+			else {
+				m_shield = (int)std::round((float)m_shield / m_appliedEffects[i].strength);
+				m_appliedEffects.erase(m_appliedEffects.begin() + i);
+				--i;
+			}
+			break;
+		case DAMAGEBOOST:
+			if(m_appliedEffects[i].duration > 0){
+				m_shieldDamage = (int)std::round((float)m_shieldDamage * m_appliedEffects[i].strength);
+				m_hullDamage = (int)std::round((float)m_hullDamage * m_appliedEffects[i].strength);
+				--m_appliedEffects[i].duration;
+			}
+			else {
+				m_shieldDamage = (int)std::round((float)m_shieldDamage / m_appliedEffects[i].strength);
+				m_hullDamage = (int)std::round((float)m_hullDamage / m_appliedEffects[i].strength);
+				m_appliedEffects.erase(m_appliedEffects.begin() + i);
+				--i;
+			}
+			break;
+		case REPAIR:
+			if (m_appliedEffects[i].duration > 0){
+				m_hull += (int)m_appliedEffects[i].strength;
+				--m_appliedEffects[i].duration;
+			}
+			else {
+				m_appliedEffects.erase(m_appliedEffects.begin() + i);
+				--i;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void Ship::calculateBadEffects(){
+	for (std::size_t i = 0; i < m_appliedEffects.size(); ++i){
+		switch (m_appliedEffects[i].effect){
+		case FIRE:
+			if (m_appliedEffects[i].duration > 0){
+				m_hull -= (int)m_appliedEffects[i].strength;
+				--m_appliedEffects[i].duration;
+			}
+			else {
+				m_appliedEffects.erase(m_appliedEffects.begin() + i);
+				--i;
+			}
+			break;
+		case EMP:
+			if (m_appliedEffects[i].duration > 0){
+				m_canAttack = false;
+				--m_appliedEffects[i].duration;
+			}
+			else {
+				m_canAttack = true;
+				m_appliedEffects.erase(m_appliedEffects.begin() + i);
+				--i;
+			}
+			break;
+		case POWERSHORTAGE:
+			if (m_appliedEffects[i].duration > 0){
+				m_shield = 0;
+				--m_appliedEffects[i].duration;
+			}
+			else {
+				m_shield = m_shieldMax;
+				m_appliedEffects.erase(m_appliedEffects.begin() + i);
+				--i;
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 const std::string Ship::getShipName(ShipType shipType){
@@ -115,6 +209,14 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
 	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1, m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
+	if (m_isSelected){
+		float scaler = 4 * std::abs(std::sin(m_selectedSin));
+		destRect.x -= scaler/2;
+		destRect.y -= scaler/2;
+		destRect.z += scaler;
+		destRect.w += scaler;
+		m_selectedSin += 0.05f;
+	}
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
 	if (hover){
 		destRect = glm::vec4(m_bounds.x1, m_bounds.y1 + 5, m_hearts.texture.width / 3, m_hearts.texture.height);
@@ -132,21 +234,35 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 	}
-	
 }
 
 void Ship::drawDebug(Sakura::DebugRenderer& debugRenderer){
 	debugRenderer.drawBox(glm::vec4(m_bounds.x1, m_bounds.y2, m_bounds.width, m_bounds.height), Sakura::ColorRGBA8(255, 0, 0, 255), 0);
 }
 
-void Ship::Damage(int hullDamage, int shieldDamage, int effectStrength, DamageEffect statusEffect /*= NORMAL*/){
-
+void Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*= NORMAL*/){
+	if (statusEffect.effect != FIRE){
+		ApplyEffect(statusEffect);
+	}
+	m_shield -= shieldDamage;
+	if (m_shield <= 0){
+		m_shield = 0;
+		m_hull -= hullDamage;
+		if (m_hull <= 0){
+			destroy();
+		}
+		if (statusEffect.effect == FIRE){
+			ApplyEffect(statusEffect);
+		}
+	}
 }
 
-void Ship::ApplyEffect(DamageEffect statusEffect, int effectStrength){
-
+void Ship::ApplyEffect(DamageEffect statusEffect){
+	if (statusEffect.effect != NORMAL){
+		m_appliedEffects.push_back(statusEffect);
+	}
 }
 
-void Ship::damageOther(glm::ivec2 damagePosition){
+void Ship::damageOther(Ship* otherShip, bool shieldDamage){
 
 }
