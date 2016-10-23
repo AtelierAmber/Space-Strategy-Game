@@ -41,8 +41,9 @@ void MainGUI::IDraw(float fps){
 	switch (state){
 	case GAMEPLAY:
 		for (int i = 0; i < 10; ++i){
-			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y1, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), m_shipIconTextures.getUVs(i + (int)m_shipIcons[i].unlocked), m_shipIconTextures.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
-			m_GUISpritefont.draw(m_GUISpritebatch, m_shipIcons[i].name.c_str(), glm::vec2(m_shipIcons[i].rect.x1 + m_shipIcons[i].rect.width / 2, m_shipIcons[i].rect.y1), glm::vec2(.25f), ALWAYS_ON_TOP + 1.0f, Sakura::ColorRGBA8(0, 0, 0, 255), Sakura::Justification::MIDDLE);
+			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y2, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), m_shipIconTextures.getUVs(i + (10*(int)!m_shipIcons[0].unlocked)), m_shipIconTextures.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			m_debugRenderer.drawBox(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y2, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), Sakura::ColorRGBA8(0,255,0,255), 0);
+			//m_GUISpritefont.draw(m_GUISpritebatch, m_shipIcons[i].name.c_str(), glm::vec2(m_shipIcons[i].rect.x1 + m_shipIcons[i].rect.width / 2, m_shipIcons[i].rect.y1), glm::vec2(.25f), ALWAYS_ON_TOP + 1.0f, Sakura::ColorRGBA8(0, 0, 0, 255), Sakura::Justification::MIDDLE);
 		}
 		break;
 	case MENU:
@@ -62,13 +63,13 @@ void MainGUI::IDraw(float fps){
 void MainGUI::initComponents(){
 	m_debugRenderer.init();
 	m_GUISpritefont.initTTF("Assets/Fonts/destructobeambb_reg.ttf", 48, MIPMAP | LINEAR | TRANS_BORDER);
-	m_shipIconTextures = m_resourceManager->getTileSheet("Assets/Sprites/Ships/ship_icons.png", glm::ivec2(10, 2), MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_shipIconTextures = m_resourceManager->getTileSheet("Assets/Sprites/UI/ship_icons.png", glm::ivec2(10, 2), MIPMAP | PIXELATED | EDGE_CLAMP);
 }
 
 void MainGUI::initShipIcons(Sakura::Window* window){
 	for (int i = 0; i < 10; ++i){
-#define icon_scale 2.0f
-		m_shipIcons[i].rect.initialize(i * 40.0f * icon_scale, window->getScreenHeight() - 50.0f * icon_scale - (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale,
+#define icon_scale 1.5f
+		m_shipIcons[i].rect.initialize(i * 48.0f * icon_scale, window->getScreenHeight() - (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale,
 			(float)m_shipIconTextures.texture.width / (float)m_shipIconTextures.dims.x * icon_scale, (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale, true);
 		m_shipIcons[i].shipType = (ShipType)i;
 		m_shipIcons[i].name = Ship::getShipName(m_shipIcons[i].shipType);
@@ -169,7 +170,20 @@ void MainScreen::update(float deltaTime){
 	glm::vec2 mouseCoords = m_camera.convertScreenToWorld(m_game->inputManager.getMouseCoords());
 	/* Update game objects */
 
-	m_fleet.update(deltaTime, &m_grid);
+	switch (m_interface.getState()){
+	case GAMEPLAY:
+		m_fleet.update(deltaTime, &m_grid);
+		break;
+	case MENU:
+	case OPTIONSmain:
+
+		break;
+	case FLEET:
+
+		break;
+	default:
+		break;
+	}
 
 	m_camera.update();
 	m_interface.update(m_game->inputManager);

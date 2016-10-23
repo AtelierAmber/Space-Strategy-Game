@@ -18,16 +18,16 @@ enum DamageEffect{
 
 enum class ShipType{
 	NOSHIP = -1,
-	ASSAULT_CARRIER = 0,
-	INTERCEPTOR = 1,
-	FIGHTER = 2,
-	DESTROYER = 3,
-	CUTTER = 4,
+	CUTTER = 0,
+	FIGHTER = 1,
+	INTERCEPTOR = 2,
+	BOMBER = 3,
+	CORVETTE = 4,
 	CRUISER = 5,
-	CORVETTE = 6,
+	DESTROYER = 6,
 	CARRIER = 7,
-	BATTLESHIP = 8,
-	CARGO_SHIP = 9
+	ASSAULT_CARRIER = 8,
+	BATTLESHIP = 9
 };
 
 class Fleet;

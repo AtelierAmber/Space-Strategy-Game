@@ -26,7 +26,7 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	if (enemy){
 		--m_position.x;
 	}
-	m_newPosition = position;
+	m_newPosition = m_position;
 	m_enemy = enemy;
 	m_shieldMax= shield;
 	m_shield = shield;
@@ -59,17 +59,17 @@ bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
 const std::string Ship::getShipName(ShipType shipType){
 	switch (shipType)
 	{
-	case ShipType::ASSAULT_CARRIER:
-		return "assault_carrier";
+	case ShipType::CUTTER:
+		return "cutter";
 		break;
-	case ShipType::BATTLESHIP:
-		return "battleship";
+	case ShipType::FIGHTER:
+		return "fighter";
 		break;
-	case ShipType::CARGO_SHIP:
+	case ShipType::INTERCEPTOR:
+		return "interceptor";
+		break;
+	case ShipType::BOMBER:
 		return "frigate";
-		break;
-	case ShipType::CARRIER:
-		return "carrier";
 		break;
 	case ShipType::CORVETTE:
 		return "corvette";
@@ -77,17 +77,17 @@ const std::string Ship::getShipName(ShipType shipType){
 	case ShipType::CRUISER:
 		return "crusier";
 		break;
-	case ShipType::CUTTER:
-		return "cutter";
+	case ShipType::CARRIER:
+		return "carrier";
 		break;
 	case ShipType::DESTROYER:
 		return "destroyer";
 		break;
-	case ShipType::FIGHTER:
-		return "fighter";
+	case ShipType::ASSAULT_CARRIER:
+		return "assault_carrier";
 		break;
-	case ShipType::INTERCEPTOR:
-		return "interceptor";
+	case ShipType::BATTLESHIP:
+		return "battleship";
 		break;
 	default:
 		return "";
