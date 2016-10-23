@@ -100,6 +100,7 @@ public:
 	const CP getCost(){ return m_CPcost; }
 
 	void setSelected(bool selected){ m_isSelected = selected; }
+	bool isSelected(){ return m_isSelected; }
 
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
 	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }

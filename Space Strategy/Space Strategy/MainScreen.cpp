@@ -308,14 +308,15 @@ void MainScreen::checkInput() {
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
-			if (m_selectedShip){
-				m_selectedShip->setSelected(false);
+			if (m_playerFleet.getSelectedShip()){
+				m_playerFleet.getSelectedShip()->setSelected(false);
 			}
-			m_selectedShip = selectedShip;
-			m_selectedShip->setSelected(true);
-		}else if (m_selectedShip){
+			m_playerFleet.setSelectedShip(selectedShip);
+			m_playerFleet.getSelectedShip()->setSelected(true);
+		}
+		else if (m_playerFleet.getSelectedShip()){
 			if (!m_enemyFleet.shipAtPosition(mouseCoords)){
-				m_selectedShip->move(m_grid.getGridPos(mouseCoords));
+				m_playerFleet.getSelectedShip()->move(m_grid.getGridPos(mouseCoords));
 			}
 		}
 		if (debug_game_events){

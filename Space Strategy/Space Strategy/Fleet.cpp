@@ -90,7 +90,8 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 }
 
 int Fleet::removeShip(unsigned int shipIndex){
-	if (shipIndex > m_ships.size()){
+	if (shipIndex < m_ships.size()){
+		m_selectedShip = nullptr;
 		m_ships.erase(m_ships.begin() + shipIndex);
 		return 0;
 	}
