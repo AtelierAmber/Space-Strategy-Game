@@ -2,16 +2,22 @@
 #include "Grid.h"
 #include <algorithm>
 
-Ship::Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
-	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, damageEffectStrength, damageEffect);
+Ship::Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
+	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, 
+	int shield, int hull, int shieldDamage, int hullDamage, int range, CP CPcost, int damageEffectStrength, 
+	float damageEffectChance, DamageEffect damageEffect /*= NORMAL*/){
+
+	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, range, CPcost, damageEffectStrength, damageEffectChance, damageEffect);
 }
 
 Ship::~Ship(){
 
 }
 
-void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect /*= NORMAL*/){
-	
+void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
+	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, 
+	int hull, int shieldDamage, int hullDamage, int range, CP CPcost, int damageEffectStrength, float damageEffectChance, DamageEffect damageEffect /*= NORMAL*/){
+
 	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + getShipName(shipType) + ".png";
 	glm::ivec2 tileDims = (shipType == ShipType::CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
 	m_texture = resourceManager.getTileSheet(texturePath.c_str(), tileDims, MIPMAP | PIXELATED | EDGE_CLAMP);
@@ -34,7 +40,10 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_hull = hull;
 	m_shieldDamage = shieldDamage;
 	m_hullDamage = hullDamage;
+	m_range = range;
+	m_CPcost = CPcost;
 	m_damageEffectStrength = damageEffectStrength;
+	m_damageEffectChance = damageEffectChance;
 	m_damageEffect = damageEffect;
 	if (shipType == ShipType::DESTROYER || shipType == ShipType::ASSAULT_CARRIER || shipType == ShipType::CARRIER || shipType == ShipType::BATTLESHIP || shipType == ShipType::CRUISER){
 		m_tileSpan = glm::vec2(2, 1);
@@ -69,13 +78,13 @@ const std::string Ship::getShipName(ShipType shipType){
 		return "interceptor";
 		break;
 	case ShipType::BOMBER:
-		return "frigate";
+		return "bomber";
 		break;
 	case ShipType::CORVETTE:
 		return "corvette";
 		break;
 	case ShipType::CRUISER:
-		return "crusier";
+		return "cruiser";
 		break;
 	case ShipType::CARRIER:
 		return "carrier";
@@ -90,7 +99,7 @@ const std::string Ship::getShipName(ShipType shipType){
 		return "battleship";
 		break;
 	default:
-		return "";
+		return "null_ship";
 		break;
 	}
 }

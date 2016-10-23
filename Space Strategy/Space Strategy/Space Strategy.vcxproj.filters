@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Ships">
+      <UniqueIdentifier>{2ab8103e-8ad4-4d6d-86fd-28a3fd67d7e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Ships">
+      <UniqueIdentifier>{67be727d-aae1-40f6-862d-787a0376507f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,6 +36,21 @@
     <ClCompile Include="Fleet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Interceptor.cpp">
+      <Filter>Source Files\Ships</Filter>
+    </ClCompile>
+    <ClCompile Include="AssaultCarrier.cpp">
+      <Filter>Source Files\Ships</Filter>
+    </ClCompile>
+    <ClCompile Include="Carrier.cpp">
+      <Filter>Source Files\Ships</Filter>
+    </ClCompile>
+    <ClCompile Include="Corvette.cpp">
+      <Filter>Source Files\Ships</Filter>
+    </ClCompile>
+    <ClCompile Include="Cutter.cpp">
+      <Filter>Source Files\Ships</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseGame.h">
@@ -46,6 +67,21 @@
     </ClInclude>
     <ClInclude Include="Fleet.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cutter.h">
+      <Filter>Header Files\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="Corvette.h">
+      <Filter>Header Files\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="Carrier.h">
+      <Filter>Header Files\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="Interceptor.h">
+      <Filter>Header Files\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="AssaultCarrier.h">
+      <Filter>Header Files\Ships</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

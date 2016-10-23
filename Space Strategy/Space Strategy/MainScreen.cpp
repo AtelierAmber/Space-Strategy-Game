@@ -147,10 +147,9 @@ void MainScreen::onEntry(){
 	m_interface.initButtons(m_window);
 	m_interface.initShipIcons(m_window);
 	m_grid.init(glm::ivec2(27, 27), glm::ivec2(), m_window);
+	m_playerFleet.init(false, "Gray");
+	m_enemyFleet.init(true, "Red");
 	//HACK
-	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::BATTLESHIP, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
-	m_fleet.addShip(&m_grid, m_resourceManager, "Red", ShipType::ASSAULT_CARRIER, glm::ivec2(26, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
-	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::FIGHTER, glm::ivec2(10, 7), true, 5.0f, 3, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
@@ -172,14 +171,16 @@ void MainScreen::update(float deltaTime){
 
 	switch (m_interface.getState()){
 	case GAMEPLAY:
-		m_fleet.update(deltaTime, &m_grid);
+		m_playerFleet.update(deltaTime, &m_grid);
+		m_enemyFleet.update(deltaTime, &m_grid);
 		break;
 	case MENU:
 	case OPTIONSmain:
 
 		break;
 	case FLEET:
-
+		m_playerFleet.update(deltaTime, &m_grid);
+		m_enemyFleet.update(deltaTime, &m_grid);
 		break;
 	default:
 		break;
@@ -201,7 +202,8 @@ void MainScreen::draw(){
 
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255,255,255,255));
 
-	m_fleet.draw(m_spriteBatch);
+	m_playerFleet.draw(m_spriteBatch);
+	m_enemyFleet.draw(m_spriteBatch);
 
 	//x m_userFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(0.0f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
 	//x m_enemyFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(m_window->getScreenWidth() - m_enemyFont.getFontHeight() * 25 * .2f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
@@ -221,7 +223,8 @@ void MainScreen::drawDebugElements(){
 	std::string fps = "FPS: " + std::to_string(m_game->getFps());
 	m_debugFont.draw(m_spriteBatch, fps.c_str(), glm::vec2(0.0f, m_window->getScreenHeight() - (float)m_debugFont.getFontHeight()*0.2f), glm::vec2(0.2f), ALWAYS_ON_TOP + 500.0f, Sakura::ColorRGBA8(255,255,255,255), Sakura::Justification::LEFT);
 	if (show_boxes){
-		m_fleet.drawDebug(m_debugRenderer);
+		m_playerFleet.drawDebug(m_debugRenderer);
+		m_enemyFleet.drawDebug(m_debugRenderer);
 	}
 }
 
@@ -247,8 +250,42 @@ void MainScreen::checkInput() {
 	}
 
 	if (m_game->inputManager.isKeyPressed(KeyID::F2)){
-		m_fleet.setTurn(true);
+		m_playerFleet.setTurn(!m_playerFleet.getTurn());
 	}
+
+	/* Ship selection */
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM0)){
+		m_playerFleet.setAddedShip(ShipType::CUTTER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM1)){
+		m_playerFleet.setAddedShip(ShipType::FIGHTER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM2)){
+		m_playerFleet.setAddedShip(ShipType::INTERCEPTOR);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM3)){
+		m_playerFleet.setAddedShip(ShipType::BOMBER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM4)){
+		m_playerFleet.setAddedShip(ShipType::CORVETTE);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM5)){
+		m_playerFleet.setAddedShip(ShipType::CRUISER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM6)){
+		m_playerFleet.setAddedShip(ShipType::DESTROYER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM7)){
+		m_playerFleet.setAddedShip(ShipType::CARRIER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM8)){
+		m_playerFleet.setAddedShip(ShipType::ASSAULT_CARRIER);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::NUM9)){
+		m_playerFleet.setAddedShip(ShipType::BATTLESHIP);
+	}
+
+	/* Escape current funciton */
 
 	/* Reset Screen */
 	if (m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LCTRL) && m_game->inputManager.isKeyPressed(KeyID::r)){
@@ -257,18 +294,20 @@ void MainScreen::checkInput() {
 	}
 
 	if (m_game->inputManager.isKeyPressed(KeyID::ESCAPE)){
-		m_interface.setState((GUIState)!m_interface.getState());
+		if (m_playerFleet.getAddedShip() != ShipType::NOSHIP){
+			m_playerFleet.setAddedShip(ShipType::NOSHIP);
+		}else m_interface.setState((GUIState)!m_interface.getState());
 	}
 
 	//Mouse
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::ASSAULT_CARRIER, m_grid.getGridPos(mouseCoords), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
+		m_playerFleet.addShip(&m_grid, &m_enemyFleet, m_resourceManager, m_playerFleet.getAddedShip(), m_grid.getGridPos(mouseCoords));
 	}
 
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		Ship* selectedShip = m_fleet.shipAtPosition(mouseCoords);
+		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
 			m_selectedShip = selectedShip;
 		}else if (m_selectedShip){
@@ -282,9 +321,9 @@ void MainScreen::checkInput() {
 	}
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_RIGHT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		Ship* selectedShip = m_fleet.shipAtPosition(mouseCoords);
+		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
-			m_fleet.removeShip(selectedShip->getID());
+			m_playerFleet.removeShip(selectedShip->getID());
 		}
 	}
 }

@@ -8,9 +8,12 @@ class Fleet
 {
 public:
 	Fleet();
+	Fleet(bool isEnemy, std::string fleetColor) : m_enemyFleet(isEnemy), m_fleetColor(fleetColor){}
 	~Fleet();
+
+	void init(bool isEnemy, std::string fleetColor);
 	
-	int addShip(Grid* grid, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	int addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::ivec2 position /* Position on GRID */);
 	int removeShip(unsigned int shipIndex);
 
 	/* Return true when finished with concurrent updates */
@@ -23,9 +26,15 @@ public:
 	Ship* shipAtPosition(glm::vec2 absPos);
 
 	void setTurn(bool turn){ m_isTurn = turn; }
+	bool getTurn(){ return m_isTurn; }
+	void setAddedShip(ShipType addedShip){ m_addedShip = addedShip; }
+	const ShipType& getAddedShip() const{ return m_addedShip; }
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
+	ShipType m_addedShip = ShipType::NOSHIP;
 	bool m_isTurn = false;
+	bool m_enemyFleet = false;
+	std::string m_fleetColor = "Gray";
 };
 

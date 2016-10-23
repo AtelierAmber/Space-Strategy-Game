@@ -33,15 +33,22 @@ enum class ShipType{
 class Fleet;
 struct Grid;
 
+typedef int CP;
+
 class Ship
 {
 public:
-	Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
+		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, 
+		int shield, int hull, int shieldDamage, int hullDamage, int range, CP CPcost, int damageEffectStrength,
+		float damageEffectChance, DamageEffect damageEffect = NORMAL);
 	Ship() { /* Empty */ }
 
 	virtual ~Ship();
 
-	virtual void init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
+	virtual void init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
+		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, 
+		int hull, int shieldDamage, int hullDamage, int range, CP CPcost, int damageEffectStrength, float damageEffectChance, DamageEffect damageEffect = NORMAL);
 	
 	virtual void draw(Sakura::SpriteBatch& spriteBatch, bool hover);
 	virtual void drawDebug(Sakura::DebugRenderer& debugRenderer);
@@ -64,6 +71,7 @@ public:
 	void setID(unsigned int val) { m_id = val; }
 
 	static const std::string getShipName(ShipType shipType);
+	const CP getCost(){ return m_CPcost; }
 
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
 	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }
@@ -73,10 +81,12 @@ protected:
 	int m_hullDamage = 0;
 	DamageEffect m_damageEffect = NORMAL;
 	int m_damageEffectStrength = 0;
+	float m_damageEffectChance = 0.0f;
 	int m_range;
 	float m_speed;
 
 	bool m_enemy = false;
+	CP m_CPcost = 0;
 
 	int m_shieldMax= 5;
 	int m_hullMax= 5;

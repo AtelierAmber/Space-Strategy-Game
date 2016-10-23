@@ -77,16 +77,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AssaultCarrier.cpp" />
     <ClCompile Include="BaseGame.cpp" />
+    <ClCompile Include="Carrier.cpp" />
+    <ClCompile Include="Corvette.cpp" />
+    <ClCompile Include="Cutter.cpp" />
     <ClCompile Include="Fleet.cpp" />
+    <ClCompile Include="Interceptor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainScreen.cpp" />
     <ClCompile Include="Ship.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssaultCarrier.h" />
     <ClInclude Include="BaseGame.h" />
+    <ClInclude Include="Carrier.h" />
+    <ClInclude Include="Corvette.h" />
+    <ClInclude Include="Cutter.h" />
     <ClInclude Include="Fleet.h" />
     <ClInclude Include="Grid.h" />
+    <ClInclude Include="Interceptor.h" />
     <ClInclude Include="MainScreen.h" />
     <ClInclude Include="Ship.h" />
   </ItemGroup>

@@ -114,7 +114,8 @@ private:
 	MainGUI m_interface;
 
 	Grid m_grid;
-	Fleet m_fleet;
+	Fleet m_playerFleet;
+	Fleet m_enemyFleet;
 	Ship* m_selectedShip = nullptr;
 
 	Sakura::Music m_mainMusic;
