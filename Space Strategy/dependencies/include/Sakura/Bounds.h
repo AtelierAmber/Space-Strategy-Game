@@ -87,8 +87,8 @@ namespace Sakura{
 
 		/* Check if a point is in rect */
 		bool pointIntersection(float x, float y) const{
-			return (x <= this->x1 && x >= this->x2 &&
-				y >= this->y1 && y <= this->y1);
+			return (x >= this->x1 && x <= this->x2 &&
+				y >= this->y2 && y <= this->y1);
 		}
 
 		bool calculateRectangleCollision(Rect& ref);

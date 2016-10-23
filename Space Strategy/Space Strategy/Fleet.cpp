@@ -11,6 +11,9 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, std::st
 	if (position.x > grid->getDims().x - 1 || position.y > grid->getDims().y - 1 || position.x < 0 || position.y < 0){
 		return -1;
 	}
+	if (shipAtPosition(grid->getScreenPos(position))){
+		return -1;
+	}
 	m_ships.emplace_back(new Ship(grid, this, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, damageEffectStrength, damageEffect));
 	m_ships.back()->setID(m_ships.size()-1);
 	return 0;
@@ -33,7 +36,7 @@ bool Fleet::update(float deltaTime, Grid* grid){
 
 void Fleet::draw(Sakura::SpriteBatch& spriteBatch){
 	for (auto& ship : m_ships){
-		ship->draw(spriteBatch);
+		ship->draw(spriteBatch, true);
 	}
 }
 

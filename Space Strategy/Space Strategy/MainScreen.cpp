@@ -63,11 +63,11 @@ void MainGUI::initComponents(){
 #define BUTTON_SCALE 2.0f
 void MainGUI::initButtons(Sakura::Window* window){
 	m_parentWindow = window;
-	m_resumeButton = createButton("Assets/Sprites/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Resume", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_resumeButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Resume", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ state = GAMEPLAY; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_optionsButton = createButton("Assets/Sprites/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Options", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_optionsButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Options", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ state = OPTIONSmain; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_quitButton = createButton("Assets/Sprites/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::EXIT_APPLICATION); }, 
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 }
@@ -117,7 +117,7 @@ void MainScreen::onEntry(){
 	// Compile static resources
 	m_mainMusic = m_resourceManager.loadMusic("Assets/Audio/Music/n-Dimensions.ogg");
 	m_bossMusic = m_resourceManager.loadMusic("Assets/Audio/Music/Orbital Colossus.ogg");
-	m_background = m_resourceManager.getTexture("Assets/Sprites/Grid.png", MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_background = m_resourceManager.getTexture("Assets/Sprites/UI/Grid.png", MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_userFont.initTTF("Assets/Fonts/destructobeambb_reg.ttf", 144,  MIPMAP | LINEAR | TRANS_BORDER);
 	m_enemyFont.initTTF("Assets/Fonts/Sprykski.ttf", 144, MIPMAP | LINEAR | TRANS_BORDER);
 	m_debugFont.initTTF("Assets/Fonts/_bitmap_font.ttf", 144, MIPMAP | PIXELATED | TRANS_BORDER);
@@ -129,11 +129,11 @@ void MainScreen::onEntry(){
 	m_camera.setPosition(cameraPositionOffset);
 	m_interface.init(this, &m_textureProgram, &m_resourceManager, glm::ivec2(m_window->getScreenWidth(), m_window->getScreenHeight()), cameraPositionOffset, screen_scale_level);
 	m_interface.initButtons(m_window);
-	m_grid.init(glm::ivec2(21, 14), glm::ivec2(5, 5), m_window);
+	m_grid.init(glm::ivec2(27, 27), glm::ivec2(), m_window);
 	//HACK
 	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ASSUALT_CARRIER, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
 	m_fleet.addShip(&m_grid, m_resourceManager, "Red", ASSUALT_CARRIER, glm::ivec2(20, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
-	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", INTERCEPTOR, glm::ivec2(10, 7), true, 5.0f, 5, 5, 5, 5, 10, FIRE);
+	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", FIGHTER, glm::ivec2(10, 7), true, 5.0f, 3, 5, 5, 5, 10, FIRE);
 }
 
 void MainScreen::onExit(){
@@ -180,7 +180,6 @@ void MainScreen::draw(){
 		drawDebugElements();
 		m_grid.drawDebug(m_debugRenderer);
 	}
-	m_fleet.drawDebug(m_debugRenderer);
 	if (m_selectedShip){
 		m_debugRenderer.drawBox(glm::vec4(m_grid.getScreenPos(m_selectedShip->getPosition()), m_grid.getTileDims() * (glm::vec2)m_selectedShip->getTileSpan()), Sakura::ColorRGBA8(255, 0, 255, 255), 0);
 	}
@@ -191,7 +190,7 @@ void MainScreen::drawDebugElements(){
 	std::string fps = "FPS: " + std::to_string(m_game->getFps());
 	m_debugFont.draw(m_spriteBatch, fps.c_str(), glm::vec2(0.0f, m_window->getScreenHeight() - (float)m_debugFont.getFontHeight()*0.2f), glm::vec2(0.2f), ALWAYS_ON_TOP + 500.0f, Sakura::ColorRGBA8(255,255,255,255), Sakura::Justification::LEFT);
 	if (show_boxes){
-		
+		m_fleet.drawDebug(m_debugRenderer);
 	}
 }
 
@@ -214,6 +213,10 @@ void MainScreen::checkInput() {
 
 	if (m_game->inputManager.isKeyPressed(KeyID::F1)){
 		show_boxes = true;
+	}
+
+	if (m_game->inputManager.isKeyPressed(KeyID::F2)){
+		m_fleet.setTurn(true);
 	}
 
 	/* Reset Screen */

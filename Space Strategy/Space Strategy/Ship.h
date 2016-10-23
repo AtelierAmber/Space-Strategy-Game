@@ -42,7 +42,7 @@ public:
 
 	virtual void init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, int hull, int shieldDamage, int hullDamage, int damageEffectStrength, DamageEffect damageEffect = NORMAL);
 	
-	virtual void draw(Sakura::SpriteBatch& spriteBatch);
+	virtual void draw(Sakura::SpriteBatch& spriteBatch, bool hover);
 	virtual void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
 	void Damage(int hullDamage, int shieldDamage, int effectStrength, DamageEffect statusEffect = NORMAL);
@@ -54,7 +54,7 @@ public:
 	/* Return true when finished with concurrent updates */
 	bool update(float deltaTime, bool isTurn, Grid* grid);
 
-	void move(glm::ivec2 newPosition){ m_newPosition = newPosition; }
+	void move(const glm::ivec2& newPosition){ m_newPosition = newPosition; }
 	const glm::ivec2& getPosition(){ return m_position; };
 	const glm::ivec2& getTileSpan(){ return m_tileSpan; }
 	const bool& isEnemy(){ return m_enemy; }
@@ -93,4 +93,5 @@ protected:
 	Sakura::Rect m_bounds;
 	Sakura::TileSheet m_texture;
 	Sakura::TileSheet m_hearts;
+	Sakura::GLTexture m_heartContainer;
 };

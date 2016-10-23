@@ -22,6 +22,8 @@ public:
 	const std::vector<std::shared_ptr<Ship>>& getShips() const{ return m_ships; }
 	Ship* shipAtPosition(glm::vec2 absPos);
 
+	void setTurn(bool turn){ m_isTurn = turn; }
+
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
 	bool m_isTurn = false;

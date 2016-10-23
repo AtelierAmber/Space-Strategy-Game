@@ -14,7 +14,9 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + shipType;
 	glm::ivec2 tileDims = (shipType == CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
 	m_texture = resourceManager.getTileSheet(texturePath.c_str(), tileDims, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_hearts = resourceManager.getTileSheet("Assets/Sprites/ship_health_heart.png", glm::ivec2(3,1), MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_hearts = resourceManager.getTileSheet("Assets/Sprites/UI/ship_health.png", glm::ivec2(3,1), MIPMAP | PIXELATED | EDGE_CLAMP);
+	//HACK Temporary heart display. Display hearts in fleet informational window
+	m_heartContainer = resourceManager.getTexture("Assets/Sprites/UI/health_container.png", MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_fleet = fleet;
 	m_team = team;
 	m_speed = speed;
@@ -40,16 +42,18 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
 	if (isTurn){
 		if (m_position != m_newPosition){
-			glm::vec2 distToNew = glm::vec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
+			glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
 			m_position = m_newPosition;
-			m_bounds.move(distToNew.x, distToNew.y);
+			distToNew = grid->getScreenPos(distToNew);
+			m_bounds.move(-distToNew.x, -distToNew.y);
 		}
 	}
 	//TODO
 	return true;
 }
 
-void Ship::draw(Sakura::SpriteBatch& spriteBatch){
+#define heart_spacing 2
+void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 	glm::vec4 uvRect = m_texture.getUVs(0);
 	if (m_enemy){
 		uvRect = m_texture.getUVs(0);
@@ -60,11 +64,23 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch){
 	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1, m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
-	//destRect = glm::vec4(m_absolutePosition, glm::vec2(m_hearts.texture.width, m_hearts.texture.height));
-// 	for (int i = 0; i < m_shield; ++i){
-// 		destRect.x -= ((m_hearts.texture.width / 3))*(i+1);
-// 		spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
-// 	}
+	if (hover){
+		destRect = glm::vec4(m_bounds.x1, m_bounds.y1 + 5, m_hearts.texture.width / 3, m_hearts.texture.height);
+		spriteBatch.draw(glm::vec4(destRect.x, destRect.y, destRect.z + (m_hullMax*m_heartContainer.width), destRect.w), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_heartContainer.id, 9.0f, Sakura::ColorRGBA8(255,255,255,255), 0);
+		for (int i = 0; i < m_hullMax; ++i){
+			destRect.x = m_bounds.x1 + i * (destRect.z + heart_spacing);
+			spriteBatch.draw(destRect, m_hearts.getUVs(2), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		}
+		for (int i = 0; i < m_hull; ++i){
+			destRect.x = m_bounds.x1 + i * (destRect.z + heart_spacing);
+			spriteBatch.draw(destRect, m_hearts.getUVs(1), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		}
+		for (int i = 0; i < m_shield; ++i){
+			destRect.x = m_bounds.x1 + i * (destRect.z + heart_spacing);
+			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		}
+	}
+	
 }
 
 void Ship::drawDebug(Sakura::DebugRenderer& debugRenderer){
