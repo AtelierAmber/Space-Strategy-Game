@@ -40,7 +40,10 @@ void MainGUI::update(Sakura::InputManager& inputManager){
 void MainGUI::IDraw(float fps){
 	switch (state){
 	case GAMEPLAY:
-		
+		for (int i = 0; i < 10; ++i){
+			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y1, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), m_shipIconTextures.getUVs(i + (int)m_shipIcons[i].unlocked), m_shipIconTextures.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			m_GUISpritefont.draw(m_GUISpritebatch, m_shipIcons[i].name.c_str(), glm::vec2(m_shipIcons[i].rect.x1 + m_shipIcons[i].rect.width / 2, m_shipIcons[i].rect.y1), glm::vec2(.25f), ALWAYS_ON_TOP + 1.0f, Sakura::ColorRGBA8(0, 0, 0, 255), Sakura::Justification::MIDDLE);
+		}
 		break;
 	case MENU:
 		m_resumeButton.draw(m_GUISpritebatch, m_GUICamera, true);
@@ -57,8 +60,19 @@ void MainGUI::IDraw(float fps){
 }
 
 void MainGUI::initComponents(){
+	m_debugRenderer.init();
 	m_GUISpritefont.initTTF("Assets/Fonts/destructobeambb_reg.ttf", 48, MIPMAP | LINEAR | TRANS_BORDER);
-	m_shipIcons = m_resourceManager->getTileSheet("Assets/Sprites/Ships/ship_icons.png", glm::ivec2(5, 2), MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_shipIconTextures = m_resourceManager->getTileSheet("Assets/Sprites/Ships/ship_icons.png", glm::ivec2(10, 2), MIPMAP | PIXELATED | EDGE_CLAMP);
+}
+
+void MainGUI::initShipIcons(Sakura::Window* window){
+	for (int i = 0; i < 10; ++i){
+#define icon_scale 2.0f
+		m_shipIcons[i].rect.initialize(i * 40.0f * icon_scale, window->getScreenHeight() - 50.0f * icon_scale - (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale,
+			(float)m_shipIconTextures.texture.width / (float)m_shipIconTextures.dims.x * icon_scale, (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale, true);
+		m_shipIcons[i].shipType = (ShipType)i;
+		m_shipIcons[i].name = Ship::getShipName(m_shipIcons[i].shipType);
+	}
 }
 
 #define BUTTON_SCALE 2.0f
@@ -130,6 +144,7 @@ void MainScreen::onEntry(){
 	m_camera.setPosition(cameraPositionOffset);
 	m_interface.init(this, &m_textureProgram, &m_resourceManager, glm::ivec2(m_window->getScreenWidth(), m_window->getScreenHeight()), cameraPositionOffset, screen_scale_level);
 	m_interface.initButtons(m_window);
+	m_interface.initShipIcons(m_window);
 	m_grid.init(glm::ivec2(27, 27), glm::ivec2(), m_window);
 	//HACK
 	m_fleet.addShip(&m_grid, m_resourceManager, "Gray", ShipType::BATTLESHIP, glm::ivec2(0, 7), false, 60.0f, 5, 5, 5, 5, 10, FIRE);
@@ -140,6 +155,7 @@ void MainScreen::onEntry(){
 void MainScreen::onExit(){
 	m_textureProgram.dispose();
 	m_debugRenderer.dispose();
+	m_debugFont.dispose();
 	m_resourceManager.destroyResources();
 	m_spriteBatch.dispose();
 	m_interface.destroy();

@@ -56,7 +56,7 @@ bool Ship::update(float deltaTime, bool isTurn, Grid* grid){
 	return true;
 }
 
-const std::string Ship::getShipName(ShipType shipType) const{
+const std::string Ship::getShipName(ShipType shipType){
 	switch (shipType)
 	{
 	case ShipType::ASSAULT_CARRIER:

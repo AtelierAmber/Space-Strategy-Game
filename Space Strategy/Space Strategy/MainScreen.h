@@ -20,6 +20,15 @@ enum GUIState{
 	FLEET = 3
 };
 
+struct ShipIcon {
+	Sakura::Rect rect;
+	bool unlocked = false;
+	bool hover = false;
+	std::string name = "";
+	int cost = 0;
+	ShipType shipType = ShipType::NOSHIP;
+};
+
 class MainGUI :
 	public Sakura::GUIInterface
 {
@@ -36,6 +45,7 @@ public:
 
 	void initComponents() override;
 
+	void initShipIcons(Sakura::Window* window);
 	void initButtons(Sakura::Window* window);
 
 	void setState(GUIState newState){ state = newState; }
@@ -49,10 +59,12 @@ private:
 
 	/* Fleet Managment */
 	Sakura::GUIButton m_warshipsButton;
-	Sakura::TileSheet m_shipIcons;
+	Sakura::TileSheet m_shipIconTextures;
+	ShipIcon m_shipIcons[10];
 
 	Sakura::Window* m_parentWindow;
 	GUIState state = GAMEPLAY;
+	Sakura::DebugRenderer m_debugRenderer;
 };
 
 class Ship;

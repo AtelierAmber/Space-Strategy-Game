@@ -17,6 +17,7 @@ enum DamageEffect{
 };
 
 enum class ShipType{
+	NOSHIP = -1,
 	ASSAULT_CARRIER = 0,
 	INTERCEPTOR = 1,
 	FIGHTER = 2,
@@ -62,7 +63,7 @@ public:
 	unsigned int getID() const { return m_id; }
 	void setID(unsigned int val) { m_id = val; }
 
-	const std::string getShipName(ShipType shipType) const;
+	static const std::string getShipName(ShipType shipType);
 
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
 	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }

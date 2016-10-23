@@ -145,7 +145,7 @@ namespace Sakura{
 			GLint pUniform = m_textureProgram->getUniformLocation(textureUniform);
 			glUniformMatrix4fv(pUniform, 1, GL_FALSE, &projectionMatrix[0][0]);
 
-			m_GUISpritebatch.begin();
+			m_GUISpritebatch.begin(GlyphSortType::FRONT_TO_BACK);
 
 			IDraw(fps);
 
