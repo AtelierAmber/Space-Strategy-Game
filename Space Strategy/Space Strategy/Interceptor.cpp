@@ -67,18 +67,16 @@ void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 	int shipAlpha = (!m_isVisible) ? 50 : 255;
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, shipAlpha));
 	if (hover){
-		destRect = glm::vec4(m_bounds.x1, m_bounds.y1 + 5, m_hearts.texture.width / 3, m_hearts.texture.height);
-		spriteBatch.draw(glm::vec4(destRect.x, destRect.y, destRect.z + (m_hullMax*m_heartContainer.width), destRect.w), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_heartContainer.id, 9.0f, Sakura::ColorRGBA8(255, 255, 255, 255), 0);
+#define health_scale 2.0f
+		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
 		for (int i = 0; i < m_hullMax; ++i){
-			destRect.x = m_bounds.x1 + i * (destRect.z + heart_spacing);
-			spriteBatch.draw(destRect, m_hearts.getUVs(2), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			int uv = (i < m_hull) ? 1 : 2;
+			destRect.x += (destRect.z + heart_spacing);
+			spriteBatch.draw(destRect, m_hearts.getUVs(uv), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
-		for (int i = 0; i < m_hull; ++i){
-			destRect.x = m_bounds.x1 + i * (destRect.z + heart_spacing);
-			spriteBatch.draw(destRect, m_hearts.getUVs(1), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
-		}
+		destRect.x = m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f);
 		for (int i = 0; i < m_shield; ++i){
-			destRect.x = m_bounds.x1 + i * (destRect.z + heart_spacing);
+			destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 	}

@@ -105,7 +105,7 @@ void MainScreen::update(float deltaTime){
 	}
 	
 	if (m_enemyFleet.getFleetSize() == 0){
-		m_interface.addScore(500);
+		//m_interface.addScore(500);
 		/* Spawn new enemy fleet */
 	}
 

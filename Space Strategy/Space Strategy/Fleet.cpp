@@ -110,7 +110,10 @@ int Fleet::removeShip(unsigned int shipIndex){
 			m_gui->addScore(-5 * m_ships[shipIndex]->getCost());
 			m_gui->addUsedCP(-1 * m_ships[shipIndex]->getCost());
 		}
-		m_ships.erase(m_ships.begin() + shipIndex);
+		//? m_ships.erase(m_ships.begin() + shipIndex);
+		m_ships[shipIndex] = m_ships.back();
+		m_ships[shipIndex]->setID(shipIndex);
+		m_ships.pop_back();
 		return 0;
 	}
 	return -1;
