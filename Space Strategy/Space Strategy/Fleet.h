@@ -22,7 +22,7 @@ public:
 	/* Return true when finished with concurrent updates */
 	bool update(float deltaTime, Grid* grid);
 
-	void draw(Sakura::SpriteBatch& spriteBatch);
+	void draw(Sakura::SpriteBatch& spriteBatch, const glm::vec2& mouseCoords);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
 	const std::vector<std::shared_ptr<Ship>>& getShips() const{ return m_ships; }

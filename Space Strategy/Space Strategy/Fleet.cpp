@@ -29,7 +29,7 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 	if (shipAtPosition(absPosition) || enemyFleet->shipAtPosition(absPosition)){
 		return -1;
 	}
-	if ((Ship::getTypeCost(shipType) * (int)costsCP) > (m_gui->getMaxCP() - m_gui->getUsedCP())){
+	if (((Ship::getTypeCost(shipType) * (int)costsCP) > (m_gui->getMaxCP() - m_gui->getUsedCP())) && !m_isEnemy){
 		return -2;
 	}
 
@@ -55,7 +55,7 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 	 * Battleship: Mother of all ships, high shield, high health, slow, high damage, can set fire to ships
 	 * -> 3, 15, 15, 7, 7, 3, Fire(5, 25%), 40CP 
 	 */
-	m_gui->addUsedCP(Ship::getTypeCost(shipType) * (int)costsCP);
+	if(!m_isEnemy) m_gui->addUsedCP(Ship::getTypeCost(shipType) * (int)costsCP);
 	switch (shipType)
 	{
 	case ShipType::CUTTER:
@@ -125,9 +125,9 @@ bool Fleet::update(float deltaTime, Grid* grid){
 	return true;
 }
 
-void Fleet::draw(Sakura::SpriteBatch& spriteBatch){
+void Fleet::draw(Sakura::SpriteBatch& spriteBatch, const glm::vec2& mouseCoords){
 	for (auto& ship : m_ships){
-		ship->draw(spriteBatch, true);
+		ship->draw(spriteBatch, ship->collidesPoint(mouseCoords));
 	}
 }
 

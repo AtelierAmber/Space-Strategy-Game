@@ -136,7 +136,6 @@ protected:
 	Sakura::Rect m_bounds;
 	Sakura::TileSheet m_texture;
 	Sakura::TileSheet m_hearts;
-	Sakura::GLTexture m_heartContainer;
 
 	float m_selectedSin = 0;
 	bool m_isSelected = false;

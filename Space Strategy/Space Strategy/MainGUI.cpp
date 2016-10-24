@@ -46,9 +46,9 @@ void MainGUI::IDraw(float fps){
 		m_GUISpritebatch.draw(glm::vec4(m_shipIcons[(int)m_selectedShipType].rect.x1 + m_shipIcons[(int)m_selectedShipType].rect.width - m_shipSelector.texture.width * 0.5f - 5.0f, m_shipIcons[(int)m_selectedShipType].rect.y2 + (m_shipIcons[(int)m_selectedShipType].rect.height / 2) - m_shipSelector.texture.height * 1.5f / 2,
 			m_shipSelector.texture.width * 0.5f, m_shipSelector.texture.height * 1.5f), m_shipSelector.getUVs(1), m_shipSelector.texture.id, 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 #define cp_icon_scale 1.96f
-		for (int i = 0; i < m_CP; ++i){
-			int uv = (i < m_usedCP) ? 0 : 1;
-			m_GUISpritebatch.draw(glm::vec4(10.0f + (i * (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale), m_parentWindow->getScreenHeight() - 5.0f - (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale, (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale, (m_CPIcon.texture.height / m_CPIcon.dims.y) * cp_icon_scale),
+		for (int cp = 0; cp < m_CP; ++cp){
+			int uv = (cp < m_usedCP) ? 0 : 1;
+			m_GUISpritebatch.draw(glm::vec4(10.0f + (cp * (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale), m_parentWindow->getScreenHeight() - 5.0f - (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale, (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale, (m_CPIcon.texture.height / m_CPIcon.dims.y) * cp_icon_scale),
 				m_CPIcon.getUVs(uv), m_CPIcon.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 		break;

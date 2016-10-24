@@ -119,6 +119,7 @@ void MainScreen::update(float deltaTime){
 void MainScreen::draw(){
 	/* Background Color */
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec2 mouseCoords = m_camera.convertScreenToWorld(m_game->inputManager.getMouseCoords());
 
 	/* returns a mat4 with the camera projection matrix */
 	// *** camera_matrix(m_camera);
@@ -126,8 +127,8 @@ void MainScreen::draw(){
 
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255,255,255,255));
 
-	m_playerFleet.draw(m_spriteBatch);
-	m_enemyFleet.draw(m_spriteBatch);
+	m_playerFleet.draw(m_spriteBatch, mouseCoords);
+	m_enemyFleet.draw(m_spriteBatch, mouseCoords);
 
 	//x m_userFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(0.0f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
 	//x m_enemyFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(m_window->getScreenWidth() - m_enemyFont.getFontHeight() * 25 * .2f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
@@ -240,13 +241,13 @@ void MainScreen::checkInput() {
 
 	//Mouse
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_placingShips){
-		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		int additionalData = (m_playerFleet.getAddedShip() == ShipType::INTERCEPTOR) ? false : true;
 		m_playerFleet.addShip(&m_grid, &m_enemyFleet, m_resourceManager, m_playerFleet.getAddedShip(), mouseCoords, m_grid.getGridPos(mouseCoords), additionalData);
 	}
 
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
-		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
 			if (m_playerFleet.getSelectedShip()){
@@ -267,7 +268,7 @@ void MainScreen::checkInput() {
 		}
 	}
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_RIGHT)){
-		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
 			m_playerFleet.removeShip(selectedShip->getID());
