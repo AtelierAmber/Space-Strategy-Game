@@ -43,7 +43,10 @@ void MainGUI::IDraw(float fps){
 		for (int i = 0; i < 10; ++i){
 			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y2, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), m_shipIconTextures.getUVs(i + (10*(int)!m_shipIcons[0].unlocked)), m_shipIconTextures.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 			m_debugRenderer.drawBox(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y2, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), Sakura::ColorRGBA8(0,255,0,255), 0);
-			//m_GUISpritefont.draw(m_GUISpritebatch, m_shipIcons[i].name.c_str(), glm::vec2(m_shipIcons[i].rect.x1 + m_shipIcons[i].rect.width / 2, m_shipIcons[i].rect.y1), glm::vec2(.25f), ALWAYS_ON_TOP + 1.0f, Sakura::ColorRGBA8(0, 0, 0, 255), Sakura::Justification::MIDDLE);
+			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[(int)m_selectedShipType].rect.x1 + 5.0f, m_shipIcons[(int)m_selectedShipType].rect.y2 + (m_shipIcons[(int)m_selectedShipType].rect.height / 2) - m_shipSelector.texture.height * 1.5f / 2,
+				m_shipSelector.texture.width * 0.5f, m_shipSelector.texture.height * 1.5f), m_shipSelector.getUVs(0), m_shipSelector.texture.id, 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[(int)m_selectedShipType].rect.x1 + m_shipIcons[(int)m_selectedShipType].rect.width - m_shipSelector.texture.width * 0.5f - 5.0f, m_shipIcons[(int)m_selectedShipType].rect.y2 + (m_shipIcons[(int)m_selectedShipType].rect.height / 2) - m_shipSelector.texture.height * 1.5f / 2,
+				m_shipSelector.texture.width * 0.5f, m_shipSelector.texture.height * 1.5f), m_shipSelector.getUVs(1), m_shipSelector.texture.id, 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 		break;
 	case MENU:
@@ -68,22 +71,22 @@ void MainGUI::initComponents(){
 
 void MainGUI::initShipIcons(Sakura::Window* window){
 	for (int i = 0; i < 10; ++i){
-#define icon_scale 1.5f
-		m_shipIcons[i].rect.initialize(i * 48.0f * icon_scale, window->getScreenHeight() - (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale,
+		m_shipIcons[i].rect.initialize(i * 48.0f * icon_scale + 15.0f, window->getScreenHeight() - 15.0f - (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale,
 			(float)m_shipIconTextures.texture.width / (float)m_shipIconTextures.dims.x * icon_scale, (float)m_shipIconTextures.texture.height / (float)m_shipIconTextures.dims.y * icon_scale, true);
 		m_shipIcons[i].shipType = (ShipType)i;
 		m_shipIcons[i].name = Ship::getShipName(m_shipIcons[i].shipType);
 	}
+	m_shipSelector = m_resourceManager->getTileSheet("Assets/Sprites/UI/ship_selector.png", glm::ivec2(2, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
 }
 
 #define BUTTON_SCALE 2.0f
 void MainGUI::initButtons(Sakura::Window* window){
 	m_parentWindow = window;
-	m_resumeButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Resume", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_resumeButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Resume", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ state = GAMEPLAY; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_optionsButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Options", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_optionsButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Options", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ state = OPTIONSmain; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 48, glm::vec2(0.5f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::EXIT_APPLICATION); }, 
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 }
@@ -189,6 +192,7 @@ void MainScreen::update(float deltaTime){
 
 	m_camera.update();
 	m_interface.update(m_game->inputManager);
+	m_interface.setSelectedShipType(m_playerFleet.getAddedShip());
 	/* Finish Updates */
 	checkInput();
 }
@@ -282,8 +286,20 @@ void MainScreen::checkInput() {
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM9)){
 		m_playerFleet.setAddedShip(ShipType::BATTLESHIP);
 	}
-
-	/* Escape current funciton */
+	if (m_game->inputManager.isKeyPressed(KeyID::LEFT)){
+		ShipType selectType = (ShipType)((int)m_playerFleet.getAddedShip() - 1);
+		if ((int)selectType < 0){
+			selectType = ShipType::BATTLESHIP;
+		}
+		m_playerFleet.setAddedShip(selectType);
+	}
+	if (m_game->inputManager.isKeyPressed(KeyID::RIGHT)){
+		ShipType selectType = (ShipType)((int)m_playerFleet.getAddedShip() + 1);
+		if ((int)selectType > (int)ShipType::BATTLESHIP){
+			selectType = ShipType::CUTTER;
+		}
+		m_playerFleet.setAddedShip(selectType);
+	}
 
 	/* Reset Screen */
 	if (m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LCTRL) && m_game->inputManager.isKeyPressed(KeyID::r)){
@@ -291,14 +307,20 @@ void MainScreen::checkInput() {
 		onEntry();
 	}
 
+	/* Escape current funciton */
 	if (m_game->inputManager.isKeyPressed(KeyID::ESCAPE)){
 		if (m_playerFleet.getAddedShip() != ShipType::NOSHIP){
 			m_playerFleet.setAddedShip(ShipType::NOSHIP);
 		}else m_interface.setState((GUIState)!m_interface.getState());
 	}
 
+	/* Start placing ship*/
+	if (m_game->inputManager.isKeyPressed(KeyID::RETURN)){
+		m_placingShips = !m_placingShips;
+	}
+
 	//Mouse
-	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT)){
+	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_placingShips){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
 		int additionalData = (m_playerFleet.getAddedShip() == ShipType::INTERCEPTOR) ? false : true;
 		m_playerFleet.addShip(&m_grid, &m_enemyFleet, m_resourceManager, m_playerFleet.getAddedShip(), m_grid.getGridPos(mouseCoords), additionalData);

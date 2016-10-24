@@ -35,7 +35,7 @@ public:
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
-	ShipType m_addedShip = ShipType::NOSHIP;
+	ShipType m_addedShip = ShipType::CUTTER;
 	bool m_isTurn = false;
 	bool m_enemyFleet = false;
 	std::string m_fleetColor = "Gray";

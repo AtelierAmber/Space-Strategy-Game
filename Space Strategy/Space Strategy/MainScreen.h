@@ -29,6 +29,8 @@ struct ShipIcon {
 	ShipType shipType = ShipType::NOSHIP;
 };
 
+#define icon_scale 1.5f
+
 class MainGUI :
 	public Sakura::GUIInterface
 {
@@ -51,6 +53,8 @@ public:
 	void setState(GUIState newState){ state = newState; }
 	GUIState getState(){ return state; }
 
+	void setSelectedShipType(ShipType type){ m_selectedShipType = type; }
+
 private:
 	/* Resume, Options, Quit */
 	Sakura::GUIButton m_resumeButton;
@@ -61,6 +65,8 @@ private:
 	Sakura::GUIButton m_warshipsButton;
 	Sakura::TileSheet m_shipIconTextures;
 	ShipIcon m_shipIcons[10];
+	Sakura::TileSheet m_shipSelector;
+	ShipType m_selectedShipType = ShipType::CUTTER;
 
 	Sakura::Window* m_parentWindow;
 	GUIState state = GAMEPLAY;
@@ -106,6 +112,8 @@ private:
 	//////////////////////////////////////////////////////////////////////////
 
 	float m_deltaTime = 1.0f;
+
+	bool m_placingShips = false;
 
 	Sakura::Window* m_window = nullptr;
 
