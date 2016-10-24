@@ -11,7 +11,7 @@ public:
 	int increaseShips();
 	int decreaseShips();
 
-	void Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect) override;
+	int Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect) override;
 
 	void draw(Sakura::SpriteBatch& spriteBatch, bool hover) override;
 

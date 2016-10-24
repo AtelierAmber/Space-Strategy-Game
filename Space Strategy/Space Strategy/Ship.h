@@ -72,24 +72,30 @@ public:
 		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, 
 		int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect);
 	
-	virtual void destroy();
+	virtual int destroy();
 
 	virtual void draw(Sakura::SpriteBatch& spriteBatch, bool hover);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
-	virtual void Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect);
+	virtual int Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect);
 
 	void ApplyEffect(DamageEffect statusEffect);
 
 	void damageOther(Ship* otherShip, bool shieldDamage /* If false, deal hull damage, else deal shield damage */);
 
 	/* Return true when finished with concurrent updates */
-	virtual bool update(float deltaTime, Grid* grid);
+	virtual void update(float deltaTime, Grid* grid);
+	virtual bool updateMove(float deltaTime, Grid* grid);
+	virtual bool updateAttack();
 	virtual void endTurn();
 	void calculateFriendlyEffects();
 	void calculateBadEffects();
 
-	void move(const glm::ivec2& newPosition){ m_newPosition = newPosition; }
+	void move(const glm::ivec2& newPosition){ 
+		m_newPosition = newPosition; 
+		m_moveFinished = false;
+		m_hasMovedOnce = false;
+	}
 	const glm::ivec2& getPosition(){ return m_position; };
 	const glm::ivec2& getTileSpan(){ return m_tileSpan; }
 	const bool& isEnemy(){ return m_enemy; }
@@ -104,8 +110,12 @@ public:
 	void setSelected(bool selected){ m_isSelected = selected; }
 	bool isSelected(){ return m_isSelected; }
 
+	bool isMoveFinished(){ return m_moveFinished; }
+
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
 	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }
+	ShipType getShipType() const { return m_shipType; }
+	void setShipType(ShipType shipType) { m_shipType = shipType; }
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -127,12 +137,17 @@ protected:
 	std::string m_team = "Nuetral";
 	ShipType m_shipType;
 	unsigned int m_id;
-	bool m_hasUpdatedOnce;
+	bool m_hasUpdatedOnce = false;
+	bool m_hasMovedOnce = false;
+	bool m_moveFinished = false;
 
 	Fleet* m_fleet;
 	glm::ivec2 m_tileSpan;
 	glm::ivec2 m_position;
 	glm::ivec2 m_newPosition;
+	glm::ivec2 m_newPositionClamped;
+	Ship* m_queuedAttack = nullptr;
+	bool m_queuedAttackShield = false;
 	Sakura::Rect m_bounds;
 	Sakura::TileSheet m_texture;
 	Sakura::TileSheet m_hearts;

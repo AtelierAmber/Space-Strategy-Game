@@ -281,7 +281,11 @@ void MainScreen::checkInput() {
 			selectedShip = m_enemyFleet.shipAtPosition(mouseCoords);
 		}
 		if (selectedShip){
-			selectedShip->Damage(1, 1, DamageEffect());
+			if (selectedShip->Damage(1, 1, DamageEffect()) == -1 && selectedShip->getShipType() == ShipType::COMMANDSHIP){
+				/* Move to game over screen */
+				// Hack
+				setState(Sakura::ScreenState::EXIT_APPLICATION);
+			}
 		}
 	}
 }

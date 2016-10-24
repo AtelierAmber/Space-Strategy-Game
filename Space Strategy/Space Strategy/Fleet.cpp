@@ -102,6 +102,9 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 
 int Fleet::removeShip(unsigned int shipIndex){
 	if (shipIndex < m_ships.size()){
+		if (shipIndex == 0){
+			return -2;
+		}
 		m_selectedShip = nullptr;
 		if (m_isEnemy) { 
 			m_gui->addScore(5 * m_ships[shipIndex]->getCost());
@@ -123,6 +126,19 @@ bool Fleet::update(float deltaTime, Grid* grid){
 	if (m_isTurn){
 		for (auto& ship : m_ships){
 			ship->update(deltaTime, grid);
+		}
+		for (auto& ship : m_ships){
+			if (!ship->isMoveFinished()){
+				m_movesFinished &= ship->updateMove(deltaTime, grid);
+			}
+		}
+		if (m_movesFinished && !m_turnFinished){
+			for (auto& ship : m_ships){
+				m_turnFinished &= ship->updateAttack();
+			}
+		}
+		if (m_turnFinished){
+			return false;
 		}
 	}
 	return true;

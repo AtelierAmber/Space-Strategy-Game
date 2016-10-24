@@ -53,23 +53,59 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_bounds.initialize(grid->getScreenPos(m_position).x, grid->getScreenPos(m_position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
 }
 
-void Ship::destroy(){
-	m_fleet->removeShip(this->m_id);
+int Ship::destroy(){
+	return m_fleet->removeShip(this->m_id);
 }
 
-bool Ship::update(float deltaTime, Grid* grid){
+void Ship::update(float deltaTime, Grid* grid){
 	if (!m_hasUpdatedOnce){
 		calculateFriendlyEffects();
 		calculateBadEffects();
 		m_hasUpdatedOnce = true;
 	}
-	if (m_position != m_newPosition){
-		glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
-		m_position = m_newPosition;
-		distToNew = grid->getScreenPos(distToNew);
-		m_bounds.move(-distToNew.x, -distToNew.y);
+// 	if (m_position != m_newPosition){
+// 		glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
+// 		m_position = m_newPosition;
+// 		distToNew = grid->getScreenPos(distToNew);
+// 		m_bounds.move(-distToNew.x, -distToNew.y);
+// 	}
+}
+
+bool Ship::updateMove(float deltaTime, Grid* grid){
+	if (m_moveFinished){
+		return true;
 	}
-	//TODO
+	if (m_position == m_newPosition){
+		m_hasMovedOnce = false;
+		m_moveFinished = true;
+		return true;
+	}
+	glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
+	float lengthToNew = std::sqrt((distToNew.x*distToNew.x) + (distToNew.y*distToNew.y));
+	glm::vec2 normDist = glm::normalize(distToNew);
+	if (!m_hasMovedOnce && lengthToNew > m_speed){
+		m_newPositionClamped = grid->getGridPos(grid->getScreenPos(m_position) + normDist * m_speed);
+		m_hasMovedOnce = true;
+	}
+	else if (!m_hasMovedOnce) {
+		m_newPositionClamped = m_newPosition;
+		m_hasMovedOnce = true;
+	}
+	m_bounds.move(-normDist.x, -normDist.y);
+	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
+	if (m_position == m_newPositionClamped){
+		m_hasMovedOnce = false;
+		m_moveFinished = true;
+		return true;
+	}
+	return false;
+}
+
+bool Ship::updateAttack(){
+	if (m_queuedAttack){
+		damageOther(m_queuedAttack, m_queuedAttackShield);
+		return true;
+	}
 	return true;
 }
 
@@ -282,7 +318,7 @@ void Ship::drawDebug(Sakura::DebugRenderer& debugRenderer){
 	debugRenderer.drawBox(glm::vec4(m_bounds.x1, m_bounds.y2, m_bounds.width, m_bounds.height), Sakura::ColorRGBA8(255, 0, 0, 255), 0);
 }
 
-void Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*= NORMAL*/){
+int Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*= NORMAL*/){
 	if (statusEffect.effect != FIRE){
 		ApplyEffect(statusEffect);
 	}
@@ -291,12 +327,13 @@ void Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*
 		m_shield = 0;
 		m_hull -= hullDamage;
 		if (m_hull <= 0){
-			destroy();
+			return destroy();
 		}
 		if (statusEffect.effect == FIRE){
 			ApplyEffect(statusEffect);
 		}
 	}
+	return -1;
 }
 
 void Ship::ApplyEffect(DamageEffect statusEffect){
@@ -306,5 +343,10 @@ void Ship::ApplyEffect(DamageEffect statusEffect){
 }
 
 void Ship::damageOther(Ship* otherShip, bool shieldDamage){
-
+	if (shieldDamage){
+		otherShip->Damage(0, m_shieldDamage, m_damageEffect);
+	}
+	else {
+		otherShip->Damage(m_hullDamage, 0, m_damageEffect);
+	}
 }

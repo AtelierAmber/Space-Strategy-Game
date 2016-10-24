@@ -31,7 +31,7 @@ int Cutter::decreaseShips(){
 	else return -1;
 }
 
-void Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect){
+int Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect){
 	std::mt19937 gen((unsigned int)time(nullptr));
 	std::uniform_real_distribution<float> percent(0.0f, 1.0f);
 	if (percent(gen) <= (1.0f/(float)m_numShips)){
@@ -43,14 +43,14 @@ void Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect)
 			m_shield = 0;
 			m_hull -= hullDamage;
 			if (m_hull <= 0){
-				destroy();
+				return destroy();
 			}
 			if (statusEffect.effect == FIRE){
 				ApplyEffect(statusEffect);
 			}
 		}
 	}
-	
+	return 0;
 }
 
 #define heart_spacing 2
