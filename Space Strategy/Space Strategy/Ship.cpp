@@ -47,6 +47,9 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	if (shipType == ShipType::DESTROYER || shipType == ShipType::ASSAULT_CARRIER || shipType == ShipType::CARRIER || shipType == ShipType::BATTLESHIP || shipType == ShipType::CRUISER){
 		m_tileSpan = glm::vec2(2, 1);
 	}
+	else if (shipType == ShipType::COMMANDSHIP){
+		m_tileSpan = glm::vec2(2, 2);
+	}
 	else m_tileSpan = glm::vec2(1, 1);
 	m_bounds.initialize(grid->getScreenPos(m_position).x, grid->getScreenPos(m_position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
 }
@@ -192,8 +195,50 @@ const std::string Ship::getShipName(ShipType shipType){
 	case ShipType::BATTLESHIP:
 		return "battleship";
 		break;
+	case ShipType::COMMANDSHIP:
+		return "commandship";
+		break;
 	default:
 		return "null_ship";
+		break;
+	}
+}
+
+const CP Ship::getTypeCost(ShipType shipType){
+	switch (shipType)
+	{
+	case ShipType::CUTTER:
+		return 1;
+		break;
+	case ShipType::FIGHTER:
+		return 2;
+		break;
+	case ShipType::INTERCEPTOR:
+		return 5;
+		break;
+	case ShipType::BOMBER:
+		return 10;
+		break;
+	case ShipType::CORVETTE:
+		return 12;
+		break;
+	case ShipType::CRUISER:
+		return 12;
+		break;
+	case ShipType::CARRIER:
+		return 15;
+		break;
+	case ShipType::DESTROYER:
+		return 20;
+		break;
+	case ShipType::ASSAULT_CARRIER:
+		return 30;
+		break;
+	case ShipType::BATTLESHIP:
+		return 50;
+		break;
+	default:
+		return 0;
 		break;
 	}
 }

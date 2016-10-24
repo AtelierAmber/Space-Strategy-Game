@@ -85,6 +85,7 @@
     <ClCompile Include="Fleet.cpp" />
     <ClCompile Include="Interceptor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainGUI.cpp" />
     <ClCompile Include="MainScreen.cpp" />
     <ClCompile Include="Ship.cpp" />
   </ItemGroup>
@@ -97,6 +98,7 @@
     <ClInclude Include="Fleet.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Interceptor.h" />
+    <ClInclude Include="MainGUI.h" />
     <ClInclude Include="MainScreen.h" />
     <ClInclude Include="Ship.h" />
   </ItemGroup>

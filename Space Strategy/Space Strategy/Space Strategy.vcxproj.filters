@@ -51,6 +51,9 @@
     <ClCompile Include="Cutter.cpp">
       <Filter>Source Files\Ships</Filter>
     </ClCompile>
+    <ClCompile Include="MainGUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseGame.h">
@@ -82,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="AssaultCarrier.h">
       <Filter>Header Files\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="MainGUI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -49,7 +49,8 @@ enum class ShipType{
 	DESTROYER = 6,
 	CARRIER = 7,
 	ASSAULT_CARRIER = 8,
-	BATTLESHIP = 9
+	BATTLESHIP = 9,
+	COMMANDSHIP = 10
 };
 
 class Fleet;
@@ -97,7 +98,8 @@ public:
 	void setID(unsigned int val) { m_id = val; }
 
 	static const std::string getShipName(ShipType shipType);
-	const CP getCost(){ return m_CPcost; }
+	static const CP getTypeCost(ShipType shipType);
+	const CP& getCost() const{ return m_CPcost; }
 
 	void setSelected(bool selected){ m_isSelected = selected; }
 	bool isSelected(){ return m_isSelected; }

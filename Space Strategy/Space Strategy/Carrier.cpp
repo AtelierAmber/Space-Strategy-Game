@@ -1,5 +1,6 @@
 #include "Carrier.h"
 #include "Fleet.h"
+#include "Grid.h"
 
 Carrier::Carrier(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy){
@@ -11,5 +12,5 @@ Carrier::~Carrier(){
 }
 
 int Carrier::createCutter(glm::ivec2 position, Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager& resourceManager){
-	return m_fleet->addShip(grid, enemyFleet, resourceManager, ShipType::CUTTER, position, false);
+	return m_fleet->addShip(grid, enemyFleet, resourceManager, ShipType::CUTTER, grid->getScreenPos(position), position, false);
 }

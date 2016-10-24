@@ -1,5 +1,6 @@
 #include "AssaultCarrier.h"
 #include "Fleet.h"
+#include "Grid.h"
 
 AssaultCarrier::AssaultCarrier(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team,
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy){
@@ -11,5 +12,5 @@ AssaultCarrier::~AssaultCarrier(){
 }
 
 int AssaultCarrier::createFighter(glm::ivec2 position, Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager& resourceManager){
-	return m_fleet->addShip(grid, enemyFleet, resourceManager, ShipType::FIGHTER, position, false);
+	return m_fleet->addShip(grid, enemyFleet, resourceManager, ShipType::FIGHTER, grid->getScreenPos(position), position, false);
 }

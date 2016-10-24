@@ -1,5 +1,6 @@
 #include "Fleet.h"
 #include "Grid.h"
+#include "MainGUI.h"
 
 /* Unique Ships */
 #include "AssaultCarrier.h"
@@ -14,18 +15,24 @@ Fleet::~Fleet(){
 	m_ships.clear();
 }
 
-void Fleet::init(bool isEnemy, std::string fleetColor){
-	m_enemyFleet = isEnemy;
+void Fleet::init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy){
+	m_enemyFleet = enemyFleet;
 	m_fleetColor = fleetColor;
+	m_gui = gui;
+	m_isEnemy = isEnemy;
 }
 
-int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP){
+int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP){
 	if (position.x > grid->getDims().x - 1 || position.y > grid->getDims().y - 1 || position.x < 0 || position.y < 0){
 		return -1;
 	}
-	if (shipAtPosition(grid->getScreenPos(position)) || enemyFleet->shipAtPosition(grid->getScreenPos(position))){
+	if (shipAtPosition(absPosition) || enemyFleet->shipAtPosition(absPosition)){
 		return -1;
 	}
+	if ((Ship::getTypeCost(shipType) * (int)costsCP) > (m_gui->getMaxCP() - m_gui->getUsedCP())){
+		return -2;
+	}
+
 	/* Ship Base Stats (speed, shield, hull, shield damage, hull damage, range, damage effect(strength, chance), cost)
 	 * Cutter: low shield, low health, very fast, travels in groups, attacks on have a 1/groupSize % chance to hit
 	 * -> 10, 2, 2, 1, 1, 1, Normal, 1CP
@@ -48,41 +55,45 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 	 * Battleship: Mother of all ships, high shield, high health, slow, high damage, can set fire to ships
 	 * -> 3, 15, 15, 7, 7, 3, Fire(5, 25%), 40CP 
 	 */
+	m_gui->addUsedCP(Ship::getTypeCost(shipType) * (int)costsCP);
 	switch (shipType)
 	{
 	case ShipType::CUTTER:
 		//! TODO IMPLEMENT SEPERATE SHIP CLASSES
-		m_ships.emplace_back(new Cutter(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, costsCP));
+		m_ships.emplace_back(new Cutter(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, costsCP));
 		break;
 	case ShipType::FIGHTER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 8, 3, 5, 1, 1, 2, 2 * (int)costsCP, DamageEffect()));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 8, 3, 5, 1, 1, 2, 2 * (int)costsCP, DamageEffect()));
 		break;
 	case ShipType::INTERCEPTOR:
-		m_ships.emplace_back(new Interceptor(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, additionalData != 0));
+		m_ships.emplace_back(new Interceptor(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, additionalData != 0));
 		break;
 	case ShipType::BOMBER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 2, 5, 2, 1, 1, 10, 10 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 2, 5, 2, 1, 1, 10, 10 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::CORVETTE:
-		m_ships.emplace_back(new Corvette(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet));
+		m_ships.emplace_back(new Corvette(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::CRUISER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 5, 7, 7, 3, 3, 3, 12 * (int)costsCP, DamageEffect()));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 5, 7, 7, 3, 3, 3, 12 * (int)costsCP, DamageEffect()));
 		break;
 	case ShipType::CARRIER:
-		m_ships.emplace_back(new Carrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet));
+		m_ships.emplace_back(new Carrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::DESTROYER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 10, 10, 2, 7, 3, 20 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 3, 10, 10, 2, 7, 3, 20 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::ASSAULT_CARRIER:
-		m_ships.emplace_back(new AssaultCarrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet));
+		m_ships.emplace_back(new AssaultCarrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::BATTLESHIP:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_enemyFleet, 3, 15, 15, 7, 7, 3, 40 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.25f, 5)));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 3, 15, 15, 7, 7, 3, 40 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.25f, 5)));
+		break;
+	case ShipType::COMMANDSHIP:
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 0, 25, 25, 0, 0, 0, 0, DamageEffect()));
 		break;
 	default:
-		return -2;
+		return -3;
 		break;
 	}
 	m_ships.back()->setID(m_ships.size()-1);
@@ -92,6 +103,13 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 int Fleet::removeShip(unsigned int shipIndex){
 	if (shipIndex < m_ships.size()){
 		m_selectedShip = nullptr;
+		if (m_isEnemy) { 
+			m_gui->addScore(5 * m_ships[shipIndex]->getCost());
+		}
+		else{
+			m_gui->addScore(-5 * m_ships[shipIndex]->getCost());
+			m_gui->addUsedCP(-1 * m_ships[shipIndex]->getCost());
+		}
 		m_ships.erase(m_ships.begin() + shipIndex);
 		return 0;
 	}
