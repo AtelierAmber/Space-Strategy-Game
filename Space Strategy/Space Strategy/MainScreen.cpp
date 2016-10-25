@@ -175,6 +175,9 @@ void MainScreen::draw(){
 	if (show_boxes){
 		m_playerFleet.drawDebug(m_debugRenderer);
 		m_enemyFleet.drawDebug(m_debugRenderer);
+		if (m_placingShips){
+			m_shipToPlace.drawDebug(m_debugRenderer);
+		}
 	}
 	/* Finish draw */
 }

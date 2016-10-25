@@ -115,7 +115,7 @@ public:
 	void queueAttack(Ship* ship, bool attackShield){ m_queuedAttack = ship; m_queuedAttackShield = attackShield; }
 
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
-	bool collidesRect(Sakura::Rect rect){ return m_bounds.calculateRectangleCollision(rect); }
+	bool collidesRect(Sakura::Rect& rect){ return m_bounds.intersect(rect); }
 	ShipType getShipType() const { return m_shipType; }
 	void setShipType(ShipType shipType) { m_shipType = shipType; }
 protected:
