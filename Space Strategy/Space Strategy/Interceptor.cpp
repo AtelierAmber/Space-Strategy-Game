@@ -32,17 +32,7 @@ void Interceptor::update(float deltaTime, Grid* grid){
 		}
 		m_hasUpdatedOnce = true;
 	}
-	if (!m_hasUpdatedOnce){
-		calculateFriendlyEffects();
-		calculateBadEffects();
-		m_hasUpdatedOnce = true;
-	}
-	// 	if (m_position != m_newPosition){
-	// 		glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
-	// 		m_position = m_newPosition;
-	// 		distToNew = grid->getScreenPos(distToNew);
-	// 		m_bounds.move(-distToNew.x, -distToNew.y);
-	// 	}
+	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
 }
 
 void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, bool hover){

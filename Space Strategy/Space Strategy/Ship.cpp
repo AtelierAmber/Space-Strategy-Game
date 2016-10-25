@@ -47,7 +47,7 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 		m_tileSpan = glm::vec2(2, 1);
 	}
 	else if (shipType == ShipType::COMMANDSHIP){
-		m_tileSpan = glm::vec2(2, 2);
+		m_tileSpan = glm::vec2(2, 3);
 	}
 	else m_tileSpan = glm::vec2(1, 1);
 	m_bounds.initialize(grid->getScreenPos(m_position).x + 2.0f, grid->getScreenPos(m_position).y + 2.0f, m_tileSpan.x * grid->getTileDims().x - 4.0f, m_tileSpan.y * grid->getTileDims().y - 4.0f, true);
@@ -144,6 +144,9 @@ void Ship::calculateFriendlyEffects(){
 		case REPAIR:
 			if (m_appliedEffects[i].duration > 0){
 				m_hull += (int)m_appliedEffects[i].strength;
+				if (m_hull > m_hullMax){
+					m_hull = m_hullMax;
+				}
 				--m_appliedEffects[i].duration;
 			}
 			else {
@@ -163,6 +166,9 @@ void Ship::calculateBadEffects(){
 		case FIRE:
 			if (m_appliedEffects[i].duration > 0){
 				m_hull -= (int)m_appliedEffects[i].strength;
+				if (m_hull <= 0){
+					destroy();
+				}
 				--m_appliedEffects[i].duration;
 			}
 			else {
@@ -289,7 +295,7 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 	}
 	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
 	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
-	glm::vec4 destRect = glm::vec4(m_bounds.x1, m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
+	glm::vec4 destRect = glm::vec4(m_bounds.x1 + ((m_bounds.width / 2.0f) - (shipSize.x / 2.0f)), m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
 	if (m_isSelected){
 		float scaler = 4 * std::abs(std::sin(m_selectedSin));
 		destRect.x -= scaler/2;

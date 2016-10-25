@@ -75,18 +75,33 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 		m_ships.emplace_back(new Corvette(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::CRUISER:
+		if (shipAtPosition(absPosition + grid->getTileDims().x) || enemyFleet->shipAtPosition(absPosition + grid->getTileDims().x)){
+			return -1;
+		}
 		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 5, 7, 7, 3, 3, 3, 12 * (int)costsCP, DamageEffect()));
 		break;
 	case ShipType::CARRIER:
+		if (shipAtPosition(absPosition + grid->getTileDims().x) || enemyFleet->shipAtPosition(absPosition + grid->getTileDims().x)){
+			return -1;
+		}
 		m_ships.emplace_back(new Carrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::DESTROYER:
+		if (shipAtPosition(absPosition + grid->getTileDims().x) || enemyFleet->shipAtPosition(absPosition + grid->getTileDims().x)){
+			return -1;
+		}
 		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 3, 10, 10, 2, 7, 3, 20 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::ASSAULT_CARRIER:
+		if (shipAtPosition(absPosition + grid->getTileDims().x) || enemyFleet->shipAtPosition(absPosition + grid->getTileDims().x)){
+			return -1;
+		}
 		m_ships.emplace_back(new AssaultCarrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::BATTLESHIP:
+		if (shipAtPosition(absPosition + grid->getTileDims().x) || enemyFleet->shipAtPosition(absPosition + grid->getTileDims().x)){
+			return -1;
+		}
 		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 3, 15, 15, 7, 7, 3, 40 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.25f, 5)));
 		break;
 	case ShipType::COMMANDSHIP:
@@ -141,6 +156,9 @@ bool Fleet::update(float deltaTime, Grid* grid){
 		}
 		if (m_turnFinished){
 			m_turnFinished = false;
+			for (auto& ship : m_ships){
+				ship->endTurn();
+			}
 			m_isTurn = false;
 			return false;
 		}

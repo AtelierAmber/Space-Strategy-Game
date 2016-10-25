@@ -91,6 +91,9 @@ void MainScreen::update(float deltaTime){
 	case GAMEPLAY:
 		m_playerFleet.update(deltaTime, &m_grid);
 		m_enemyFleet.update(deltaTime, &m_grid);
+		if (m_placingShips){
+			m_shipToPlace.update(&m_grid, mouseCoords);
+		}
 		break;
 	case MENU:
 	case OPTIONSmain:
@@ -126,6 +129,9 @@ void MainScreen::draw(){
 	/* Draw game elements concurrently */
 
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255,255,255,255));
+	if (m_placingShips){
+		m_shipToPlace.draw(m_spriteBatch, &m_playerFleet, &m_enemyFleet);
+	}
 
 	m_playerFleet.draw(m_spriteBatch, mouseCoords);
 	m_enemyFleet.draw(m_spriteBatch, mouseCoords);
@@ -178,33 +184,43 @@ void MainScreen::checkInput() {
 	/* Ship selection */
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM0)){
 		m_playerFleet.setAddedShip(ShipType::CUTTER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM1)){
 		m_playerFleet.setAddedShip(ShipType::FIGHTER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM2)){
 		m_playerFleet.setAddedShip(ShipType::INTERCEPTOR);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM3)){
 		m_playerFleet.setAddedShip(ShipType::BOMBER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM4)){
 		m_playerFleet.setAddedShip(ShipType::CORVETTE);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM5)){
 		m_playerFleet.setAddedShip(ShipType::CRUISER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM6)){
 		m_playerFleet.setAddedShip(ShipType::DESTROYER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM7)){
 		m_playerFleet.setAddedShip(ShipType::CARRIER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM8)){
 		m_playerFleet.setAddedShip(ShipType::ASSAULT_CARRIER);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM9)){
 		m_playerFleet.setAddedShip(ShipType::BATTLESHIP);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::LEFT)){
 		ShipType selectType = (ShipType)((int)m_playerFleet.getAddedShip() - 1);
@@ -212,6 +228,7 @@ void MainScreen::checkInput() {
 			selectType = ShipType::BATTLESHIP;
 		}
 		m_playerFleet.setAddedShip(selectType);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::RIGHT)){
 		ShipType selectType = (ShipType)((int)m_playerFleet.getAddedShip() + 1);
@@ -219,6 +236,7 @@ void MainScreen::checkInput() {
 			selectType = ShipType::CUTTER;
 		}
 		m_playerFleet.setAddedShip(selectType);
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 
 	/* Reset Screen */
@@ -229,13 +247,16 @@ void MainScreen::checkInput() {
 
 	/* Escape current funciton */
 	if (m_game->inputManager.isKeyPressed(KeyID::ESCAPE)){
-		if (m_playerFleet.getAddedShip() != ShipType::NOSHIP){
-			m_playerFleet.setAddedShip(ShipType::NOSHIP);
+		if (m_placingShips){
+			m_placingShips = false;
+		}else if (m_playerFleet.getSelectedShip()){
+			m_playerFleet.setSelectedShip(nullptr);
 		}else m_interface.setState((GUIState)!m_interface.getState());
 	}
 
 	/* Start placing ship*/
 	if (m_game->inputManager.isKeyPressed(KeyID::RETURN)){
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 		m_placingShips = !m_placingShips;
 	}
 

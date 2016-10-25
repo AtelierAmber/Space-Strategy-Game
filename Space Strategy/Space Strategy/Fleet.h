@@ -37,6 +37,7 @@ public:
 	Ship*& getSelectedShip(){ return m_selectedShip; }
 
 	int getFleetSize(){ return (int)m_ships.size(); }
+	std::string getTeam(){ return m_fleetColor; }
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;

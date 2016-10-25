@@ -54,6 +54,9 @@
     <ClCompile Include="MainGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GhostShip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseGame.h">
@@ -87,6 +90,9 @@
       <Filter>Header Files\Ships</Filter>
     </ClInclude>
     <ClInclude Include="MainGUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostShip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

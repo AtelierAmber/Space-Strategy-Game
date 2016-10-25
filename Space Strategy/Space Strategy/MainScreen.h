@@ -11,6 +11,7 @@
 #include "Grid.h"
 #include "Fleet.h"
 #include "MainGUI.h"
+#include "GhostShip.h"
 
 class Ship;
 
@@ -53,6 +54,7 @@ private:
 	float m_deltaTime = 1.0f;
 
 	bool m_placingShips = false;
+	GhostShip m_shipToPlace;
 
 	Sakura::Window* m_window = nullptr;
 
