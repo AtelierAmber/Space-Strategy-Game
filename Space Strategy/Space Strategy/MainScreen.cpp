@@ -62,7 +62,7 @@ void MainScreen::onEntry(){
 	m_interface.init(this, &m_textureProgram, &m_resourceManager, glm::ivec2(m_window->getScreenWidth(), m_window->getScreenHeight()), cameraPositionOffset, screen_scale_level);
 	m_interface.initButtons(m_window);
 	m_interface.initShipIcons(m_window);
-	m_grid.init(glm::ivec2(27, 27), glm::ivec2(), m_window);
+	m_grid.init(glm::ivec2(27, 27), glm::vec2(0.0f), m_window);
 	m_playerFleet.init(&m_enemyFleet, "Gray", &m_interface, false);
 	m_enemyFleet.init(&m_playerFleet, "Red", &m_interface, true);
 	m_playerFleet.addShip(&m_grid, &m_enemyFleet, m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);

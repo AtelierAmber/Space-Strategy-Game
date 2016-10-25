@@ -6,7 +6,7 @@
 struct Grid
 {
 public:
-	Grid(){ /* Empty */ }
+	Grid() : m_tileDims(0.0f), m_gridPos(0.0f), m_gridDims(0){ /* Empty */ }
 	Grid(glm::ivec2 gridSize, glm::vec2 borderOffset, Sakura::Window* window){ init(gridSize, borderOffset, window); }
 	~Grid(){ /* Empty */ }
 
@@ -24,8 +24,10 @@ public:
 	const glm::ivec2 getDims() const{ return glm::ivec2((float)m_gridDims.x, (float)m_gridDims.y); }
 	const glm::vec2 getScreenPos(const glm::ivec2& tilePos) const{ return glm::vec2(((float)tilePos.x * m_tileDims.x) + m_gridPos.x, 
 																((float)tilePos.y * m_tileDims.y) + m_gridPos.y); }
-	const glm::ivec2 getGridPos(const glm::vec2& absolutePos) const{ return glm::ivec2((absolutePos.x - m_gridPos.x) / m_tileDims.x,
-																(absolutePos.y - m_gridPos.y) / m_tileDims.y); }
+	const glm::ivec2 getGridPos(const glm::vec2& absolutePos) const{
+		return glm::ivec2((int)((absolutePos.x - this->m_gridPos.x) / this->m_tileDims.x),
+		(int)((absolutePos.y - this->m_gridPos.y) / this->m_tileDims.y));
+	}
 	const glm::vec2& getTileDims() const{ return m_tileDims; }
 
 	void drawDebug(Sakura::DebugRenderer& debugRenderer){

@@ -50,7 +50,7 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 		m_tileSpan = glm::vec2(2, 2);
 	}
 	else m_tileSpan = glm::vec2(1, 1);
-	m_bounds.initialize(grid->getScreenPos(m_position).x, grid->getScreenPos(m_position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
+	m_bounds.initialize(grid->getScreenPos(m_position).x + 2.0f, grid->getScreenPos(m_position).y + 2.0f, m_tileSpan.x * grid->getTileDims().x - 4.0f, m_tileSpan.y * grid->getTileDims().y - 4.0f, true);
 }
 
 int Ship::destroy(){
@@ -63,50 +63,51 @@ void Ship::update(float deltaTime, Grid* grid){
 		calculateBadEffects();
 		m_hasUpdatedOnce = true;
 	}
-// 	if (m_position != m_newPosition){
-// 		glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
-// 		m_position = m_newPosition;
-// 		distToNew = grid->getScreenPos(distToNew);
-// 		m_bounds.move(-distToNew.x, -distToNew.y);
-// 	}
+	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
 }
 
+int signOf(int f){
+	return (f >= 0) ? 1 : -1;
+}
+
+/* returns true if move is finished, false if the move needs to be updated still */
 bool Ship::updateMove(float deltaTime, Grid* grid){
-	if (m_moveFinished){
-		return true;
+	if (m_position != m_newPosition){
+		if (m_moveCounter == 0){
+			m_moveCounter = (int)m_speed;
+			if (m_moveCounter == 0){
+				return true;
+			}
+			m_moveFinished = false;
+		}
+		glm::ivec2 distToNew = m_position - m_newPosition;
+		if (abs(distToNew.x) > abs(distToNew.y)){
+			m_bounds.move(grid->getTileDims().x * signOf(-distToNew.x), 0.0f);
+		}
+		else if (abs(distToNew.y) > abs(distToNew.x)){
+			m_bounds.move(0.0f, grid->getTileDims().y * signOf(-distToNew.y));
+		}
+		else {
+			m_bounds.move(grid->getTileDims().x * signOf(-distToNew.x), grid->getTileDims().y * signOf(-distToNew.y));
+		}
+		--m_moveCounter;
 	}
-	if (m_position == m_newPosition){
-		m_hasMovedOnce = false;
+	else {
+		m_moveCounter = 0;
 		m_moveFinished = true;
 		return true;
 	}
-	glm::vec2 distToNew = glm::ivec2(m_position.x - m_newPosition.x, m_position.y - m_newPosition.y);
-	float lengthToNew = std::sqrt((distToNew.x*distToNew.x) + (distToNew.y*distToNew.y));
-	glm::vec2 normDist = glm::normalize(distToNew);
-	if (!m_hasMovedOnce && lengthToNew > m_speed){
-		m_newPositionClamped = grid->getGridPos(grid->getScreenPos(m_position) + normDist * m_speed);
-		m_hasMovedOnce = true;
-	}
-	else if (!m_hasMovedOnce) {
-		m_newPositionClamped = m_newPosition;
-		m_hasMovedOnce = true;
-	}
-	m_bounds.move(-normDist.x, -normDist.y);
-	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
-	if (m_position == m_newPositionClamped){
-		m_hasMovedOnce = false;
+	if (m_moveCounter == 0){
 		m_moveFinished = true;
 		return true;
 	}
 	return false;
 }
 
-bool Ship::updateAttack(){
+void Ship::updateAttack(){
 	if (m_queuedAttack){
 		damageOther(m_queuedAttack, m_queuedAttackShield);
-		return true;
 	}
-	return true;
 }
 
 void Ship::endTurn(){

@@ -127,17 +127,21 @@ bool Fleet::update(float deltaTime, Grid* grid){
 		for (auto& ship : m_ships){
 			ship->update(deltaTime, grid);
 		}
+		m_moving = false;
 		for (auto& ship : m_ships){
 			if (!ship->isMoveFinished()){
-				m_movesFinished &= ship->updateMove(deltaTime, grid);
+				m_moving |= !ship->updateMove(deltaTime, grid);
 			}
 		}
-		if (m_movesFinished && !m_turnFinished){
+		if (!m_moving && !m_turnFinished){
 			for (auto& ship : m_ships){
-				m_turnFinished &= ship->updateAttack();
+				ship->updateAttack();
 			}
+			m_turnFinished = true;
 		}
 		if (m_turnFinished){
+			m_turnFinished = false;
+			m_isTurn = false;
 			return false;
 		}
 	}

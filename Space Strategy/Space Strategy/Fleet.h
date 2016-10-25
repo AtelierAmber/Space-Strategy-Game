@@ -42,8 +42,9 @@ private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
 	ShipType m_addedShip = ShipType::CUTTER;
 	bool m_isTurn = false;
-	bool m_movesFinished = false;
+	bool m_moving = false;
 	bool m_turnFinished = false;
+
 	MainGUI* m_gui = nullptr;
 	bool m_isEnemy;
 	Fleet* m_enemyFleet;

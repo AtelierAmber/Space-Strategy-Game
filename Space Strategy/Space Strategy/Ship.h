@@ -86,7 +86,7 @@ public:
 	/* Return true when finished with concurrent updates */
 	virtual void update(float deltaTime, Grid* grid);
 	virtual bool updateMove(float deltaTime, Grid* grid);
-	virtual bool updateAttack();
+	virtual void updateAttack();
 	virtual void endTurn();
 	void calculateFriendlyEffects();
 	void calculateBadEffects();
@@ -94,7 +94,6 @@ public:
 	void move(const glm::ivec2& newPosition){ 
 		m_newPosition = newPosition; 
 		m_moveFinished = false;
-		m_hasMovedOnce = false;
 	}
 	const glm::ivec2& getPosition(){ return m_position; };
 	const glm::ivec2& getTileSpan(){ return m_tileSpan; }
@@ -138,7 +137,7 @@ protected:
 	ShipType m_shipType;
 	unsigned int m_id;
 	bool m_hasUpdatedOnce = false;
-	bool m_hasMovedOnce = false;
+	int m_moveCounter;
 	bool m_moveFinished = false;
 
 	Fleet* m_fleet;
