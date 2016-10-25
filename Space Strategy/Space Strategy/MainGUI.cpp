@@ -96,4 +96,5 @@ void MainGUI::initButtons(Sakura::Window* window){
 	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::EXIT_APPLICATION); },
 		MIPMAP | PIXELATED | EDGE_CLAMP);
+	
 }

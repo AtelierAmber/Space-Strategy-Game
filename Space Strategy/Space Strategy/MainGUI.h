@@ -62,7 +62,7 @@ private:
 	Sakura::GUIButton m_quitButton;
 
 	/* Fleet Managment */
-	Sakura::GUIButton m_warshipsButton;
+	Sakura::GUIButton m_addShipsButton;
 	Sakura::TileSheet m_shipIconTextures;
 	ShipIcon m_shipIcons[10];
 	Sakura::TileSheet m_shipSelector;

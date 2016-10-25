@@ -62,6 +62,16 @@ void MainScreen::onEntry(){
 	m_interface.init(this, &m_textureProgram, &m_resourceManager, glm::ivec2(m_window->getScreenWidth(), m_window->getScreenHeight()), cameraPositionOffset, screen_scale_level);
 	m_interface.initButtons(m_window);
 	m_interface.initShipIcons(m_window);
+	m_addShipsButton = m_interface.createButton("Assets/Sprites/UI/add_ship_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "NULL", glm::vec4(100.0f, 0.0f, 100.0f, 50.0f),
+		[this](){
+		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
+		m_placingShips = !m_placingShips;
+	},
+		MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_readyButton = m_interface.createButton("Assets/Sprites/UI/ready_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "NULL", glm::vec4(100.0f, 100.0f, 100.0f, 50.0f),
+		[this](){ m_placingShips = false; m_turnsFinished = false; },
+		MIPMAP | PIXELATED | EDGE_CLAMP);
+
 	m_grid.init(glm::ivec2(27, 27), glm::vec2(0.0f), m_window);
 	m_playerFleet.init(&m_enemyFleet, "Gray", &m_interface, false);
 	m_enemyFleet.init(&m_playerFleet, "Red", &m_interface, true);
@@ -89,12 +99,14 @@ void MainScreen::update(float deltaTime){
 
 	switch (m_interface.getState()){
 	case GAMEPLAY:
-		if (m_executeTurns){
-			m_executeTurns |= m_playerFleet.update(deltaTime, &m_grid);
-			m_executeTurns |= m_enemyFleet.update(deltaTime, &m_grid);
-			if (m_placingShips){
-				m_shipToPlace.update(&m_grid, mouseCoords);
-			}
+		m_addShipsButton.update(m_game->inputManager, m_camera);
+		m_readyButton.update(m_game->inputManager, m_camera);
+		if (!m_turnsFinished){
+			m_turnsFinished |= !m_playerFleet.update(deltaTime, &m_grid);
+			m_turnsFinished |= !m_enemyFleet.update(deltaTime, &m_grid);
+		}
+		if (m_placingShips){
+			m_shipToPlace.update(&m_grid, mouseCoords);
 		}
 		break;
 	case MENU:
@@ -104,6 +116,8 @@ void MainScreen::update(float deltaTime){
 	case FLEET:
 		m_playerFleet.update(deltaTime, &m_grid);
 		m_enemyFleet.update(deltaTime, &m_grid);
+		m_addShipsButton.update(m_game->inputManager, m_camera);
+		m_readyButton.update(m_game->inputManager, m_camera);
 		break;
 	default:
 		break;
@@ -134,7 +148,14 @@ void MainScreen::draw(){
 	if (m_placingShips){
 		m_shipToPlace.draw(m_spriteBatch, &m_playerFleet, &m_enemyFleet);
 	}
-
+	switch (m_interface.getState()){
+	case GAMEPLAY:
+		m_addShipsButton.draw(m_spriteBatch, m_camera, false);
+		m_readyButton.draw(m_spriteBatch, m_camera, false);
+		break;
+	default:
+		break;
+	}
 	m_playerFleet.draw(m_spriteBatch, &m_grid, mouseCoords);
 	m_enemyFleet.draw(m_spriteBatch, &m_grid, mouseCoords);
 
@@ -162,10 +183,6 @@ void MainScreen::specificDraw(){
 	/* For Elements that require use of a seperate
 	* spritebatch, camera, or otherwise need a specific element */
 	m_interface.draw(m_GLSLPUniformName, m_game->getFps());
-}
-
-void MainScreen::proceedTurn(){
-	
 }
 
 /* Process and check for all defined game inputs */
@@ -256,12 +273,6 @@ void MainScreen::checkInput() {
 		}else m_interface.setState((GUIState)!m_interface.getState());
 	}
 
-	/* Start placing ship*/
-	if (m_game->inputManager.isKeyPressed(KeyID::RETURN)){
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
-		m_placingShips = !m_placingShips;
-	}
-
 	//Mouse
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_placingShips){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
@@ -273,11 +284,7 @@ void MainScreen::checkInput() {
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
-			if (m_playerFleet.getSelectedShip()){
-				m_playerFleet.getSelectedShip()->setSelected(false);
-			}
 			m_playerFleet.setSelectedShip(selectedShip);
-			m_playerFleet.getSelectedShip()->setSelected(true);
 		}
 		else if (m_playerFleet.getSelectedShip()){
 			Ship* enemyShip = m_enemyFleet.shipAtPosition(mouseCoords);

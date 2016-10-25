@@ -30,7 +30,15 @@ public:
 	void setAddedShip(ShipType addedShip){ m_addedShip = addedShip; }
 	const ShipType& getAddedShip() const{ return m_addedShip; }
 
-	void setSelectedShip(Ship* ship){ m_selectedShip = ship; }
+	void setSelectedShip(Ship* ship){ 
+		if (m_selectedShip){
+			m_selectedShip->setSelected(false);
+		}
+		m_selectedShip = ship;
+		if (m_selectedShip){
+			m_selectedShip->setSelected(true);
+		}
+	}
 	Ship*& getSelectedShip(){ return m_selectedShip; }
 
 	int getFleetSize(){ return (int)m_ships.size(); }

@@ -117,7 +117,7 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 
 int Fleet::removeShip(unsigned int shipIndex){
 	if (shipIndex < m_ships.size()){
-		if (m_selectedShip->getID() == shipIndex){
+		if (m_selectedShip && m_selectedShip->getID() == shipIndex){
 			m_selectedShip = nullptr;
 		}
 		if (m_isEnemy) { 
@@ -159,9 +159,9 @@ bool Fleet::update(float deltaTime, Grid* grid){
 			ship->update(deltaTime, grid);
 			ship->endTurn();
 		}
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 void Fleet::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, const glm::vec2& mouseCoords){

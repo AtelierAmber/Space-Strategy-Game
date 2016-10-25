@@ -40,7 +40,7 @@ public:
 	void draw() override;
 	void specificDraw() override;
 
-	void proceedTurn(){ m_executeTurns = true; }
+	void proceedTurn(){ m_turnsFinished = false; }
 
 	//HACK DEBUG ELEMENTS | REMOVE BEFORE RELEASE
 	void drawDebugElements();
@@ -57,13 +57,15 @@ private:
 
 	bool m_placingShips = false;
 	GhostShip m_shipToPlace;
-	bool m_executeTurns;
+	bool m_turnsFinished;
 
 	Sakura::Window* m_window = nullptr;
 
 	Sakura::GLTexture m_background;
 
 	MainGUI m_interface;
+	Sakura::GUIButton m_addShipsButton;
+	Sakura::GUIButton m_readyButton;
 
 	Grid m_grid;
 	Fleet m_playerFleet;
