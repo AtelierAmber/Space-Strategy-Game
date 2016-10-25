@@ -104,8 +104,7 @@ void MainScreen::update(float deltaTime){
 		m_addShipsButton.update(m_game->inputManager, m_camera);
 		m_readyButton.update(m_game->inputManager, m_camera);
 		if (!m_turnsFinished){
-			m_turnsFinished |= !m_playerFleet.update(deltaTime, &m_grid);
-			m_turnsFinished |= !m_enemyFleet.update(deltaTime, &m_grid);
+			m_turnsFinished = m_playerFleet.update(deltaTime, &m_grid) && m_enemyFleet.update(deltaTime, &m_grid);
 		}
 		if (m_placingShips){
 			m_shipToPlace.update(&m_grid, mouseCoords);

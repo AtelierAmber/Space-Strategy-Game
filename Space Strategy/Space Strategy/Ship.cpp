@@ -85,15 +85,15 @@ bool Ship::updateMove(float deltaTime, Grid* grid){
 			}
 			m_moveFinished = false;
 		}
-		glm::ivec2 distToNew = m_position - m_newPosition;
+		glm::ivec2 distToNew = m_newPosition - m_position;
 		if (abs(distToNew.x) > abs(distToNew.y)){
-			m_bounds.move(grid->getTileDims().x * signOf(-distToNew.x), 0.0f);
+			m_bounds.move(grid->getTileDims().x * signOf(distToNew.x), 0.0f);
 		}
 		else if (abs(distToNew.y) > abs(distToNew.x)){
-			m_bounds.move(0.0f, grid->getTileDims().y * signOf(-distToNew.y));
+			m_bounds.move(0.0f, grid->getTileDims().y * signOf(distToNew.y));
 		}
 		else {
-			m_bounds.move(grid->getTileDims().x * signOf(-distToNew.x), grid->getTileDims().y * signOf(-distToNew.y));
+			m_bounds.move(grid->getTileDims().x * signOf(distToNew.x), grid->getTileDims().y * signOf(distToNew.y));
 		}
 		--m_moveCounter;
 	}
@@ -351,7 +351,7 @@ void Ship::drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	for (int i = 0; i < numMarkers-1; ++i){
 		destRect.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < m_speed * 3) ? 0: 1;
+		uv = (i < ((m_speed-1 < 0) ? m_speed : (m_speed-1))  * 3) ? 0: 1;
 		spriteBatch.draw(destRect, m_trailMarkers.getUVs(uv), m_trailMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }
@@ -373,7 +373,7 @@ void Ship::drawAttackTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	for (int i = 0; i < numMarkers - 1; ++i){
 		destRect.x += (m_attackMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_attackMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < m_speed * 3) ? 0 : 1;
+		uv = (i < m_range-1 * 3) ? 0 : 1;
 		spriteBatch.draw(destRect, m_attackMarkers.getUVs(uv), m_attackMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }

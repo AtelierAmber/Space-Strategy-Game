@@ -57,7 +57,7 @@ private:
 
 	bool m_placingShips = false;
 	GhostShip m_shipToPlace;
-	bool m_turnsFinished;
+	bool m_turnsFinished = true;
 
 	Sakura::Window* m_window = nullptr;
 
