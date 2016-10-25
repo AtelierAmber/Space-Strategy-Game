@@ -15,7 +15,7 @@ public:
 
 	void init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy);
 	
-	int addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP = true);
+	int addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP = true);
 	int removeShip(unsigned int shipIndex);
 
 	/* Return true when finished with concurrent updates */
@@ -43,6 +43,9 @@ public:
 
 	int getFleetSize(){ return (int)m_ships.size(); }
 	std::string getTeam(){ return m_fleetColor; }
+
+	void sortFleet();
+	bool shipThreatLevel(Ship* ship1, Ship* ship2);
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
