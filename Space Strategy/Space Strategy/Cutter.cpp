@@ -3,7 +3,7 @@
 
 Cutter::Cutter(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team,
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, bool costsCP){
-	init(grid, fleet, resourceManager, team, shipType, position, enemy, 10.0f, 2, 2, 1, 1, 1, 1 * (int)costsCP, DamageEffect());
+	init(grid, fleet, resourceManager, team, shipType, position, enemy, 1, 2, 2, 1, 1, 1, 1 * (int)costsCP, DamageEffect());
 	m_numShips = 5;
 }
 

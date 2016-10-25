@@ -92,6 +92,8 @@ void MainScreen::onExit(){
 	m_userFont.dispose();
 	m_enemyFont.dispose();
 	m_debugFont.dispose();
+	m_addShipsButton.destroy();
+	m_readyButton.destroy();
 }
 
 void MainScreen::update(float deltaTime){
@@ -261,12 +263,6 @@ void MainScreen::checkInput() {
 		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 
-	/* Reset Screen */
-	if (m_game->inputManager.isKeyDown(KeyID::KeyMod::LSHIFT) && m_game->inputManager.isKeyDown(KeyID::KeyMod::LCTRL) && m_game->inputManager.isKeyPressed(KeyID::r)){
-		onExit();
-		onEntry();
-	}
-
 	/* Escape current funciton */
 	if (m_game->inputManager.isKeyPressed(KeyID::ESCAPE)){
 		if (m_placingShips){
@@ -274,6 +270,11 @@ void MainScreen::checkInput() {
 		}else if (m_playerFleet.getSelectedShip()){
 			m_playerFleet.setSelectedShip(nullptr);
 		}else m_interface.setState((GUIState)!m_interface.getState());
+	}
+
+	/* Ready Up */
+	if (m_game->inputManager.isKeyPressed(KeyID::SPACE)){
+		m_placingShips = false; m_turnsFinished = false;
 	}
 
 	//Mouse
@@ -286,7 +287,7 @@ void MainScreen::checkInput() {
 		}
 	}
 
-	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
+	if (m_game->inputManager.isKeyDown(MouseId::BUTTON_LEFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){

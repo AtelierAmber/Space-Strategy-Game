@@ -46,8 +46,8 @@ enum class ShipType{
 	BOMBER = 3,
 	CORVETTE = 4,
 	CRUISER = 5,
-	DESTROYER = 6,
-	CARRIER = 7,
+	CARRIER = 6,
+	DESTROYER = 7,
 	ASSAULT_CARRIER = 8,
 	BATTLESHIP = 9,
 	COMMANDSHIP = 10
@@ -62,14 +62,14 @@ class Ship
 {
 public:
 	Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
-		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, 
+		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, int speed, 
 		int shield, int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect);
 	Ship() { /* Empty */ }
 
 	virtual ~Ship();
 
 	void init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
-		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, 
+		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, int speed, int shield, 
 		int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect);
 	
 	virtual int destroy();
@@ -124,7 +124,7 @@ protected:
 	int m_hullDamage = 0;
 	DamageEffect m_damageEffect;
 	int m_range;
-	float m_speed;
+	int m_speed;
 
 	bool m_enemy = false;
 	CP m_CPcost = 0;
@@ -155,6 +155,7 @@ protected:
 	Sakura::TileSheet m_hearts;
 	Sakura::TileSheet m_trailMarkers;
 	Sakura::TileSheet m_attackMarkers;
+	Sakura::GLTexture m_shieldTex;
 
 	float m_selectedSin = 0;
 	bool m_isSelected = false;

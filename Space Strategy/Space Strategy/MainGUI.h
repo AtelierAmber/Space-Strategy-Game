@@ -69,7 +69,7 @@ private:
 	ShipType m_selectedShipType = ShipType::CUTTER;
 
 	Sakura::TileSheet m_CPIcon;
-	CP m_CP = 100;
+	CP m_CP = 50;
 	CP m_usedCP = 0;
 
 	Ship* m_commandship;

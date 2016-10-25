@@ -6,7 +6,7 @@
 #define PI 3.141592
 
 Ship::Ship(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
-	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, 
+	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, int speed, 
 	int shield, int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect){
 	init(grid, fleet, resourceManager, team, shipType, position, enemy, speed, shield, hull, shieldDamage, hullDamage, range, CPcost, damageEffect);
 }
@@ -16,12 +16,13 @@ Ship::~Ship(){
 }
 
 void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team, 
-	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, float speed, int shield, 
+	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, int speed, int shield, 
 	int hull, int shieldDamage, int hullDamage, int range, CP CPcost, DamageEffect damageEffect){
 
 	std::string texturePath = "Assets/Sprites/Ships/" + team + "/" + getShipName(shipType) + ".png";
 	glm::ivec2 tileDims = (shipType == ShipType::CUTTER) ? glm::ivec2(3, 1) : glm::ivec2(1, 1);
 	m_texture = resourceManager.getTileSheet(texturePath.c_str(), tileDims, MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_shieldTex = resourceManager.getTexture("Assets/Sprites/Ships/shield.png", MIPMAP | PIXELATED | TRANS_BORDER);
 	m_hearts = resourceManager.getTileSheet("Assets/Sprites/UI/ship_health.png", glm::ivec2(3,1), MIPMAP | PIXELATED | EDGE_CLAMP);
 	//HACK Temporary heart display. Display hearts in fleet informational window
 	m_trailMarkers = resourceManager.getTileSheet("Assets/Sprites/UI/ship_trail.png", glm::ivec2(2, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
@@ -301,7 +302,7 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 		uvRect.z *= -1;
 	}
 	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
-	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
+	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y + 8.0f);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1 + ((m_bounds.width / 2.0f) - (shipSize.x / 2.0f)), m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
 	if (m_isSelected){
 		float scaler = 4 * std::abs(std::sin(m_selectedSin));
@@ -312,6 +313,9 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 		m_selectedSin += 0.05f;
 	}
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
+	if (m_shield){
+		spriteBatch.draw(destRect, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_shieldTex.id, 0.1f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	}
 	if (hover && m_shipType != ShipType::COMMANDSHIP){
 #define health_scale 2.0f
 		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x-1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
@@ -344,14 +348,14 @@ void Ship::drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	if (m_newPosition.y < m_position.y){
 		additionalDist.y = 1;
 	}
-	float travelLength = glm::length((grid->getScreenPos(m_newPosition) - ((grid->getTileDims() / 2.0f) * additionalDist)) - grid->getScreenPos(m_position));
+	float travelLength = glm::length((grid->getScreenPos(m_newPosition) - ((grid->getTileDims() / 1.5f) * additionalDist)) - grid->getScreenPos(m_position));
 	int numMarkers = (int)travelLength / (m_trailMarkers.texture.width + 5);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1 + (m_bounds.width / 2), m_bounds.y2 + (m_bounds.height / 2), m_trailMarkers.texture.width, m_trailMarkers.texture.height*2);
 	int uv = 0;
-	for (int i = 0; i < numMarkers-1; ++i){
+	for (int i = 0; i < numMarkers - 1; ++i){
 		destRect.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < ((m_speed-1 < 0) ? m_speed : (m_speed-1))  * 3) ? 0: 1;
+		uv = (i < m_speed * 2 - 2) ? 0 : 1;
 		spriteBatch.draw(destRect, m_trailMarkers.getUVs(uv), m_trailMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }
@@ -373,7 +377,7 @@ void Ship::drawAttackTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	for (int i = 0; i < numMarkers - 1; ++i){
 		destRect.x += (m_attackMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_attackMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < m_range-1 * 3) ? 0 : 1;
+		uv = (i < m_range * 3 - 2) ? 0 : 1;
 		spriteBatch.draw(destRect, m_attackMarkers.getUVs(uv), m_attackMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }
