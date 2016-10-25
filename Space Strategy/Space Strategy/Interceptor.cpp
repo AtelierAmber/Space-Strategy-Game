@@ -34,7 +34,7 @@ int Interceptor::update(float deltaTime, Grid* grid){
 		}
 		m_hasUpdatedOnce = true;
 	}
-	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
+	m_position = grid->getGridPosClamped(glm::vec2(m_bounds.x1, m_bounds.y2));
 	return 0;
 }
 

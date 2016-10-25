@@ -27,6 +27,7 @@ namespace Sakura{
 
 		void init(const char* texturePath, const char* fontPath, int fontSize, glm::vec2& textScale, TexParam fontParams, std::string content, glm::vec4 destRect, std::function<void()> calltoFunction, ResourceManager& resourceManager, TexParam texParams){
 			m_texture = resourceManager.getTileSheet(texturePath, glm::ivec2(3, 1), texParams);
+			m_buttonFont.initTTF(fontPath, fontSize, fontParams);
 			m_rect.initialize(destRect.x, destRect.y, destRect.z, destRect.w, true);
 			m_content = content;
 			m_textScaling = textScale;
@@ -63,14 +64,19 @@ namespace Sakura{
 			m_currentTexture = 0;
 			if (m_rect.pointIntersection(mouseCoords.x, mouseCoords.y)){
 				m_currentTexture = 1;
-				if (inputManager.isKeyPressed(MouseId::BUTTON_LEFT)){
-					m_currentTexture = 1;
+				if (inputManager.wasKeyDown(MouseId::BUTTON_LEFT) && !inputManager.isKeyDown(MouseId::BUTTON_LEFT) && m_pressed){
+					m_currentTexture = 0;
 					m_textOffset = 0.0f;
 					if (m_calltoFunction != nullptr){
 						m_calltoFunction();
 						m_pressed = false;
 						return true;
 					}
+				}
+				if (inputManager.isKeyDown(MouseId::BUTTON_LEFT)){
+					m_currentTexture = 2;
+					m_pressed = true;
+					return false;
 				}
 			}
 			m_textOffset = 0.0f;

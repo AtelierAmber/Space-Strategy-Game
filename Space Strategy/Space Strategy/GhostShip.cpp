@@ -8,7 +8,7 @@ GhostShip::~GhostShip(){
 }
 
 void GhostShip::update(Grid* grid, glm::vec2 mouseCoords){
-	m_position = grid->getGridPos(mouseCoords);
+	m_position = grid->getGridPosClamped(mouseCoords);
 	m_bounds.x1 = grid->getScreenPos(m_position).x;
 	m_bounds.y2 = grid->getScreenPos(m_position).y;
 }
