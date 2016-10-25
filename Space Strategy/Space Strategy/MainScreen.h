@@ -12,8 +12,7 @@
 #include "Fleet.h"
 #include "MainGUI.h"
 #include "GhostShip.h"
-
-class Ship;
+#include "AI.h"
 
 class MainScreen :
 	public Sakura::IScreen
@@ -69,7 +68,7 @@ private:
 
 	Grid m_grid;
 	Fleet m_playerFleet;
-	Fleet m_enemyFleet;
+	AI m_ai;
 
 	Sakura::Music m_mainMusic;
 	Sakura::Music m_bossMusic;

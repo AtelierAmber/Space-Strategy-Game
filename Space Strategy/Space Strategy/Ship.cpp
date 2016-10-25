@@ -87,10 +87,11 @@ bool Ship::updateMove(float deltaTime, Grid* grid){
 			m_moveFinished = false;
 		}
 		glm::ivec2 distToNew = m_newPosition - m_position;
-		if (abs(distToNew.x) > abs(distToNew.y)){
+		glm::vec2 distToSpeed = glm::normalize((glm::vec2)distToNew) * (float)m_speed;
+		if (abs(distToSpeed.x) > abs(distToSpeed.y)){
 			m_bounds.move(grid->getTileDims().x * signOf(distToNew.x), 0.0f);
 		}
-		else if (abs(distToNew.y) > abs(distToNew.x)){
+		else if (abs(distToSpeed.y) > abs(distToSpeed.x)){
 			m_bounds.move(0.0f, grid->getTileDims().y * signOf(distToNew.y));
 		}
 		else {
@@ -355,7 +356,7 @@ void Ship::drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	for (int i = 0; i < numMarkers - 1; ++i){
 		destRect.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < m_speed * 2 - 2) ? 0 : 1;
+		uv = (i < m_speed * 2.5 - 2) ? 0 : 1;
 		spriteBatch.draw(destRect, m_trailMarkers.getUVs(uv), m_trailMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }

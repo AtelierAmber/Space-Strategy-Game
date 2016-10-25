@@ -75,11 +75,9 @@ void MainScreen::onEntry(){
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 
 	m_grid.init(glm::ivec2(27, 27), glm::vec4(0.0f, grid_padding_top, 0.0f, grid_padding_bottom), m_window);
-	m_playerFleet.init(&m_enemyFleet, "Gray", &m_interface, false);
-	m_enemyFleet.init(&m_playerFleet, "Red", &m_interface, true);
-	m_playerFleet.addShip(&m_grid, &m_enemyFleet, m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
-	//HACK
-	m_enemyFleet.addShip(&m_grid, &m_playerFleet, m_resourceManager, ShipType::ASSAULT_CARRIER, m_grid.getScreenPos(glm::ivec2(25, 10)), glm::ivec2(25, 10), 0);
+	m_ai.init(&m_playerFleet, "Red", &m_interface, true);
+	m_playerFleet.init(m_ai.getFleet(), "Gray", &m_interface, false);
+	m_playerFleet.addShip(&m_grid, m_ai.getFleet(), m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
 }
 
 void MainScreen::onExit(){

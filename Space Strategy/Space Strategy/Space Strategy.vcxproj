@@ -77,6 +77,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AI.cpp" />
     <ClCompile Include="AssaultCarrier.cpp" />
     <ClCompile Include="BaseGame.cpp" />
     <ClCompile Include="Carrier.cpp" />
@@ -91,6 +92,7 @@
     <ClCompile Include="Ship.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AI.h" />
     <ClInclude Include="AssaultCarrier.h" />
     <ClInclude Include="BaseGame.h" />
     <ClInclude Include="Carrier.h" />

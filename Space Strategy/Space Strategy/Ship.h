@@ -118,6 +118,8 @@ public:
 	bool collidesRect(Sakura::Rect& rect){ return m_bounds.intersect(rect); }
 	ShipType getShipType() const { return m_shipType; }
 	void setShipType(ShipType shipType) { m_shipType = shipType; }
+
+	float getShipThreat(){ return m_threatLevel; }
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -125,6 +127,7 @@ protected:
 	DamageEffect m_damageEffect;
 	int m_range;
 	int m_speed;
+	float m_threatLevel = 0.0f;
 
 	bool m_enemy = false;
 	CP m_CPcost = 0;
