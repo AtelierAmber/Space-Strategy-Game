@@ -17,10 +17,12 @@ Interceptor::~Interceptor(){
 
 }
 
-void Interceptor::update(float deltaTime, Grid* grid){
+int Interceptor::update(float deltaTime, Grid* grid){
 	if (!m_hasUpdatedOnce){
 		calculateFriendlyEffects();
-		calculateBadEffects();
+		if (calculateBadEffects()){
+			return -1;
+		}
 		if (m_currentCloakCooldown > 0){
 			--m_currentCloakCooldown;
 		}
@@ -33,9 +35,10 @@ void Interceptor::update(float deltaTime, Grid* grid){
 		m_hasUpdatedOnce = true;
 	}
 	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
+	return 0;
 }
 
-void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
+void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 	glm::vec4 uvRect = m_texture.getUVs(0);
 	if (m_enemy){
 		if (!m_isVisible){
@@ -71,5 +74,8 @@ void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 			destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
+	}
+	if (m_position != m_newPosition && !m_enemy){
+		drawTravelTrail(spriteBatch, grid);
 	}
 }

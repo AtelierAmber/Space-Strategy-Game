@@ -54,7 +54,7 @@ int Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect){
 }
 
 #define heart_spacing 2
-void Cutter::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
+void Cutter::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 	glm::vec4 uvRect = m_texture.getUVs(m_numShips/2);
 	if (m_enemy){
 		uvRect = m_texture.getUVs(0);
@@ -86,5 +86,8 @@ void Cutter::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 			destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
+	}
+	if (m_position != m_newPosition && !m_enemy){
+		drawTravelTrail(spriteBatch, grid);
 	}
 }

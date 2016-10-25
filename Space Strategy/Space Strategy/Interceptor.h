@@ -23,9 +23,9 @@ public:
 		m_currentCloakCooldown = CLOAKCOOLDOWN;
 	}
 
-	void update(float deltaTime, Grid* grid) override;
+	int update(float deltaTime, Grid* grid) override;
 
-	void draw(Sakura::SpriteBatch& spriteBatch, bool hover);
+	void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover) override;
 
 private:
 	int m_cloakTimer = 0;

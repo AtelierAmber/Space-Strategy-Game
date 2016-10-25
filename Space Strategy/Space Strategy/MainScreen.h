@@ -40,6 +40,8 @@ public:
 	void draw() override;
 	void specificDraw() override;
 
+	void proceedTurn(){ m_executeTurns = true; }
+
 	//HACK DEBUG ELEMENTS | REMOVE BEFORE RELEASE
 	void drawDebugElements();
 	//////////////////////////////////////////////////////////////////////////
@@ -55,6 +57,7 @@ private:
 
 	bool m_placingShips = false;
 	GhostShip m_shipToPlace;
+	bool m_executeTurns;
 
 	Sakura::Window* m_window = nullptr;
 

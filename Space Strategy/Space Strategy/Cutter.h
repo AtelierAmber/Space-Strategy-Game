@@ -13,7 +13,7 @@ public:
 
 	int Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect) override;
 
-	void draw(Sakura::SpriteBatch& spriteBatch, bool hover) override;
+	void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover) override;
 
 private:
 	int m_numShips;

@@ -74,7 +74,9 @@ public:
 	
 	virtual int destroy();
 
-	virtual void draw(Sakura::SpriteBatch& spriteBatch, bool hover);
+	virtual void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover);
+	void drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid);
+	void drawAttackTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
 	virtual int Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect);
@@ -84,12 +86,12 @@ public:
 	void damageOther(Ship* otherShip, bool shieldDamage /* If false, deal hull damage, else deal shield damage */);
 
 	/* Return true when finished with concurrent updates */
-	virtual void update(float deltaTime, Grid* grid);
+	virtual int update(float deltaTime, Grid* grid);
 	virtual bool updateMove(float deltaTime, Grid* grid);
 	virtual void updateAttack();
 	virtual void endTurn();
 	void calculateFriendlyEffects();
-	void calculateBadEffects();
+	int calculateBadEffects();
 
 	void move(const glm::ivec2& newPosition){ 
 		m_newPosition = newPosition; 
@@ -151,6 +153,8 @@ protected:
 	Sakura::Rect m_bounds;
 	Sakura::TileSheet m_texture;
 	Sakura::TileSheet m_hearts;
+	Sakura::TileSheet m_trailMarkers;
+	Sakura::TileSheet m_attackMarkers;
 
 	float m_selectedSin = 0;
 	bool m_isSelected = false;

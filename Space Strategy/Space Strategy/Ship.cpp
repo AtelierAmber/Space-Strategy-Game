@@ -24,6 +24,8 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	m_texture = resourceManager.getTileSheet(texturePath.c_str(), tileDims, MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_hearts = resourceManager.getTileSheet("Assets/Sprites/UI/ship_health.png", glm::ivec2(3,1), MIPMAP | PIXELATED | EDGE_CLAMP);
 	//HACK Temporary heart display. Display hearts in fleet informational window
+	m_trailMarkers = resourceManager.getTileSheet("Assets/Sprites/UI/ship_trail.png", glm::ivec2(2, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_attackMarkers = resourceManager.getTileSheet("Assets/Sprites/UI/attack_marker.png", glm::ivec2(2, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_fleet = fleet;
 	m_team = team;
 	m_speed = speed;
@@ -57,13 +59,16 @@ int Ship::destroy(){
 	return m_fleet->removeShip(this->m_id);
 }
 
-void Ship::update(float deltaTime, Grid* grid){
+int Ship::update(float deltaTime, Grid* grid){
 	if (!m_hasUpdatedOnce){
 		calculateFriendlyEffects();
-		calculateBadEffects();
+		if (calculateBadEffects()){
+			return -1;
+		}
 		m_hasUpdatedOnce = true;
 	}
 	m_position = grid->getGridPos(glm::vec2(m_bounds.x1, m_bounds.y2));
+	return 0;
 }
 
 int signOf(int f){
@@ -112,6 +117,7 @@ void Ship::updateAttack(){
 
 void Ship::endTurn(){
 	m_hasUpdatedOnce = false;
+	m_moveFinished = false;
 }
 
 void Ship::calculateFriendlyEffects(){
@@ -160,16 +166,16 @@ void Ship::calculateFriendlyEffects(){
 	}
 }
 
-void Ship::calculateBadEffects(){
+int Ship::calculateBadEffects(){
 	for (std::size_t i = 0; i < m_appliedEffects.size(); ++i){
 		switch (m_appliedEffects[i].effect){
 		case FIRE:
 			if (m_appliedEffects[i].duration > 0){
 				m_hull -= (int)m_appliedEffects[i].strength;
-				if (m_hull <= 0){
-					destroy();
-				}
 				--m_appliedEffects[i].duration;
+				if (m_hull <= 0){
+					return !destroy();
+				}
 			}
 			else {
 				m_appliedEffects.erase(m_appliedEffects.begin() + i);
@@ -202,6 +208,7 @@ void Ship::calculateBadEffects(){
 			break;
 		}
 	}
+	return 0;
 }
 
 const std::string Ship::getShipName(ShipType shipType){
@@ -286,7 +293,7 @@ const CP Ship::getTypeCost(ShipType shipType){
 }
 
 #define heart_spacing 2
-void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
+void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 	glm::vec4 uvRect = m_texture.getUVs(0);
 	if (m_enemy){
 		uvRect = m_texture.getUVs(0);
@@ -305,7 +312,7 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 		m_selectedSin += 0.05f;
 	}
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
-	if (hover){
+	if (hover && m_shipType != ShipType::COMMANDSHIP){
 #define health_scale 2.0f
 		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x-1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
 		for (int i = 0; i < m_hullMax; ++i){
@@ -318,6 +325,56 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, bool hover){
 			destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
+	}
+	if (m_position != m_newPosition && !m_enemy){
+		drawTravelTrail(spriteBatch, grid);
+	}
+	if (m_queuedAttack  && !m_enemy){
+		drawAttackTrail(spriteBatch, grid);
+	}
+}
+
+void Ship::drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
+	glm::vec2 travelDist = (grid->getScreenPos(m_newPosition) + (grid->getTileDims() / 2.0f)) - (grid->getScreenPos(m_position) + (grid->getTileDims() / 2.0f * (glm::vec2)m_tileSpan));
+	glm::vec2 travelDir = glm::normalize(travelDist);
+	glm::vec2 additionalDist;
+	if (m_newPosition.x < m_position.x){
+		additionalDist.x = 1;
+	}
+	if (m_newPosition.y < m_position.y){
+		additionalDist.y = 1;
+	}
+	float travelLength = glm::length((grid->getScreenPos(m_newPosition) - ((grid->getTileDims() / 2.0f) * additionalDist)) - grid->getScreenPos(m_position));
+	int numMarkers = (int)travelLength / (m_trailMarkers.texture.width + 5);
+	glm::vec4 destRect = glm::vec4(m_bounds.x1 + (m_bounds.width / 2), m_bounds.y2 + (m_bounds.height / 2), m_trailMarkers.texture.width, m_trailMarkers.texture.height*2);
+	int uv = 0;
+	for (int i = 0; i < numMarkers-1; ++i){
+		destRect.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
+		destRect.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
+		uv = (i < m_speed * 3) ? 0: 1;
+		spriteBatch.draw(destRect, m_trailMarkers.getUVs(uv), m_trailMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
+	}
+}
+
+void Ship::drawAttackTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
+	glm::vec2 travelDist = (grid->getScreenPos(m_queuedAttack->getPosition()) + (grid->getTileDims() / 2.0f * (glm::vec2)m_queuedAttack->getTileSpan())) - (grid->getScreenPos(m_position) + (grid->getTileDims() / 2.0f * (glm::vec2)m_tileSpan));
+	glm::vec2 travelDir = glm::normalize(travelDist);
+	glm::vec2 additionalDist;
+	if (m_queuedAttack->getPosition().x < m_position.x){
+		additionalDist.x = 1;
+	}
+	if (m_queuedAttack->getPosition().y < m_position.y){
+		additionalDist.y = 1;
+	}
+	float travelLength = glm::length((grid->getScreenPos(m_queuedAttack->getPosition()) - ((grid->getTileDims() / 2.0f) * additionalDist)) - grid->getScreenPos(m_position));
+	int numMarkers = (int)travelLength / (m_attackMarkers.texture.width + 5);
+	glm::vec4 destRect = glm::vec4(m_bounds.x1 + (m_bounds.width / 2), m_bounds.y2 + (m_bounds.height / 2), m_attackMarkers.texture.width, m_attackMarkers.texture.height * 2);
+	int uv = 0;
+	for (int i = 0; i < numMarkers - 1; ++i){
+		destRect.x += (m_attackMarkers.texture.width + 5.0f) * travelDir.x;
+		destRect.y += (m_attackMarkers.texture.height * 2 + 5.0f) * travelDir.y;
+		uv = (i < m_speed * 3) ? 0 : 1;
+		spriteBatch.draw(destRect, m_attackMarkers.getUVs(uv), m_attackMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }
 
@@ -345,7 +402,9 @@ int Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*=
 
 void Ship::ApplyEffect(DamageEffect statusEffect){
 	if (statusEffect.effect != NORMAL){
-		m_appliedEffects.push_back(statusEffect);
+		if (statusEffect.applyEffect()){
+			m_appliedEffects.push_back(statusEffect);
+		}
 	}
 }
 

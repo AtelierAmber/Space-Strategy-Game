@@ -88,6 +88,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGUI.cpp" />
     <ClCompile Include="MainScreen.cpp" />
+    <ClCompile Include="RecordKeeper.cpp" />
     <ClCompile Include="Ship.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +103,7 @@
     <ClInclude Include="Interceptor.h" />
     <ClInclude Include="MainGUI.h" />
     <ClInclude Include="MainScreen.h" />
+    <ClInclude Include="RecordKeeper.h" />
     <ClInclude Include="Ship.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

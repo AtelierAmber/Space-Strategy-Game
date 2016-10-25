@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <memory>
 #include "Ship.h"
 
@@ -22,14 +21,12 @@ public:
 	/* Return true when finished with concurrent updates */
 	bool update(float deltaTime, Grid* grid);
 
-	void draw(Sakura::SpriteBatch& spriteBatch, const glm::vec2& mouseCoords);
+	void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, const glm::vec2& mouseCoords);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
 	const std::vector<std::shared_ptr<Ship>>& getShips() const{ return m_ships; }
 	Ship* shipAtPosition(glm::vec2 absPos);
 
-	void setTurn(bool turn){ m_isTurn = turn; }
-	bool getTurn(){ return m_isTurn; }
 	void setAddedShip(ShipType addedShip){ m_addedShip = addedShip; }
 	const ShipType& getAddedShip() const{ return m_addedShip; }
 
@@ -42,7 +39,6 @@ public:
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
 	ShipType m_addedShip = ShipType::CUTTER;
-	bool m_isTurn = false;
 	bool m_moving = false;
 	bool m_turnFinished = false;
 

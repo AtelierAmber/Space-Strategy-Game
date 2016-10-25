@@ -117,10 +117,9 @@ int Fleet::addShip(Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager &resou
 
 int Fleet::removeShip(unsigned int shipIndex){
 	if (shipIndex < m_ships.size()){
-		if (shipIndex == 0){
-			return -2;
+		if (m_selectedShip->getID() == shipIndex){
+			m_selectedShip = nullptr;
 		}
-		m_selectedShip = nullptr;
 		if (m_isEnemy) { 
 			m_gui->addScore(5 * m_ships[shipIndex]->getCost());
 		}
@@ -128,7 +127,6 @@ int Fleet::removeShip(unsigned int shipIndex){
 			m_gui->addScore(-5 * m_ships[shipIndex]->getCost());
 			m_gui->addUsedCP(-1 * m_ships[shipIndex]->getCost());
 		}
-		//? m_ships.erase(m_ships.begin() + shipIndex);
 		m_ships[shipIndex] = m_ships.back();
 		m_ships[shipIndex]->setID(shipIndex);
 		m_ships.pop_back();
@@ -138,37 +136,37 @@ int Fleet::removeShip(unsigned int shipIndex){
 }
 
 bool Fleet::update(float deltaTime, Grid* grid){
-	if (m_isTurn){
+	for (std::size_t i = 0; i < m_ships.size(); ++i){
+		if (m_ships[i]->update(deltaTime, grid)){
+			--i;
+		}
+	}
+	m_moving = false;
+	for (auto& ship : m_ships){
+		if (!ship->isMoveFinished()){
+			m_moving |= !ship->updateMove(deltaTime, grid);
+		}
+	}
+	if (!m_moving && !m_turnFinished){
+		for (auto& ship : m_ships){
+			ship->updateAttack();
+		}
+		m_turnFinished = true;
+	}
+	if (m_turnFinished){
+		m_turnFinished = false;
 		for (auto& ship : m_ships){
 			ship->update(deltaTime, grid);
+			ship->endTurn();
 		}
-		m_moving = false;
-		for (auto& ship : m_ships){
-			if (!ship->isMoveFinished()){
-				m_moving |= !ship->updateMove(deltaTime, grid);
-			}
-		}
-		if (!m_moving && !m_turnFinished){
-			for (auto& ship : m_ships){
-				ship->updateAttack();
-			}
-			m_turnFinished = true;
-		}
-		if (m_turnFinished){
-			m_turnFinished = false;
-			for (auto& ship : m_ships){
-				ship->endTurn();
-			}
-			m_isTurn = false;
-			return false;
-		}
+		return false;
 	}
 	return true;
 }
 
-void Fleet::draw(Sakura::SpriteBatch& spriteBatch, const glm::vec2& mouseCoords){
+void Fleet::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, const glm::vec2& mouseCoords){
 	for (auto& ship : m_ships){
-		ship->draw(spriteBatch, ship->collidesPoint(mouseCoords));
+		ship->draw(spriteBatch, grid, ship->collidesPoint(mouseCoords));
 	}
 }
 

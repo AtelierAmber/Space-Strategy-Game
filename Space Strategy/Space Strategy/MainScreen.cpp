@@ -89,10 +89,12 @@ void MainScreen::update(float deltaTime){
 
 	switch (m_interface.getState()){
 	case GAMEPLAY:
-		m_playerFleet.update(deltaTime, &m_grid);
-		m_enemyFleet.update(deltaTime, &m_grid);
-		if (m_placingShips){
-			m_shipToPlace.update(&m_grid, mouseCoords);
+		if (m_executeTurns){
+			m_executeTurns |= m_playerFleet.update(deltaTime, &m_grid);
+			m_executeTurns |= m_enemyFleet.update(deltaTime, &m_grid);
+			if (m_placingShips){
+				m_shipToPlace.update(&m_grid, mouseCoords);
+			}
 		}
 		break;
 	case MENU:
@@ -133,8 +135,8 @@ void MainScreen::draw(){
 		m_shipToPlace.draw(m_spriteBatch, &m_playerFleet, &m_enemyFleet);
 	}
 
-	m_playerFleet.draw(m_spriteBatch, mouseCoords);
-	m_enemyFleet.draw(m_spriteBatch, mouseCoords);
+	m_playerFleet.draw(m_spriteBatch, &m_grid, mouseCoords);
+	m_enemyFleet.draw(m_spriteBatch, &m_grid, mouseCoords);
 
 	//x m_userFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(0.0f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
 	//x m_enemyFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(m_window->getScreenWidth() - m_enemyFont.getFontHeight() * 25 * .2f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
@@ -162,6 +164,10 @@ void MainScreen::specificDraw(){
 	m_interface.draw(m_GLSLPUniformName, m_game->getFps());
 }
 
+void MainScreen::proceedTurn(){
+	
+}
+
 /* Process and check for all defined game inputs */
 void MainScreen::checkInput() {
 	SDL_Event evnt;
@@ -175,10 +181,6 @@ void MainScreen::checkInput() {
 
 	if (m_game->inputManager.isKeyPressed(KeyID::F1)){
 		show_boxes = true;
-	}
-
-	if (m_game->inputManager.isKeyPressed(KeyID::F2)){
-		m_playerFleet.setTurn(!m_playerFleet.getTurn());
 	}
 
 	/* Ship selection */
@@ -278,8 +280,12 @@ void MainScreen::checkInput() {
 			m_playerFleet.getSelectedShip()->setSelected(true);
 		}
 		else if (m_playerFleet.getSelectedShip()){
-			if (!m_enemyFleet.shipAtPosition(mouseCoords)){
+			Ship* enemyShip = m_enemyFleet.shipAtPosition(mouseCoords);
+			if (!enemyShip && !m_placingShips){
 				m_playerFleet.getSelectedShip()->move(m_grid.getGridPos(mouseCoords));
+			}
+			else if (enemyShip){
+				m_playerFleet.getSelectedShip()->queueAttack(enemyShip, true);
 			}
 		}
 		if (debug_game_events){
@@ -295,6 +301,7 @@ void MainScreen::checkInput() {
 			m_playerFleet.removeShip(selectedShip->getID());
 		}
 	}
+	// HACK DEBUG FLEET DAMAGER
 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_MIDDLE)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
@@ -302,7 +309,7 @@ void MainScreen::checkInput() {
 			selectedShip = m_enemyFleet.shipAtPosition(mouseCoords);
 		}
 		if (selectedShip){
-			if (selectedShip->Damage(1, 1, DamageEffect()) == -1 && selectedShip->getShipType() == ShipType::COMMANDSHIP){
+			if (selectedShip->Damage(1, 1, DamageEffect(FIRE, 1.0f, 1.0f, 2)) == 0 && selectedShip->getShipType() == ShipType::COMMANDSHIP){
 				/* Move to game over screen */
 				// Hack
 				setState(Sakura::ScreenState::EXIT_APPLICATION);
