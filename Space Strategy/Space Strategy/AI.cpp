@@ -74,11 +74,11 @@ void AI::loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager){
 		yPositions.push_back(i);
 	}
 #define ADD_SHIP(s_type) if(yPositions.size() > 0){\
-	spawnLocation = glm::ivec2(grid->getDims().x-1, yPositions.back());\
+	spawnLocation = glm::ivec2(grid->getDims().x-20, yPositions.back());\
 	while (m_fleet.addShip(grid, resourceManager, s_type, glm::vec2(grid->getScreenPos(spawnLocation) + (grid->getTileDims() / 2.0f)), spawnLocation, 0, false) == -1){\
 		yPositions.pop_back();\
 		if(yPositions.size() <= 0) break;\
-		spawnLocation = glm::ivec2(grid->getDims().x-1, yPositions.back());\
+		spawnLocation = glm::ivec2(grid->getDims().x-5, yPositions.back());\
 					}\
 	if(yPositions.size() > 0) yPositions.pop_back();\
 	if(m_fleet.getFleetSize() > 0) m_fleet.getShips().back().get()->scaleStrength(((float)m_currentWave / (float)LEVEL6SPAWN), ((float)m_currentWave / (float)LEVEL6SPAWN) / 2.0f); }

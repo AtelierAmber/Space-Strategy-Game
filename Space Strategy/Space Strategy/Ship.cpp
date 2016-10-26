@@ -298,7 +298,9 @@ const CP Ship::getTypeCost(ShipType shipType){
 void Ship::scaleStrength(float healthScaler, float damageScaler){
 	if (healthScaler > 1.0f){
 		m_shield = (int)((float)m_shield * healthScaler);
+		m_shieldMax = (int)((float)m_shieldMax * healthScaler);
 		m_hull = (int)((float)m_hull * healthScaler);
+		m_hullMax = (int)((float)m_hullMax * healthScaler);
 	}
 	if (damageScaler > 1.0f){
 		m_shieldDamage = (int)((float)m_shieldDamage * damageScaler);
