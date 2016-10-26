@@ -24,7 +24,7 @@ public:
 	void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, const glm::vec2& mouseCoords);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
-	const std::vector<std::shared_ptr<Ship>>& getShips() const{ return m_ships; }
+	std::vector<std::shared_ptr<Ship>>& getShips() { return m_ships; }
 	Ship* shipAtPosition(glm::vec2 absPos);
 
 	void setAddedShip(ShipType addedShip){ m_addedShip = addedShip; }
@@ -41,11 +41,11 @@ public:
 	}
 	Ship*& getSelectedShip(){ return m_selectedShip; }
 
-	int getFleetSize(){ return (int)m_ships.size(); }
+	const int getFleetSize() const{ return (int)m_ships.size(); }
 	std::string getTeam(){ return m_fleetColor; }
 
 	void sortFleet();
-	bool shipThreatLevel(Ship* ship1, Ship* ship2);
+	static bool shipThreatLevel(std::shared_ptr<Ship> ship1, std::shared_ptr<Ship> ship2);
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;

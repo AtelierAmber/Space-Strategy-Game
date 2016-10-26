@@ -11,6 +11,6 @@ AssaultCarrier::~AssaultCarrier(){
 
 }
 
-int AssaultCarrier::createFighter(glm::ivec2 position, Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager& resourceManager){
-	return m_fleet->addShip(grid, enemyFleet, resourceManager, ShipType::FIGHTER, grid->getScreenPos(position), position, false);
+int AssaultCarrier::createFighter(glm::ivec2 position, Grid* grid, Sakura::ResourceManager& resourceManager){
+	return m_fleet->addShip(grid, resourceManager, ShipType::FIGHTER, grid->getScreenPos(position), position, false);
 }

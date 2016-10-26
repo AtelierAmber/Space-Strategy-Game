@@ -12,10 +12,10 @@ public:
 
 	void update(Grid* grid, glm::vec2 mouseCoords);
 
-	void draw(Sakura::SpriteBatch& spriteBatch, Fleet* playerFleet, Fleet* enemyFleet);
+	void draw(Sakura::SpriteBatch& spriteBatch, Fleet& playerFleet, Fleet& enemyFleet);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
-	bool checkCollision(Fleet* fleet);
+	bool checkCollision(Fleet& fleet);
 	void setShipType(ShipType shipType, Sakura::ResourceManager &resourceManager, const std::string& team, Grid* grid);
 	ShipType getShipType(){ return m_shipType; }
 	glm::vec2 getPosition(){ return m_position; }

@@ -53,6 +53,7 @@ private:
 	//////////////////////////////////////////////////////////////////////////
 
 	float m_deltaTime = 1.0f;
+	float m_timer = 0.0f;
 
 	bool m_placingShips = false;
 	GhostShip m_shipToPlace;

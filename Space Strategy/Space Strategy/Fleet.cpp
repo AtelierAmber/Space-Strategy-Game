@@ -34,6 +34,8 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 		return -2;
 	}
 
+	int placementDir = (m_enemyFleet) ? -1 : 1;
+
 	/* Ship Base Stats (speed, shield, hull, shield damage, hull damage, range, damage effect(strength, chance), cost)
 	 * Cutter: low shield, low health, very fast, travels in groups, attacks on have a 1/groupSize % chance to hit
 	 * -> 10, 2, 2, 1, 1, 1, Normal, 1CP
@@ -56,7 +58,6 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 	 * Battleship: Mother of all ships, high shield, high health, slow, high damage, can set fire to ships
 	 * -> 3, 15, 15, 7, 7, 3, Fire(5, 25%), 40CP 
 	 */
-	if(!m_isEnemy) m_gui->addUsedCP(Ship::getTypeCost(shipType) * (int)costsCP);
 	switch (shipType)
 	{
 	case ShipType::CUTTER:
@@ -76,31 +77,31 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 		m_ships.emplace_back(new Corvette(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::CRUISER:
-		if (shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y))){
+		if (shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y))){
 			return -1;
 		}
 		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 5, 7, 7, 3, 3, 3, 12 * (int)costsCP, DamageEffect()));
 		break;
 	case ShipType::CARRIER:
-		if (shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y))){
+		if (shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y))){
 			return -1;
 		}
 		m_ships.emplace_back(new Carrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::DESTROYER:
-		if (shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y))){
+		if (shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y))){
 			return -1;
 		}
 		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 3, 10, 10, 2, 7, 3, 20 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::ASSAULT_CARRIER:
-		if (shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y))){
+		if (shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y))){
 			return -1;
 		}
 		m_ships.emplace_back(new AssaultCarrier(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
 		break;
 	case ShipType::BATTLESHIP:
-		if (shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + grid->getTileDims().x, absPosition.y))){
+		if (shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y)) || m_enemyFleet->shipAtPosition(glm::vec2(absPosition.x + (placementDir * grid->getTileDims().x), absPosition.y))){
 			return -1;
 		}
 		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 3, 15, 15, 7, 7, 3, 40 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.25f, 5)));
@@ -113,6 +114,7 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 		break;
 	}
 	m_ships.back()->setID(m_ships.size()-1);
+	if (!m_isEnemy) m_gui->addUsedCP(Ship::getTypeCost(shipType) * (int)costsCP);
 	sortFleet();
 	return 0;
 }
@@ -192,7 +194,7 @@ void Fleet::sortFleet(){
 	std::sort(m_ships.begin(), m_ships.end(), shipThreatLevel);
 }
 
-bool Fleet::shipThreatLevel(Ship* ship1, Ship* ship2){
-	return (ship1->getShipThreat() > ship2->getShipThreat());
+bool Fleet::shipThreatLevel(std::shared_ptr<Ship> ship1, std::shared_ptr<Ship> ship2){
+	return (ship1.get()->getShipThreat() > ship2.get()->getShipThreat());
 }
 

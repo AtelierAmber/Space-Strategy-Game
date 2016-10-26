@@ -15,7 +15,7 @@ void GhostShip::update(Grid* grid, glm::vec2 mouseCoords){
 	m_bounds.y1 = grid->getScreenPos(m_position).y + m_bounds.height;
 }
 
-void GhostShip::draw(Sakura::SpriteBatch& spriteBatch, Fleet* playerFleet, Fleet* enemyFleet){
+void GhostShip::draw(Sakura::SpriteBatch& spriteBatch, Fleet& playerFleet, Fleet& enemyFleet){
 	glm::vec4 uvRect = m_texture.getUVs(0);
 	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
 	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y + 8.0f);
@@ -29,8 +29,8 @@ void GhostShip::drawDebug(Sakura::DebugRenderer& debugRenderer){
 	debugRenderer.drawBox(glm::vec4(m_bounds.x1, m_bounds.y2, m_bounds.width, m_bounds.height), Sakura::ColorRGBA8(255,0,0,255), 0);
 }
 
-bool GhostShip::checkCollision(Fleet* fleet){
-	for (auto& ship : fleet->getShips()){
+bool GhostShip::checkCollision(Fleet& fleet){
+	for (auto& ship : fleet.getShips()){
 		if (ship->collidesRect(m_bounds)){
 			return true;
 		}

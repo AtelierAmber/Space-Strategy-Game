@@ -53,6 +53,7 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 		m_tileSpan = glm::vec2(2, 3);
 	}
 	else m_tileSpan = glm::vec2(1, 1);
+	m_threatLevel = (float)m_CPcost;
 	m_bounds.initialize(grid->getScreenPos(m_position).x + 2.0f, grid->getScreenPos(m_position).y + 2.0f, m_tileSpan.x * grid->getTileDims().x - 4.0f, m_tileSpan.y * grid->getTileDims().y - 4.0f, true);
 }
 
@@ -291,6 +292,17 @@ const CP Ship::getTypeCost(ShipType shipType){
 	default:
 		return 0;
 		break;
+	}
+}
+
+void Ship::scaleStrength(float healthScaler, float damageScaler){
+	if (healthScaler > 1.0f){
+		m_shield = (int)((float)m_shield * healthScaler);
+		m_hull = (int)((float)m_hull * healthScaler);
+	}
+	if (damageScaler > 1.0f){
+		m_shieldDamage = (int)((float)m_shieldDamage * damageScaler);
+		m_hullDamage = (int)((float)m_hullDamage * damageScaler);
 	}
 }
 

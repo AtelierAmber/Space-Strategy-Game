@@ -120,6 +120,9 @@ public:
 	void setShipType(ShipType shipType) { m_shipType = shipType; }
 
 	float getShipThreat(){ return m_threatLevel; }
+	int getShipHull(){ return m_hull; }
+	int getShipShield(){ return m_shield; }
+	void scaleStrength(float healthScaler, float damageScaler);
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;

@@ -11,6 +11,6 @@ Carrier::~Carrier(){
 
 }
 
-int Carrier::createCutter(glm::ivec2 position, Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager& resourceManager){
-	return m_fleet->addShip(grid, enemyFleet, resourceManager, ShipType::CUTTER, grid->getScreenPos(position), position, false);
+int Carrier::createCutter(glm::ivec2 position, Grid* grid, Sakura::ResourceManager& resourceManager){
+	return m_fleet->addShip(grid, resourceManager, ShipType::CUTTER, grid->getScreenPos(position), position, false);
 }

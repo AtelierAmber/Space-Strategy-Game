@@ -75,9 +75,10 @@ void MainScreen::onEntry(){
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 
 	m_grid.init(glm::ivec2(27, 27), glm::vec4(0.0f, grid_padding_top, 0.0f, grid_padding_bottom), m_window);
-	m_ai.init(&m_playerFleet, "Red", &m_interface, true);
-	m_playerFleet.init(m_ai.getFleet(), "Gray", &m_interface, false);
-	m_playerFleet.addShip(&m_grid, m_ai.getFleet(), m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
+	m_ai.init(&m_playerFleet, "Red", &m_interface);
+	m_playerFleet.init(m_ai.FleetPtr(), "Gray", &m_interface, false);
+	m_playerFleet.addShip(&m_grid, m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
+	m_ai.loadNextWave(&m_grid, m_resourceManager);
 }
 
 void MainScreen::onExit(){
@@ -104,7 +105,7 @@ void MainScreen::update(float deltaTime){
 		m_addShipsButton.update(m_game->inputManager, m_camera);
 		m_readyButton.update(m_game->inputManager, m_camera);
 		if (!m_turnsFinished){
-			m_turnsFinished = m_playerFleet.update(deltaTime, &m_grid) && m_enemyFleet.update(deltaTime, &m_grid);
+			m_turnsFinished = m_playerFleet.update(deltaTime, &m_grid) && m_ai.update(deltaTime, &m_grid);
 		}
 		if (m_placingShips){
 			m_shipToPlace.update(&m_grid, mouseCoords);
@@ -115,8 +116,9 @@ void MainScreen::update(float deltaTime){
 
 		break;
 	case FLEET:
-		m_playerFleet.update(deltaTime, &m_grid);
-		m_enemyFleet.update(deltaTime, &m_grid);
+		if (!m_turnsFinished){
+			m_turnsFinished = m_playerFleet.update(deltaTime, &m_grid) && m_ai.update(deltaTime, &m_grid);
+		}
 		m_addShipsButton.update(m_game->inputManager, m_camera);
 		m_readyButton.update(m_game->inputManager, m_camera);
 		break;
@@ -124,9 +126,14 @@ void MainScreen::update(float deltaTime){
 		break;
 	}
 	
-	if (m_enemyFleet.getFleetSize() == 0){
-		//m_interface.addScore(500);
+	if (m_ai.getFleet().getFleetSize() == 0){
 		/* Spawn new enemy fleet */
+		if (m_timer >= 60.0f * 5.0f){
+			m_interface.addScore(500);
+			m_ai.loadNextWave(&m_grid, m_resourceManager);
+			m_timer = 0.0f;
+		}
+		else m_timer += 0.5f;
 	}
 
 	m_camera.update();
@@ -149,7 +156,7 @@ void MainScreen::draw(){
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f + grid_padding_bottom, m_window->getScreenWidth(), m_window->getScreenHeight() - (grid_padding_top + grid_padding_bottom)), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 
 	if (m_placingShips){
-		m_shipToPlace.draw(m_spriteBatch, &m_playerFleet, &m_enemyFleet);
+		m_shipToPlace.draw(m_spriteBatch, m_playerFleet, *m_ai.FleetPtr());
 	}
 	switch (m_interface.getState()){
 	case GAMEPLAY:
@@ -160,7 +167,7 @@ void MainScreen::draw(){
 		break;
 	}
 	m_playerFleet.draw(m_spriteBatch, &m_grid, mouseCoords);
-	m_enemyFleet.draw(m_spriteBatch, &m_grid, mouseCoords);
+	m_ai.draw(m_spriteBatch, &m_grid, mouseCoords);
 
 	//x m_userFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(0.0f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
 	//x m_enemyFont.draw(m_spriteBatch, "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer nec odio. Praesent libero.\n Sed cursus ante dapibus diam.\n Sed nisi. Nulla quis sem at nib.", glm::vec2(m_window->getScreenWidth() - m_enemyFont.getFontHeight() * 25 * .2f, m_window->getScreenHeight() - m_userFont.getFontHeight() * 0.2f), glm::vec2(0.2f), 1.0f, Sakura::ColorRGBA8(255, 0, 0, 255), Sakura::Justification::LEFT);
@@ -172,7 +179,7 @@ void MainScreen::draw(){
 	}
 	if (show_boxes){
 		m_playerFleet.drawDebug(m_debugRenderer);
-		m_enemyFleet.drawDebug(m_debugRenderer);
+		m_ai.drawDebug(m_debugRenderer);
 		if (m_placingShips){
 			m_shipToPlace.drawDebug(m_debugRenderer);
 		}
@@ -284,7 +291,7 @@ void MainScreen::checkInput() {
 		int additionalData = (m_playerFleet.getAddedShip() == ShipType::INTERCEPTOR) ? false : true;
 		glm::ivec2 addPos = m_grid.getGridPos(mouseCoords);
 		if (addPos.x != -1 && addPos.y != -1){
-			m_playerFleet.addShip(&m_grid, &m_enemyFleet, m_resourceManager, m_playerFleet.getAddedShip(), mouseCoords, addPos, additionalData);
+			m_playerFleet.addShip(&m_grid, m_resourceManager, m_playerFleet.getAddedShip(), mouseCoords, addPos, additionalData);
 		}
 	}
 
@@ -295,7 +302,7 @@ void MainScreen::checkInput() {
 			m_playerFleet.setSelectedShip(selectedShip);
 		}
 		else if (m_playerFleet.getSelectedShip()){
-			Ship* enemyShip = m_enemyFleet.shipAtPosition(mouseCoords);
+			Ship* enemyShip = m_ai.enemyShipAtPosition(mouseCoords);
 			if (!enemyShip && !m_placingShips){
 				glm::ivec2 movePos = m_grid.getGridPos(mouseCoords);
 				if (movePos.x != -1 && movePos.y != -1){
@@ -319,19 +326,20 @@ void MainScreen::checkInput() {
 			m_playerFleet.removeShip(selectedShip->getID());
 		}
 	}
+
 	// HACK DEBUG FLEET DAMAGER
-	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_MIDDLE)){
-		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
-		if (!selectedShip){
-			selectedShip = m_enemyFleet.shipAtPosition(mouseCoords);
-		}
-		if (selectedShip){
-			if (selectedShip->Damage(1, 1, DamageEffect(FIRE, 1.0f, 1.0f, 2)) == 0 && selectedShip->getShipType() == ShipType::COMMANDSHIP){
-				/* Move to game over screen */
-				// Hack
-				setState(Sakura::ScreenState::EXIT_APPLICATION);
-			}
-		}
-	}
+// 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_MIDDLE)){
+// 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+// 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
+// 		if (!selectedShip){
+// 			selectedShip = m_ai.enemyShipAtPosition(mouseCoords);
+// 		}
+// 		if (selectedShip){
+// 			if (selectedShip->Damage(1, 1, DamageEffect(FIRE, 1.0f, 1.0f, 2)) == 0 && selectedShip->getShipType() == ShipType::COMMANDSHIP){
+// 				/* Move to game over screen */
+// 				// Hack
+// 				setState(Sakura::ScreenState::EXIT_APPLICATION);
+// 			}
+// 		}
+// 	}
 }

@@ -32,7 +32,8 @@ int Cutter::decreaseShips(){
 }
 
 int Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect){
-	std::mt19937 gen((unsigned int)time(nullptr));
+	std::random_device rd;
+	std::mt19937 gen(rd());
 	std::uniform_real_distribution<float> percent(0.0f, 1.0f);
 	if (percent(gen) <= (1.0f/(float)m_numShips)){
 		if (statusEffect.effect != FIRE){

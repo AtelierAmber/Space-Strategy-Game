@@ -8,6 +8,6 @@ public:
 		ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy);
 	~Carrier();
 
-	int createCutter(glm::ivec2 position, Grid* grid, Fleet* enemyFleet, Sakura::ResourceManager& resourceManager);
+	int createCutter(glm::ivec2 position, Grid* grid, Sakura::ResourceManager& resourceManager);
 };
 
