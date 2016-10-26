@@ -44,7 +44,7 @@ public:
 	const int getFleetSize() const{ return (int)m_ships.size(); }
 	std::string getTeam(){ return m_fleetColor; }
 
-	void sortFleet();
+	void sortFleet(int left, int right);
 	static bool shipThreatLevel(std::shared_ptr<Ship> ship1, std::shared_ptr<Ship> ship2);
 
 private:

@@ -7,7 +7,7 @@
 
 Interceptor::Interceptor(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team,
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, bool isVisible){
-	init(grid, fleet, resourceManager, team, shipType, position, enemy, 10, 5, 2, 1, 0, 3, 5, DamageEffect(POWERSHORTAGE, 1.0f, 0.05f, 2));
+	init(grid, fleet, resourceManager, team, shipType, position, enemy, 10, 5, 2, 1, 0, 3, 5, DamageEffect(POWERSHORTAGE, 1.0f, 0.25f, 2));
 	if (!isVisible){
 		cloak();
 	}
@@ -49,8 +49,8 @@ void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover)
 		uvRect.z *= -1;
 	}
 	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
-	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y);
-	glm::vec4 destRect = glm::vec4(m_bounds.x1, m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
+	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y + 8.0f);
+	glm::vec4 destRect = glm::vec4(m_bounds.x1 + ((m_bounds.width / 2.0f) - (shipSize.x / 2.0f)), m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);
 	if (m_isSelected){
 		float scaler = 4 * std::abs(std::sin(m_selectedSin));
 		destRect.x -= scaler / 2;
@@ -59,23 +59,30 @@ void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover)
 		destRect.w += scaler;
 		m_selectedSin += 0.05f;
 	}
-	int shipAlpha = (!m_isVisible) ? 50 : 255;
-	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, shipAlpha));
-	if (hover){
+	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	if (m_shield){
+		spriteBatch.draw(destRect, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_shieldTex.id, 0.1f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	}
+	if (hover && m_shipType != ShipType::COMMANDSHIP){
 #define health_scale 2.0f
 		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
 		for (int i = 0; i < m_hullMax; ++i){
 			int uv = (i < m_hull) ? 1 : 2;
 			destRect.x += (destRect.z + heart_spacing);
+			destRect.y += (int)(i / 15);
 			spriteBatch.draw(destRect, m_hearts.getUVs(uv), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 		destRect.x = m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f);
 		for (int i = 0; i < m_shield; ++i){
 			destRect.x += (destRect.z + heart_spacing);
+			destRect.y += (int)(i / 15);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 	}
 	if (m_position != m_newPosition && !m_enemy){
 		drawTravelTrail(spriteBatch, grid);
+	}
+	if (m_queuedAttack  && !m_enemy){
+		drawAttackTrail(spriteBatch, grid);
 	}
 }

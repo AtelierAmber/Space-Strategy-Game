@@ -54,7 +54,10 @@ void Ship::init(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManag
 	}
 	else m_tileSpan = glm::vec2(1, 1);
 	m_threatLevel = (float)m_CPcost;
-	m_bounds.initialize(grid->getScreenPos(m_position).x + 2.0f, grid->getScreenPos(m_position).y + 2.0f, m_tileSpan.x * grid->getTileDims().x - 4.0f, m_tileSpan.y * grid->getTileDims().y - 4.0f, true);
+	if (shipType == ShipType::COMMANDSHIP){
+		m_threatLevel = 25;
+	}
+	m_bounds.initialize(grid->getScreenPos(m_position).x, grid->getScreenPos(m_position).y, m_tileSpan.x * grid->getTileDims().x, m_tileSpan.y * grid->getTileDims().y, true);
 }
 
 int Ship::destroy(){
@@ -214,6 +217,13 @@ int Ship::calculateBadEffects(){
 	return 0;
 }
 
+void Ship::move(const glm::ivec2& newPosition, Grid* grid, Fleet* enemyFleet){
+	if (!m_fleet->shipAtPosition(glm::vec2(grid->getScreenPos(newPosition) + (grid->getTileDims() / 2.0f))) && !enemyFleet->shipAtPosition(glm::vec2(grid->getScreenPos(newPosition) + (grid->getTileDims() / 2.0f)))){
+		m_newPosition = newPosition;
+		m_moveFinished = false;
+	}
+}
+
 const std::string Ship::getShipName(ShipType shipType){
 	switch (shipType)
 	{
@@ -333,15 +343,23 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 	}
 	if (hover && m_shipType != ShipType::COMMANDSHIP){
 #define health_scale 2.0f
-		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x-1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
+		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x-1) * (m_bounds.width / m_tileSpan.x)) - ((std::min(std::max(m_hullMax, m_shieldMax), 16) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
 		for (int i = 0; i < m_hullMax; ++i){
 			int uv = (i < m_hull) ? 1 : 2;
-			destRect.x += (destRect.z + heart_spacing);
+			if (!(i % 15) && i != 0){
+				destRect.y += (destRect.w + heart_spacing);
+				destRect.x -= 14 * (destRect.z + heart_spacing);
+			}else destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(uv), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
-		destRect.x = m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f);
+		destRect.x = m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::min(std::max(m_hullMax, m_shieldMax), 16) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f);
+		destRect.y = m_bounds.y1 + 5.0f;
 		for (int i = 0; i < m_shield; ++i){
-			destRect.x += (destRect.z + heart_spacing);
+			if (!(i % 15) && i != 0){
+				destRect.y += (destRect.w + heart_spacing);
+				destRect.x -= 14 * (destRect.z + heart_spacing);
+			}
+			else destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 	}

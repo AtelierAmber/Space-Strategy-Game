@@ -1,4 +1,5 @@
 #include "MainGUI.h"
+#include "Fleet.h"
 
 /************************************************************************/
 /* GUI                                                                  */
@@ -32,6 +33,16 @@ void MainGUI::update(Sakura::InputManager& inputManager){
 	default:
 		std::printf("Gui has no state!\n");
 		break;
+	}
+}
+
+bool MainGUI::updateIcons(Sakura::InputManager& inputManager, const glm::vec2& mouseCoords, Fleet* pFleet){
+	for (int i = 0; i < 10; ++i){
+		if (m_shipIcons[i].rect.pointIntersection(mouseCoords.x, mouseCoords.y)){
+			m_selectedShipType = m_shipIcons[i].shipType;
+			pFleet->setAddedShip(m_shipIcons[i].shipType);
+			break;
+		}
 	}
 }
 

@@ -39,7 +39,7 @@ public:
 	Fleet* FleetPtr() { return &m_fleet; }
 private:
 	Fleet m_fleet;
-	int m_currentWave = 100;
+	int m_currentWave = 1000;
 	Fleet* m_playerFleet = nullptr;
 };
 

@@ -23,6 +23,8 @@ struct ShipIcon {
 
 #define icon_scale 1.5f
 
+class Fleet;
+
 class MainGUI :
 	public Sakura::GUIInterface
 {
@@ -34,6 +36,7 @@ public:
 	void destroyComponents() override;
 
 	void update(Sakura::InputManager& inputManager) override;
+	bool updateIcons(Sakura::InputManager& inputManager, const glm::vec2& mouseCoords, Fleet* pFleet);
 
 	void IDraw(float fps) override;
 

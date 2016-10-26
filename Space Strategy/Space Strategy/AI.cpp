@@ -27,12 +27,53 @@ void AI::drawDebug(Sakura::DebugRenderer& debugRenderer){
 bool AI::update(float deltaTime, Grid* grid){
 	/* AI Calculations */
 	for (auto& ship : m_fleet.getShips()){
-		for (auto& pShip : m_playerFleet->getShips()){
+		/* Loop through from first element to last because the fleet is sorted from lowest threat level to highest threat level */
+		for (int i = m_playerFleet->getFleetSize()-1; i > 0; ++i){
+			/* Calculations 
+			 * if pShip can attack ship && pShip.shield damage > ship.shield/2 || (!ship.shield && pShip.hull damage > ship.hull/2) -> run away 
+			 * if pShip in range of ship.speed & ship.attack && pShip largest threat level -> move towards
+			 * if pShip in range && pShip is largest threat level -> attack
+			 * if ship.is interceptor -> find pShip with largest shield && largest threat level in range of move and attack -> move towards and attack 
+			 * if ship.is interceptor && ship.can cloak -> ship.cloak after attacking or moving
+			 * if no pship within attack+move range of ship move towards nearest ship
+			 * if ship.is corvette -> heal nearest ship, */
+			switch (ship->getShipType()){
+			case ShipType::CUTTER:
+			case ShipType::FIGHTER :
 
+				break;
+			case ShipType::INTERCEPTOR:
+
+				break;
+			case ShipType::BOMBER:
+
+				break;
+			case ShipType::CORVETTE:
+
+				break;
+			case ShipType::CRUISER:
+
+				break;
+			case ShipType::CARRIER:
+
+				break;
+			case ShipType::DESTROYER:
+
+				break;
+			case ShipType::ASSAULT_CARRIER:
+
+				break;
+			case ShipType::BATTLESHIP:
+
+				break;
+			}
 		}
 	}
 	/*******************/
 	return m_fleet.update(deltaTime, grid);
+	for (auto& ship : m_fleet.getShips()){
+		ship.get()->removeAttackMark();
+	}
 }
 
 #define max_ships 20
@@ -73,15 +114,17 @@ void AI::loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager){
 	for (int i = 0; i < grid->getDims().y; ++i){
 		yPositions.push_back(i);
 	}
-#define ADD_SHIP(s_type) if(yPositions.size() > 0){\
-	spawnLocation = glm::ivec2(grid->getDims().x-20, yPositions.back());\
-	while (m_fleet.addShip(grid, resourceManager, s_type, glm::vec2(grid->getScreenPos(spawnLocation) + (grid->getTileDims() / 2.0f)), spawnLocation, 0, false) == -1){\
+#define ADD_SHIP(s_type, add_args) if(yPositions.size() > 0){\
+	spawnLocation = glm::ivec2(grid->getDims().x-10, yPositions.back());\
+	int s_id = m_fleet.addShip(grid, resourceManager, s_type, glm::vec2(grid->getScreenPos(spawnLocation) + (grid->getTileDims() / 2.0f)), spawnLocation, add_args, false);\
+	while (s_id == -1){\
 		yPositions.pop_back();\
 		if(yPositions.size() <= 0) break;\
-		spawnLocation = glm::ivec2(grid->getDims().x-5, yPositions.back());\
-					}\
+		spawnLocation = glm::ivec2(grid->getDims().x-10, yPositions.back());\
+		s_id = m_fleet.addShip(grid, resourceManager, s_type, glm::vec2(grid->getScreenPos(spawnLocation) + (grid->getTileDims() / 2.0f)), spawnLocation, add_args, false);\
+	}\
 	if(yPositions.size() > 0) yPositions.pop_back();\
-	if(m_fleet.getFleetSize() > 0) m_fleet.getShips().back().get()->scaleStrength(((float)m_currentWave / (float)LEVEL6SPAWN), ((float)m_currentWave / (float)LEVEL6SPAWN) / 2.0f); }
+	if(m_fleet.getFleetSize() > 0) m_fleet.getShips()[s_id].get()->scaleStrength(((float)m_currentWave / (float)LEVEL6SPAWN), ((float)m_currentWave / (float)LEVEL6SPAWN) / 2.0f); }
 	/***************/
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -93,11 +136,11 @@ void AI::loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager){
 		while (numShipsToSpawn >= curMaxNumShips - (int)((numShipsToSpawn - LEVEL6SPAWN) / 2)){
 			if (randL7Type(gen) == 0){
 				//Spawn BattleShip
-				ADD_SHIP(ShipType::BATTLESHIP);
+				ADD_SHIP(ShipType::BATTLESHIP, 0);
 			}
 			else {
 				//Spawn Assault Carrier
-				ADD_SHIP(ShipType::ASSAULT_CARRIER);
+				ADD_SHIP(ShipType::ASSAULT_CARRIER, 0);
 			}
 			--numShipsToSpawn;
 		}
@@ -108,11 +151,11 @@ void AI::loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager){
 		while (numShipsToSpawn > curMaxNumShips - 2){
 			if (randL6Type(gen) == 0){
 				//Spawn Carrier
-				ADD_SHIP(ShipType::CARRIER);
+				ADD_SHIP(ShipType::CARRIER, 0);
 			}
 			else {
 				//Spawn Destroyer
-				ADD_SHIP(ShipType::DESTROYER);
+				ADD_SHIP(ShipType::DESTROYER, 0);
 			}
 			--numShipsToSpawn;
 		}
@@ -121,21 +164,21 @@ void AI::loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager){
 	if (currentlySpawning & LEVEL4){
 		while (numShipsToSpawn > curMaxNumShips - ((currentlySpawning & LEVEL5SPAWN) ? 2 : 1)){
 			//Spawn Corvette
-			ADD_SHIP(ShipType::CORVETTE);
+			ADD_SHIP(ShipType::CORVETTE, 0);
 			--numShipsToSpawn;
 		}
 	}
 	curMaxNumShips = numShipsToSpawn;
 	if (currentlySpawning & LEVEL3){
 		std::uniform_int_distribution<int> randL4Type(1, 5);
-		while (numShipsToSpawn > curMaxNumShips - (int)std::round((double)numShipsToSpawn/3.0)){
+		while (numShipsToSpawn > curMaxNumShips - (int)std::round((double)curMaxNumShips/ 3.0)){
 			if (randL4Type(gen) == 2 || randL4Type(gen) == 4){
 				//Spawn Interceptor
-				ADD_SHIP(ShipType::INTERCEPTOR);
+				ADD_SHIP(ShipType::INTERCEPTOR, 1);
 			}
 			else {
 				//Spawn Cutter
-				ADD_SHIP(ShipType::CUTTER);
+				ADD_SHIP(ShipType::CUTTER, 0);
 			}
 			--numShipsToSpawn;
 		}
@@ -144,13 +187,13 @@ void AI::loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager){
 	if (currentlySpawning & LEVEL2){
 		while (numShipsToSpawn > curMaxNumShips - ((currentlySpawning & LEVEL4SPAWN) ? ((currentlySpawning & LEVEL5SPAWN) ? 3 : 2) : 1)){
 			//Spawn Bomber
-			ADD_SHIP(ShipType::BOMBER);	
+			ADD_SHIP(ShipType::BOMBER, 0);	
 			--numShipsToSpawn;
 		}
 	}
 	while (numShipsToSpawn && (int)yPositions.size() > 0){
 		//Spawn "Fodder"
-		ADD_SHIP((currentlySpawning & LEVEL4) ? ShipType::CRUISER : ShipType::FIGHTER);
+		ADD_SHIP((currentlySpawning & LEVEL4) ? ShipType::CRUISER : ShipType::FIGHTER, 0);
 		--numShipsToSpawn;
 	}
 	yPositions.clear();

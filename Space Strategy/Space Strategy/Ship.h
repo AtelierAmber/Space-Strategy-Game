@@ -85,7 +85,7 @@ public:
 
 	void damageOther(Ship* otherShip, bool shieldDamage /* If false, deal hull damage, else deal shield damage */);
 
-	/* Return true when finished with concurrent updates */
+	/* returns true if move is finished, false if the move still needs to be updated */
 	virtual int update(float deltaTime, Grid* grid);
 	virtual bool updateMove(float deltaTime, Grid* grid);
 	virtual void updateAttack();
@@ -93,10 +93,7 @@ public:
 	void calculateFriendlyEffects();
 	int calculateBadEffects();
 
-	void move(const glm::ivec2& newPosition){ 
-		m_newPosition = newPosition; 
-		m_moveFinished = false;
-	}
+	void move(const glm::ivec2& newPosition, Grid* grid, Fleet* enemyFleet);
 	const glm::ivec2& getPosition(){ return m_position; };
 	const glm::ivec2& getTileSpan(){ return m_tileSpan; }
 	const bool& isEnemy(){ return m_enemy; }
@@ -123,6 +120,9 @@ public:
 	int getShipHull(){ return m_hull; }
 	int getShipShield(){ return m_shield; }
 	void scaleStrength(float healthScaler, float damageScaler);
+
+	void markForAttack(){ m_beingAttacked = true; }
+	void removeAttackMark(){ m_beingAttacked = false; }
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -135,6 +135,7 @@ protected:
 	bool m_enemy = false;
 	CP m_CPcost = 0;
 	bool m_canAttack = true;
+	bool m_beingAttacked = false;
 
 	int m_shieldMax= 5;
 	int m_hullMax= 5;

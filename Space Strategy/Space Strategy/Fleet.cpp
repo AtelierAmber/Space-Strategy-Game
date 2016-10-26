@@ -42,7 +42,7 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 	 * Fighter: low shield, average health, very fast
 	 * -> 8, 3, 5, 1, 1, 2, Normal, 2CP
 	 * Interceptor: average shield, low health, very fast, can cloak, can shut down enemy shields
-	 * -> 10, 5, 2, 1, 0, 3, PowerShortage(2, 5%), 5CP
+	 * -> 10, 5, 2, 1, 0, 3, PowerShortage(2, 25%), 5CP
 	 * Bomber: average shield, high health, slow, long range high damage attacks, can set fire to ships
 	 * -> 2, 5, 2, 1, 1, 10, Fire(5, 15%), 10CP
 	 * Corvette: average shield, average health, can boost other ships, damage enemy shields
@@ -113,10 +113,11 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 		return -3;
 		break;
 	}
-	m_ships.back()->setID(m_ships.size()-1);
+	Ship* refShip = m_ships.back().get();
+	refShip->setID(m_ships.size() - 1);
 	if (!m_isEnemy) m_gui->addUsedCP(Ship::getTypeCost(shipType) * (int)costsCP);
-	sortFleet();
-	return 0;
+	sortFleet(0, m_ships.size() - 1);
+	return refShip->getID();
 }
 
 int Fleet::removeShip(unsigned int shipIndex){
@@ -134,7 +135,7 @@ int Fleet::removeShip(unsigned int shipIndex){
 		m_ships[shipIndex] = m_ships.back();
 		m_ships[shipIndex]->setID(shipIndex);
 		m_ships.pop_back();
-		sortFleet();
+		sortFleet(0, m_ships.size() - 1);
 		return 0;
 	}
 	return -1;
@@ -190,8 +191,37 @@ Ship* Fleet::shipAtPosition(glm::vec2 absPos){
 	return nullptr;
 }
 
-void Fleet::sortFleet(){
-	std::sort(m_ships.begin(), m_ships.end(), shipThreatLevel);
+void Fleet::sortFleet(int left, int right){
+	/* Sort fleet using quick sort 
+	 * Can't use std::sort due to changing the id of the ships */
+	if (left == right){
+		return;
+	}
+	int i = left, j = right;
+	int tmp;
+	Ship* pivot = m_ships[(left + right) / 2].get();
+
+	/* partition */
+	while (i <= j) {
+		while (m_ships[i]->getShipThreat() < pivot->getShipThreat())
+			i++;
+		while (m_ships[j]->getShipThreat() > pivot->getShipThreat())
+			j--;
+		if (i <= j) {
+			std::swap(m_ships[i], m_ships[j]);
+			unsigned int tmpID = m_ships[i]->getID();
+			m_ships[i]->setID(m_ships[j]->getID());
+			m_ships[j]->setID(tmpID);
+			i++;
+			j--;
+		}
+	};
+
+	/* recursion */
+	if (left < j)
+		sortFleet(left, j);
+	if (i < right)
+		sortFleet(i, right);
 }
 
 bool Fleet::shipThreatLevel(std::shared_ptr<Ship> ship1, std::shared_ptr<Ship> ship2){

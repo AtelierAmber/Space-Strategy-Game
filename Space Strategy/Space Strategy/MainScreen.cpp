@@ -138,6 +138,8 @@ void MainScreen::update(float deltaTime){
 
 	m_camera.update();
 	m_interface.update(m_game->inputManager);
+	m_interface.updateIcons(m_game->inputManager, mouseCoords, &m_playerFleet);
+	m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	m_interface.setSelectedShipType(m_playerFleet.getAddedShip());
 	/* Finish Updates */
 	checkInput();
@@ -216,43 +218,33 @@ void MainScreen::checkInput() {
 	/* Ship selection */
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM0)){
 		m_playerFleet.setAddedShip(ShipType::CUTTER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM1)){
 		m_playerFleet.setAddedShip(ShipType::FIGHTER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM2)){
 		m_playerFleet.setAddedShip(ShipType::INTERCEPTOR);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM3)){
 		m_playerFleet.setAddedShip(ShipType::BOMBER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM4)){
 		m_playerFleet.setAddedShip(ShipType::CORVETTE);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM5)){
 		m_playerFleet.setAddedShip(ShipType::CRUISER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM6)){
 		m_playerFleet.setAddedShip(ShipType::DESTROYER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM7)){
 		m_playerFleet.setAddedShip(ShipType::CARRIER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM8)){
 		m_playerFleet.setAddedShip(ShipType::ASSAULT_CARRIER);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM9)){
 		m_playerFleet.setAddedShip(ShipType::BATTLESHIP);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::LEFT)){
 		ShipType selectType = (ShipType)((int)m_playerFleet.getAddedShip() - 1);
@@ -260,7 +252,6 @@ void MainScreen::checkInput() {
 			selectType = ShipType::BATTLESHIP;
 		}
 		m_playerFleet.setAddedShip(selectType);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::RIGHT)){
 		ShipType selectType = (ShipType)((int)m_playerFleet.getAddedShip() + 1);
@@ -268,7 +259,6 @@ void MainScreen::checkInput() {
 			selectType = ShipType::CUTTER;
 		}
 		m_playerFleet.setAddedShip(selectType);
-		m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	}
 
 	/* Escape current funciton */
@@ -286,7 +276,7 @@ void MainScreen::checkInput() {
 	}
 
 	//Mouse
-	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_LEFT) && m_placingShips){
+	if (!m_game->inputManager.isKeyDown(MouseId::BUTTON_LEFT) && m_game->inputManager.wasKeyDown(MouseId::BUTTON_LEFT) && m_placingShips){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		int additionalData = (m_playerFleet.getAddedShip() == ShipType::INTERCEPTOR) ? false : true;
 		glm::ivec2 addPos = m_grid.getGridPos(mouseCoords);
@@ -295,51 +285,31 @@ void MainScreen::checkInput() {
 		}
 	}
 
-	if (m_game->inputManager.isKeyDown(MouseId::BUTTON_LEFT)){
+	if (!m_game->inputManager.isKeyDown(MouseId::BUTTON_LEFT) && m_game->inputManager.wasKeyDown(MouseId::BUTTON_LEFT)){
 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
 		if (selectedShip){
 			m_playerFleet.setSelectedShip(selectedShip);
 		}
-		else if (m_playerFleet.getSelectedShip()){
+		else
+		if (m_playerFleet.getSelectedShip()){
+			Ship* enemyShip = m_ai.enemyShipAtPosition(mouseCoords);
+			if (enemyShip && !m_placingShips){
+				m_playerFleet.getSelectedShip()->queueAttack(enemyShip, true);
+			}
+		}
+	}
+
+	if (m_game->inputManager.isKeyDown(MouseId::BUTTON_LEFT)){
+		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
+		if (m_playerFleet.getSelectedShip()){
 			Ship* enemyShip = m_ai.enemyShipAtPosition(mouseCoords);
 			if (!enemyShip && !m_placingShips){
 				glm::ivec2 movePos = m_grid.getGridPos(mouseCoords);
 				if (movePos.x != -1 && movePos.y != -1){
-					m_playerFleet.getSelectedShip()->move(movePos);
+					m_playerFleet.getSelectedShip()->move(movePos, &m_grid, m_ai.FleetPtr());
 				}
 			}
-			else if (enemyShip){
-				m_playerFleet.getSelectedShip()->queueAttack(enemyShip, true);
-			}
-		}
-		if (debug_game_events){
-			glm::vec2 mouseSize = glm::vec2(mouseCoords.x - m_previousMouseLocation.x, mouseCoords.y - m_previousMouseLocation.y);
-			printf("Mouse Coords (x, y): %.2f, %.2f\n Size from previous (w, h): %.2f, %.2f\n", mouseCoords.x, mouseCoords.y, mouseSize.x, mouseSize.y);
-			m_previousMouseLocation = mouseCoords;
 		}
 	}
-	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_RIGHT)){
-		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords()));
-		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
-		if (selectedShip){
-			m_playerFleet.removeShip(selectedShip->getID());
-		}
-	}
-
-	// HACK DEBUG FLEET DAMAGER
-// 	if (m_game->inputManager.isKeyPressed(MouseId::BUTTON_MIDDLE)){
-// 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
-// 		Ship* selectedShip = m_playerFleet.shipAtPosition(mouseCoords);
-// 		if (!selectedShip){
-// 			selectedShip = m_ai.enemyShipAtPosition(mouseCoords);
-// 		}
-// 		if (selectedShip){
-// 			if (selectedShip->Damage(1, 1, DamageEffect(FIRE, 1.0f, 1.0f, 2)) == 0 && selectedShip->getShipType() == ShipType::COMMANDSHIP){
-// 				/* Move to game over screen */
-// 				// Hack
-// 				setState(Sakura::ScreenState::EXIT_APPLICATION);
-// 			}
-// 		}
-// 	}
 }
