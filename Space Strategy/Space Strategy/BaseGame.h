@@ -4,6 +4,8 @@
 #include <Sakura/IScreen.h>
 
 #include "MainScreen.h"
+#include "MainMenu.h"
+#include "GameOver.h"
 
 class BaseGame : 
 	public Sakura::IMainSystem
@@ -20,5 +22,9 @@ public:
 	void onExit();
 private:
 	std::unique_ptr<MainScreen> m_screen = nullptr;
+	std::unique_ptr<MainMenu> m_mainMenu = nullptr;
+	std::unique_ptr<GameOver> m_gameOverMenu = nullptr;
+
+	int m_playerScore;
 };
 

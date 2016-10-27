@@ -9,7 +9,7 @@
 /************************************************************************/
 /* SCREEN                                                               */
 /************************************************************************/
-MainScreen::MainScreen(Sakura::Window* window) : m_window(window){
+MainScreen::MainScreen(Sakura::Window* window, int* score) : m_window(window), m_playerScore(score){
 	/* Empty */
 }
 
@@ -18,11 +18,11 @@ MainScreen::~MainScreen(){
 }
 
 int MainScreen::getNextScreenIndex() const {
-	return 0;
+	return 2;
 }
 
 int MainScreen::getPreviousScreenIndex() const {
-	return 2;
+	return 0;
 }
 
 void MainScreen::build(){
@@ -82,7 +82,7 @@ void MainScreen::onEntry(){
 	m_playerFleet.addShip(&m_grid, m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
 	m_interface.initCommandship(m_playerFleet[0]);
 	m_interface.initPointerToSelected(&m_playerFleet.getSelectedShip());
-	m_interface.initWaves(m_ai.getWavePtr());
+	m_interface.initWaves(m_ai.getWavePtr(), m_playerScore);
 	m_ai.loadNextWave(&m_grid, m_resourceManager);
 }
 

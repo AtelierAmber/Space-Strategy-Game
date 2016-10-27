@@ -15,10 +15,15 @@ void BaseGame::onInit(){
 }
 
 void BaseGame::addScreens(){
-	m_screen = std::make_unique<MainScreen>(&m_window);
+	m_mainMenu = std::make_unique<MainMenu>(&m_window);
+	m_screen = std::make_unique<MainScreen>(&m_window, &m_playerScore);
+	m_gameOverMenu = std::make_unique<GameOver>(&m_window, &m_playerScore);
 
+	m_screenList->addScreen(m_mainMenu.get());
 	m_screenList->addScreen(m_screen.get());
-	m_screenList->setScreen(m_screen->getScreenIndex());
+	m_screenList->addScreen(m_gameOverMenu.get());
+	std::printf("%i", m_gameOverMenu->getScreenIndex());
+	m_screenList->setScreen(m_mainMenu->getScreenIndex());
 }
 
 void BaseGame::onExit(){

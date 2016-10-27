@@ -18,7 +18,7 @@ class MainScreen :
 	public Sakura::IScreen
 {
 public:
-	MainScreen(Sakura::Window* window);
+	MainScreen(Sakura::Window* window, int* score);
 	~MainScreen();
 
 	//Returns the index of the next or previous screen when changing screens
@@ -59,6 +59,8 @@ private:
 	GhostShip m_shipToPlace;
 	bool m_PturnsFinished = true;
 	bool m_EturnsFinished = true;
+
+	int* m_playerScore;
 
 	Sakura::Window* m_window = nullptr;
 

@@ -33,6 +33,9 @@ void MainGUI::update(Sakura::InputManager& inputManager){
 		m_quitButton.update(inputManager, m_GUICamera);
 		m_backButton.update(inputManager, m_GUICamera);
 		m_musicButton.update(inputManager, m_GUICamera);
+		if (inputManager.isKeyPressed(KeyID::ESCAPE)){
+			state = MENU;
+		}
 		break;
 	default:
 		std::printf("Gui has no state!\n");
@@ -120,7 +123,7 @@ void MainGUI::IDraw(float fps){
 		std::printf("Gui has no state!\n");
 		break;
 	}
-	std::string scoreDisplay = "Score: " + std::to_string(m_score);
+	std::string scoreDisplay = "Score: " + std::to_string((*m_score));
 	m_GUISpritefont.draw(m_GUISpritebatch, scoreDisplay.c_str(), glm::vec2(600.0f, 0), glm::vec2(0.25f), ALWAYS_ON_TOP, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::LEFT);
 }
 
@@ -143,8 +146,9 @@ void MainGUI::initShipIcons(Sakura::Window* window){
 	m_shipSelector = m_resourceManager->getTileSheet("Assets/Sprites/UI/ship_selector.png", glm::ivec2(2, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
 }
 
-void MainGUI::initWaves(int* wavesRef){
+void MainGUI::initWaves(int* wavesRef, int* score){
 	m_currentWave = wavesRef;
+	m_score = score;
 }
 
 #define BUTTON_SCALE 2.0f

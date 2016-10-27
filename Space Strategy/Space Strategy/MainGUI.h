@@ -43,7 +43,7 @@ public:
 	void initComponents() override;
 
 	void initShipIcons(Sakura::Window* window);
-	void initWaves(int* wavesRef);
+	void initWaves(int* wavesRef, int* score);
 	void initButtons(Sakura::Window* window);
 	void initCommandship(Ship* commandship){ m_commandship = commandship; }
 	void initPointerToSelected(Ship** ship){ m_selectedShip = ship; }
@@ -60,8 +60,8 @@ public:
 	void addUsedCP(CP cp){ m_usedCP += cp; }
 	void addMaxCP(CP cp){ m_CP += cp; }
 
-	void addScore(int score){ m_score += score; }
-	int* getScore(){ return &m_score; }
+	void addScore(int score){ (*m_score) += score; }
+	int* getScore(){ return m_score; }
 
 private:
 	/* Resume, Options, Quit */
@@ -89,7 +89,7 @@ private:
 	// Pointer to the selected ship pointer
 	Ship** m_selectedShip;
 	int* m_currentWave = nullptr;
-	int m_score;
+	int* m_score;
 
 	Sakura::Window* m_parentWindow;
 	GUIState state = GAMEPLAY;
