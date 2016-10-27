@@ -46,15 +46,19 @@ public:
 	void initWaves(int* wavesRef);
 	void initButtons(Sakura::Window* window);
 	void initCommandship(Ship* commandship){ m_commandship = commandship; }
+	void initPointerToSelected(Ship** ship){ m_selectedShip = ship; }
 
 	void setState(GUIState newState){ state = newState; }
 	GUIState getState(){ return state; }
+	bool toggleMusic(){ return m_toggleMusic; }
+	void resetToggle(){ m_toggleMusic = false; }
 
 	void setSelectedShipType(ShipType type){ m_selectedShipType = type; }
 
 	CP getMaxCP(){ return m_CP; }
 	CP getUsedCP(){ return m_usedCP; }
 	void addUsedCP(CP cp){ m_usedCP += cp; }
+	void addMaxCP(CP cp){ m_CP += cp; }
 
 	void addScore(int score){ m_score += score; }
 	int* getScore(){ return &m_score; }
@@ -65,6 +69,10 @@ private:
 	Sakura::GUIButton m_optionsButton;
 	Sakura::GUIButton m_quitButton;
 
+	Sakura::GUIButton m_backButton;
+	Sakura::GUIButton m_musicButton;
+	bool m_toggleMusic = false;
+
 	/* Fleet Managment */
 	Sakura::GUIButton m_addShipsButton;
 	Sakura::TileSheet m_shipIconTextures;
@@ -74,10 +82,12 @@ private:
 
 	Sakura::TileSheet m_CPIcon;
 	Sakura::TileSheet m_hearts;
-	CP m_CP = 50;
+	CP m_CP = 5;
 	CP m_usedCP = 0;
 
 	Ship* m_commandship;
+	// Pointer to the selected ship pointer
+	Ship** m_selectedShip;
 	int* m_currentWave = nullptr;
 	int m_score;
 

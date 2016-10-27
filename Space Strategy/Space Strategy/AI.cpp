@@ -11,9 +11,9 @@ AI::~AI(){
 
 }
 
-void AI::init(Fleet* playerFleet, std::string team, MainGUI* gui){
+void AI::init(Fleet* playerFleet, std::string team, MainGUI* gui, Sakura::ResourceManager* resourceManager, Grid* grid){
 	m_playerFleet = playerFleet;
-	m_fleet.init(m_playerFleet, team, gui, true);
+	m_fleet.init(m_playerFleet, team, gui, true, resourceManager, grid);
 	gen = std::mt19937(rd());
 }
 
@@ -93,9 +93,10 @@ bool AI::update(float deltaTime, Grid* grid){
 			
 			float distanceTo = 0.0f;
 			for (int i = 0; i < m_playerFleet->getFleetSize(); ++i){
-				distanceTo = glm::length(glm::vec2(ship->getPosition() - (*m_playerFleet)[i]->getPosition()));
-				if (distanceTo < ship.get()->getAttackRange()){
+				distanceTo = glm::length(glm::vec2(ship->getPosition() - ((*m_playerFleet)[i]->getPosition() + ((*m_playerFleet)[i]->getTileSpan()/2))));
+				if (distanceTo < ship.get()->getAttackRange() + 1){
 					ship.get()->queueAttack(m_playerFleet->getShips()[i].get());
+					break;
 				}
 			}
 

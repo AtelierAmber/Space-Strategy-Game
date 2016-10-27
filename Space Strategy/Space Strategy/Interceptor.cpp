@@ -7,7 +7,7 @@
 
 Interceptor::Interceptor(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team,
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, bool isVisible){
-	init(grid, fleet, resourceManager, team, shipType, position, enemy, 10, 5, 2, 1, 0, 3, 5, DamageEffect(POWERSHORTAGE, 1.0f, 0.25f, 2));
+	init(grid, fleet, resourceManager, team, shipType, position, enemy, 10, 5, 2, 1, 1, 3, 5, DamageEffect(POWERSHORTAGE, 1.0f, 0.25f, 2));
 	if (!isVisible){
 		cloak();
 	}

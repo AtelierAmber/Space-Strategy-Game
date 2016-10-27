@@ -12,6 +12,8 @@ void MainGUI::destroyComponents(){
 	m_resumeButton.destroy();
 	m_optionsButton.destroy();
 	m_quitButton.destroy();
+	m_backButton.destroy();
+	m_musicButton.destroy();
 }
 
 void MainGUI::update(Sakura::InputManager& inputManager){
@@ -29,6 +31,8 @@ void MainGUI::update(Sakura::InputManager& inputManager){
 		break;
 	case OPTIONSmain:
 		m_quitButton.update(inputManager, m_GUICamera);
+		m_backButton.update(inputManager, m_GUICamera);
+		m_musicButton.update(inputManager, m_GUICamera);
 		break;
 	default:
 		std::printf("Gui has no state!\n");
@@ -72,7 +76,7 @@ void MainGUI::IDraw(float fps){
 				m_CPIcon.getUVs(uv), m_CPIcon.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 #define health_scale 2.0f
-		m_GUISpritefont.draw(m_GUISpritebatch, "Command Ship Health: ", glm::vec2(240.0f, m_hearts.texture.height * health_scale * 2), glm::vec2(0.2f), 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		m_GUISpritefont.draw(m_GUISpritebatch, "Command Ship Health: ", glm::vec2(210.0f, m_hearts.texture.height * health_scale * 2), glm::vec2(0.25f), 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 
 		glm::vec4 destRect = glm::vec4(210.0f, m_hearts.texture.height * health_scale, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
 		for (int i = 0; i < m_commandship->getShipHullMax(); ++i){
@@ -86,7 +90,21 @@ void MainGUI::IDraw(float fps){
 			m_GUISpritebatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 		std::string waves = "Wave: " + std::to_string(*m_currentWave);
-		m_GUISpritefont.draw(m_GUISpritebatch, waves.c_str(), glm::vec2(475.0f, 15.0f), glm::vec2(0.2f), 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		m_GUISpritefont.draw(m_GUISpritebatch, waves.c_str(), glm::vec2(500.0f, 15.0f), glm::vec2(0.25f), 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+#define ship_stats_scale 0.2f
+		if (*m_selectedShip){
+			std::string stats = Ship::getShipName((*m_selectedShip)->getShipType());
+			float headLoc = m_parentWindow->getScreenHeight() - 5.0f - (m_GUISpritefont.getFontHeight()*ship_stats_scale);
+			m_GUISpritefont.draw(m_GUISpritebatch, stats.c_str(), glm::vec2(750.0f, headLoc), glm::vec2(ship_stats_scale), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			stats = "Speed: " + std::to_string((*m_selectedShip)->getSpeed());
+			m_GUISpritefont.draw(m_GUISpritebatch, stats.c_str(), glm::vec2(750.0f, headLoc - 5.0f - (m_GUISpritefont.getFontHeight()*ship_stats_scale)), glm::vec2(ship_stats_scale), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			stats = "Range: " + std::to_string((*m_selectedShip)->getAttackRange());
+			m_GUISpritefont.draw(m_GUISpritebatch, stats.c_str(), glm::vec2(750.0f, headLoc - 5.0f - (m_GUISpritefont.getFontHeight()*ship_stats_scale * 2)), glm::vec2(ship_stats_scale), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			stats = "Shield Damage: " + std::to_string((*m_selectedShip)->getShieldDamage());
+			m_GUISpritefont.draw(m_GUISpritebatch, stats.c_str(), glm::vec2(750.0f, headLoc - 5.0f - (m_GUISpritefont.getFontHeight()*ship_stats_scale * 3)), glm::vec2(ship_stats_scale), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+			stats = "Hull Damage: " + std::to_string((*m_selectedShip)->getHullDamage());
+			m_GUISpritefont.draw(m_GUISpritebatch, stats.c_str(), glm::vec2(750.0f, headLoc - 5.0f - (m_GUISpritefont.getFontHeight()*ship_stats_scale * 4)), glm::vec2(ship_stats_scale), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		}
 	}
 		break;
 	case MENU:
@@ -95,14 +113,15 @@ void MainGUI::IDraw(float fps){
 		m_quitButton.draw(m_GUISpritebatch, m_GUICamera, true);
 		break;
 	case OPTIONSmain:
-		m_GUISpritefont.draw(m_GUISpritebatch, "OPTIONS SCREEN", glm::vec2(m_parentWindow->getScreenWidth() / 2, m_parentWindow->getScreenHeight() / 2), glm::vec2(0.25f), ALWAYS_ON_TOP, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::MIDDLE);
+		m_musicButton.draw(m_GUISpritebatch, m_GUICamera, true);
+		m_backButton.draw(m_GUISpritebatch, m_GUICamera, true);
 		break;
 	default:
 		std::printf("Gui has no state!\n");
 		break;
 	}
 	std::string scoreDisplay = "Score: " + std::to_string(m_score);
-	m_GUISpritefont.draw(m_GUISpritebatch, scoreDisplay.c_str(), glm::vec2(0.0f, m_GUISpritefont.getFontHeight()), glm::vec2(0.25f), ALWAYS_ON_TOP, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::LEFT);
+	m_GUISpritefont.draw(m_GUISpritebatch, scoreDisplay.c_str(), glm::vec2(600.0f, 0), glm::vec2(0.25f), ALWAYS_ON_TOP, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::LEFT);
 }
 
 void MainGUI::initComponents(){
@@ -138,5 +157,8 @@ void MainGUI::initButtons(Sakura::Window* window){
 	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::EXIT_APPLICATION); },
 		MIPMAP | PIXELATED | EDGE_CLAMP);
-	
+	m_backButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Back", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+		[this](){ state = MENU; }, MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_musicButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Toggle Music", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+		[this](){ m_toggleMusic = true; }, MIPMAP | PIXELATED | EDGE_CLAMP);
 }

@@ -436,7 +436,6 @@ int Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*=
 	if (statusEffect.effect != FIRE){
 		ApplyEffect(statusEffect);
 	}
-	m_shield -= shieldDamage;
 	if (m_shield <= 0){
 		m_shield = 0;
 		m_hull -= hullDamage;
@@ -447,6 +446,7 @@ int Ship::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect /*=
 			ApplyEffect(statusEffect);
 		}
 	}
+	m_shield -= shieldDamage;
 	return -1;
 }
 

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Ship.h"
+#include "Explosion.h"
 
 class MainGUI;
 
@@ -9,11 +10,11 @@ class Fleet
 {
 public:
 	Fleet();
-	Fleet(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy) :
-		m_enemyFleet(enemyFleet), m_fleetColor(fleetColor), m_gui(gui), m_isEnemy(isEnemy){}
+	Fleet(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy, Sakura::ResourceManager* resourceManager, Grid* grid) :
+		m_enemyFleet(enemyFleet), m_fleetColor(fleetColor), m_gui(gui), m_isEnemy(isEnemy), m_resourceManager_ref(resourceManager), m_grid_ref(grid){}
 	~Fleet();
 
-	void init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy);
+	void init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy, Sakura::ResourceManager* resourceManager, Grid* grid);
 	
 	int addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP = true);
 	int removeShip(unsigned int shipIndex);
@@ -54,6 +55,7 @@ public:
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
+	std::vector<Explosion> m_explosions;
 	ShipType m_addedShip = ShipType::CUTTER;
 	bool m_moving = false;
 	bool m_turnFinished = false;
@@ -63,5 +65,7 @@ private:
 	Fleet* m_enemyFleet;
 	std::string m_fleetColor = "Gray";
 	Ship* m_selectedShip = nullptr;
+	Sakura::ResourceManager* m_resourceManager_ref;
+	Grid* m_grid_ref;
 };
 

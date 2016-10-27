@@ -18,11 +18,11 @@ MainScreen::~MainScreen(){
 }
 
 int MainScreen::getNextScreenIndex() const {
-	return SCREEN_INDEX_NO_SCREEN;
+	return 0;
 }
 
 int MainScreen::getPreviousScreenIndex() const {
-	return SCREEN_INDEX_NO_SCREEN;
+	return 2;
 }
 
 void MainScreen::build(){
@@ -56,6 +56,8 @@ void MainScreen::onEntry(){
 	m_enemyFont.initTTF("Assets/Fonts/Sprykski.ttf", 144, MIPMAP | LINEAR | TRANS_BORDER);
 	m_debugFont.initTTF("Assets/Fonts/_bitmap_font.ttf", 144, MIPMAP | PIXELATED | TRANS_BORDER);
 
+	m_mainMusic.play();
+
 	m_camera.init(m_window->getScreenWidth(), m_window->getScreenHeight());
 	m_camera.setScale(screen_scale_level);
 	glm::vec2 cameraPositionOffset((m_window->getScreenWidth() / 2.0f) * (1.0f / screen_scale_level),
@@ -75,10 +77,11 @@ void MainScreen::onEntry(){
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 
 	m_grid.init(glm::ivec2(27, 27), glm::vec4(0.0f, grid_padding_top, 0.0f, grid_padding_bottom), m_window);
-	m_ai.init(&m_playerFleet, "Red", &m_interface);
-	m_playerFleet.init(m_ai.FleetPtr(), "Gray", &m_interface, false);
+	m_ai.init(&m_playerFleet, "Red", &m_interface, &m_resourceManager, &m_grid);
+	m_playerFleet.init(m_ai.FleetPtr(), "Gray", &m_interface, false, &m_resourceManager, &m_grid);
 	m_playerFleet.addShip(&m_grid, m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
 	m_interface.initCommandship(m_playerFleet[0]);
+	m_interface.initPointerToSelected(&m_playerFleet.getSelectedShip());
 	m_interface.initWaves(m_ai.getWavePtr());
 	m_ai.loadNextWave(&m_grid, m_resourceManager);
 }
@@ -131,12 +134,15 @@ void MainScreen::update(float deltaTime){
 	
 	if (m_ai.getFleet().getFleetSize() == 0){
 		/* Spawn new enemy fleet */
-		if (m_timer >= (60.0f * deltaTime) * 5.0f){
-			m_interface.addScore(500);
-			m_ai.loadNextWave(&m_grid, m_resourceManager);
-			m_timer = 0.0f;
-		}
-		else m_timer += 0.5f;
+		m_interface.addScore(500);
+		m_interface.addMaxCP(((*m_interface.getScore()) / 125 > (100 - m_interface.getMaxCP())) ? 100 - m_interface.getMaxCP() : ((*m_interface.getScore()) / 125));
+		m_ai.loadNextWave(&m_grid, m_resourceManager);
+		m_timer = 0.0f;
+	}
+
+	if (!m_playerFleet.hasCommand()){
+		/* Move to the game over screen */
+		setState(Sakura::ScreenState::CHANGE_NEXT);
 	}
 
 	m_camera.update();
@@ -144,6 +150,17 @@ void MainScreen::update(float deltaTime){
 	m_interface.updateIcons(m_game->inputManager, mouseCoords, &m_playerFleet, m_placingShips);
 	m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	m_interface.setSelectedShipType(m_playerFleet.getAddedShip());
+	if (m_interface.toggleMusic()){
+		if (m_musicPlaying){
+			m_mainMusic.resume();
+			m_musicPlaying = false;
+		}
+		else {
+			m_mainMusic.pause();
+			m_musicPlaying = true;
+		}
+		m_interface.resetToggle();
+	}
 	/* Finish Updates */
 	checkInput();
 }

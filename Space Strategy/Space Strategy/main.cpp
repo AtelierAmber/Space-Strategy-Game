@@ -8,6 +8,6 @@
 #endif
 
 int main(int argc, char** argv){
-	BaseGame game("Game", (int)(750), (int)(750), flags, -100, -100);
+	BaseGame game("Game", (int)(1000), (int)(750), flags, -100, -100);
 	return game.run();
 }

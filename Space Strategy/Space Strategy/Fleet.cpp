@@ -16,11 +16,13 @@ Fleet::~Fleet(){
 	m_ships.clear();
 }
 
-void Fleet::init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy){
+void Fleet::init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy, Sakura::ResourceManager* resourceManager, Grid* grid){
 	m_enemyFleet = enemyFleet;
 	m_fleetColor = fleetColor;
 	m_gui = gui;
 	m_isEnemy = isEnemy;
+	m_resourceManager_ref = resourceManager;
+	m_grid_ref = grid;
 }
 
 int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP){
@@ -42,15 +44,15 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 	 * Fighter: low shield, average health, very fast
 	 * -> 8, 3, 5, 1, 1, 2, Normal, 2CP
 	 * Interceptor: average shield, low health, very fast, can cloak, can shut down enemy shields
-	 * -> 10, 5, 2, 1, 0, 3, PowerShortage(2, 25%), 5CP
+	 * -> 10, 5, 2, 1, 1, 3, PowerShortage(2, 25%), 5CP
 	 * Bomber: average shield, high health, slow, long range high damage attacks, can set fire to ships
-	 * -> 2, 5, 2, 0, 5, 10, Fire(5, 15%), 10CP
+	 * -> 2, 5, 2, 1, 5, 10, Fire(5, 15%), 10CP
 	 * Corvette: average shield, average health, can boost other ships, damage enemy shields
-	 * -> 5, 5, 7, 5, 0, 5, SuperCharge(125%, 100%) | DamageBoost(125%, 100%) | Repair(2, 100%), 12CP
+	 * -> 5, 5, 7, 5, 1, 5, SuperCharge(125%, 100%) | DamageBoost(125%, 100%) | Repair(2, 100%), 12CP
 	 * Cruiser: average shield, average health, average ship
 	 * -> 5, 7, 7, 3, 3, 3, Normal, 12CP
 	 * Carrier: average shield, average health, can deploy cutter units with no cost to CP, and disable enemy systems
-	 * -> 5, 7, 7, 0, 0, 2, Emp(2, 25%), 15CP
+	 * -> 5, 7, 7, 1, 1, 2, Emp(2, 25%), 15CP
 	 * Destroyer: high shield, high health, high hull damage, can set fire to ships, slow
 	 * -> 3, 10, 10, 2, 7, 3, Fire(5, 15%), 20CP
 	 * Assault Carrier: high shield, average health, slow, can deploy fighters with no cost to CP
@@ -71,7 +73,7 @@ int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipTyp
 		m_ships.emplace_back(new Interceptor(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, additionalData != 0));
 		break;
 	case ShipType::BOMBER:
-		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 2, 5, 2, 0, 5, 10, 10 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
+		m_ships.emplace_back(new Ship(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy, 2, 5, 2, 1, 5, 10, 10 * (int)costsCP, DamageEffect(FIRE, 1.0f, 0.15f, 5)));
 		break;
 	case ShipType::CORVETTE:
 		m_ships.emplace_back(new Corvette(grid, this, resourceManager, m_fleetColor, shipType, position, m_isEnemy));
@@ -132,6 +134,7 @@ int Fleet::removeShip(unsigned int shipIndex){
 			m_gui->addScore(-5 * m_ships[shipIndex]->getCost());
 			m_gui->addUsedCP(-1 * m_ships[shipIndex]->getCost());
 		}
+		m_explosions.emplace_back(Explosion(glm::vec2(m_grid_ref->getScreenPos(m_ships[shipIndex]->getPosition())), *m_resourceManager_ref));
 		m_ships[shipIndex] = m_ships.back();
 		m_ships[shipIndex]->setID(shipIndex);
 		m_ships.pop_back();
@@ -140,8 +143,6 @@ int Fleet::removeShip(unsigned int shipIndex){
 	}
 	return -1;
 }
-
-
 
 bool Fleet::update(float deltaTime, Grid* grid){
 	for (std::size_t i = 0; i < m_ships.size(); ++i){
@@ -175,6 +176,13 @@ bool Fleet::update(float deltaTime, Grid* grid){
 void Fleet::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, const glm::vec2& mouseCoords){
 	for (auto& ship : m_ships){
 		ship->draw(spriteBatch, grid, ship->collidesPoint(mouseCoords));
+	}
+	for (std::size_t i = 0; i < m_explosions.size(); ++i){
+		if (m_explosions[i].draw(spriteBatch)){
+			m_explosions.erase(m_explosions.begin() + i);
+			--i;
+			if (i < 0) break;
+		}
 	}
 }
 

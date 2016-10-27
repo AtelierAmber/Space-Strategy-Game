@@ -117,6 +117,8 @@ public:
 	void setShipType(ShipType shipType) { m_shipType = shipType; }
 	const int& getAttackRange() { return m_range; }
 	const int& getSpeed() { return m_speed; }
+	const int& getHullDamage(){ return m_hullDamage; }
+	const int& getShieldDamage(){ return m_shieldDamage; }
 
 	float getShipThreat(){ return m_threatLevel; }
 	int getShipHull(){ return m_hull; }
@@ -146,11 +148,11 @@ public:
 
 protected:
 	// Damage based in integers (hearts)
-	int m_shieldDamage = 0;
-	int m_hullDamage = 0;
+	int m_shieldDamage = 0; //+
+	int m_hullDamage = 0; //+
 	DamageEffect m_damageEffect;
-	int m_range;
-	int m_speed;
+	int m_range; //+
+	int m_speed; //+
 	float m_threatLevel = 0.0f;
 
 	bool m_enemy = false;
@@ -159,8 +161,8 @@ protected:
 
 	int m_shieldMax= 5;
 	int m_hullMax= 5;
-	int m_shield = 5;
-	int m_hull = 5;
+	int m_shield = 5; //+
+	int m_hull = 5; //+
 	std::vector<DamageEffect> m_appliedEffects;
 
 	std::string m_team = "Nuetral";

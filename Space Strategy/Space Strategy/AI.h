@@ -24,7 +24,7 @@ public:
 	AI(){ /* Emtpy */ }
 	~AI();
 
-	void init(Fleet* playerFleet, std::string team, MainGUI* gui);
+	void init(Fleet* playerFleet, std::string team, MainGUI* gui, Sakura::ResourceManager* resourceManager, Grid* grid);
 
 	const Fleet& getFleet() const{ return m_fleet; }
 	Ship* enemyShipAtPosition(glm::vec2 position){ return m_fleet.shipAtPosition(position); }
@@ -46,7 +46,7 @@ private:
 	std::mt19937 gen;
 	Fleet m_fleet;
 	bool m_hasUpdatedOnce = false;
-	int m_currentWave = 0;
+	int m_currentWave = 1000;
 	Fleet* m_playerFleet = nullptr;
 };
 

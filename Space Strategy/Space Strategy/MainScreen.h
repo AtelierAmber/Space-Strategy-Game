@@ -73,6 +73,7 @@ private:
 	AI m_ai;
 
 	Sakura::Music m_mainMusic;
+	bool m_musicPlaying = false;
 	Sakura::Music m_bossMusic;
 	glm::vec2 m_previousMouseLocation;
 	Sakura::SpriteFont m_userFont;

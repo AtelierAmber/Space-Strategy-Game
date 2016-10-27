@@ -83,6 +83,7 @@
     <ClCompile Include="Carrier.cpp" />
     <ClCompile Include="Corvette.cpp" />
     <ClCompile Include="Cutter.cpp" />
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Fleet.cpp" />
     <ClCompile Include="GhostShip.cpp" />
     <ClCompile Include="Interceptor.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="Carrier.h" />
     <ClInclude Include="Corvette.h" />
     <ClInclude Include="Cutter.h" />
+    <ClInclude Include="Explosion.h" />
     <ClInclude Include="Fleet.h" />
     <ClInclude Include="GhostShip.h" />
     <ClInclude Include="Grid.h" />
