@@ -39,7 +39,7 @@ public:
 	void draw() override;
 	void specificDraw() override;
 
-	void proceedTurn(){ m_turnsFinished = false; }
+	void proceedTurn(){ m_PturnsFinished = false; m_EturnsFinished = false; }
 
 	//HACK DEBUG ELEMENTS | REMOVE BEFORE RELEASE
 	void drawDebugElements();
@@ -57,7 +57,8 @@ private:
 
 	bool m_placingShips = false;
 	GhostShip m_shipToPlace;
-	bool m_turnsFinished = true;
+	bool m_PturnsFinished = true;
+	bool m_EturnsFinished = true;
 
 	Sakura::Window* m_window = nullptr;
 

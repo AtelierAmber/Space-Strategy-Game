@@ -32,14 +32,21 @@ public:
 	void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, glm::vec2 mouseCoords);
 	void drawDebug(Sakura::DebugRenderer& debugRenderer);
 
+	void spawnCarrierChild(Ship* ship);
 	bool update(float deltaTime, Grid* grid);
+	void resetUpdates(){ m_hasUpdatedOnce = false; }
+
+	int* getWave(){ return &m_currentWave; }
 
 	void loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager);
 
 	Fleet* FleetPtr() { return &m_fleet; }
 private:
+	std::random_device rd;
+	std::mt19937 gen;
 	Fleet m_fleet;
-	int m_currentWave = 1000;
+	bool m_hasUpdatedOnce = false;
+	int m_currentWave = 0;
 	Fleet* m_playerFleet = nullptr;
 };
 

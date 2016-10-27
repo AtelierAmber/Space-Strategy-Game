@@ -38,6 +38,14 @@ int Interceptor::update(float deltaTime, Grid* grid){
 	return 0;
 }
 
+void Interceptor::damageOther(Ship* otherShip){
+	if (otherShip){
+		otherShip->Damage(0, m_shieldDamage, m_damageEffect);
+		uncloak();
+	}
+	m_queuedAttack = nullptr;
+}
+
 void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 	glm::vec4 uvRect = m_texture.getUVs(0);
 	if (m_enemy){
@@ -65,24 +73,39 @@ void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover)
 	}
 	if (hover && m_shipType != ShipType::COMMANDSHIP){
 #define health_scale 2.0f
-		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
+		destRect = glm::vec4(m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::min(std::max(m_hullMax, m_shieldMax), 16) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f), m_bounds.y1 + 5.0f, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
 		for (int i = 0; i < m_hullMax; ++i){
 			int uv = (i < m_hull) ? 1 : 2;
-			destRect.x += (destRect.z + heart_spacing);
-			destRect.y += (int)(i / 15);
+			if (!(i % 15) && i != 0){
+				destRect.y += (destRect.w + heart_spacing);
+				destRect.x -= 14 * (destRect.z + heart_spacing);
+			}
+			else destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(uv), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
-		destRect.x = m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::max(m_hullMax, m_shieldMax) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f);
+		destRect.x = m_bounds.x1 + ((m_tileSpan.x - 1) * (m_bounds.width / m_tileSpan.x)) - ((std::min(std::max(m_hullMax, m_shieldMax), 16) * (m_hearts.texture.width / 3.0f) * health_scale) / 2.0f);
+		destRect.y = m_bounds.y1 + 5.0f;
 		for (int i = 0; i < m_shield; ++i){
-			destRect.x += (destRect.z + heart_spacing);
-			destRect.y += (int)(i / 15);
+			if (!(i % 15) && i != 0){
+				destRect.y += (destRect.w + heart_spacing);
+				destRect.x -= 14 * (destRect.z + heart_spacing);
+			}
+			else destRect.x += (destRect.z + heart_spacing);
 			spriteBatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
 	}
 	if (m_position != m_newPosition && !m_enemy){
 		drawTravelTrail(spriteBatch, grid);
 	}
-	if (m_queuedAttack  && !m_enemy){
+	if (m_queuedAttack && !m_enemy){
 		drawAttackTrail(spriteBatch, grid);
 	}
+}
+
+int Interceptor::callUnique(void* data){
+	bool toCloak = (*static_cast<int*>(data) != 0);
+	if (toCloak){
+		cloak();
+	}
+	return (int)m_isVisible;
 }

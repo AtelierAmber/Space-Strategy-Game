@@ -36,7 +36,7 @@ public:
 	void destroyComponents() override;
 
 	void update(Sakura::InputManager& inputManager) override;
-	bool updateIcons(Sakura::InputManager& inputManager, const glm::vec2& mouseCoords, Fleet* pFleet);
+	bool updateIcons(Sakura::InputManager& inputManager, const glm::vec2& mouseCoords, Fleet* pFleet, bool& placingShips);
 
 	void IDraw(float fps) override;
 

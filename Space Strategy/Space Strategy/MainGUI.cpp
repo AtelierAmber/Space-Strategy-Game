@@ -36,14 +36,19 @@ void MainGUI::update(Sakura::InputManager& inputManager){
 	}
 }
 
-bool MainGUI::updateIcons(Sakura::InputManager& inputManager, const glm::vec2& mouseCoords, Fleet* pFleet){
+bool MainGUI::updateIcons(Sakura::InputManager& inputManager, const glm::vec2& mouseCoords, Fleet* pFleet, bool& placingShips){
 	for (int i = 0; i < 10; ++i){
 		if (m_shipIcons[i].rect.pointIntersection(mouseCoords.x, mouseCoords.y)){
 			m_selectedShipType = m_shipIcons[i].shipType;
 			pFleet->setAddedShip(m_shipIcons[i].shipType);
-			break;
+			if (!inputManager.isKeyDown(MouseId::BUTTON_LEFT) && inputManager.wasKeyDown(MouseId::BUTTON_LEFT)){
+				placingShips = true;
+				return true;
+			}
+			return false;
 		}
 	}
+	return false;
 }
 
 void MainGUI::IDraw(float fps){

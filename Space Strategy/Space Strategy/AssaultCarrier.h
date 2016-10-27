@@ -9,5 +9,10 @@ public:
 	~AssaultCarrier();
 
 	int createFighter(glm::ivec2 position, Grid* grid, Sakura::ResourceManager& resourceManager);
+
+	int callUnique(void* data) override;
+private:
+	Grid* m_grid_Ref;
+	Sakura::ResourceManager& m_resourceManager_Ref;
 };
 

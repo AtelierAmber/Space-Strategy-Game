@@ -26,6 +26,7 @@ public:
 
 	std::vector<std::shared_ptr<Ship>>& getShips() { return m_ships; }
 	Ship* shipAtPosition(glm::vec2 absPos);
+	bool hasCommand();
 
 	void setAddedShip(ShipType addedShip){ m_addedShip = addedShip; }
 	const ShipType& getAddedShip() const{ return m_addedShip; }
@@ -45,7 +46,11 @@ public:
 	std::string getTeam(){ return m_fleetColor; }
 
 	void sortFleet(int left, int right);
-	static bool shipThreatLevel(std::shared_ptr<Ship> ship1, std::shared_ptr<Ship> ship2);
+	int partition(int left, int right);
+
+	Ship* operator[](const unsigned int index){
+		return m_ships[index].get();
+	}
 
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;

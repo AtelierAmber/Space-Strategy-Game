@@ -71,7 +71,7 @@ void MainScreen::onEntry(){
 	},
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_readyButton = m_interface.createButton("Assets/Sprites/UI/ready_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "NULL", glm::vec4(0.0f, 0.0f, 100.0f, 50.0f),
-		[this](){ m_placingShips = false; m_turnsFinished = false; },
+		[this](){ m_placingShips = false; m_PturnsFinished = false; m_EturnsFinished = false; },
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 
 	m_grid.init(glm::ivec2(27, 27), glm::vec4(0.0f, grid_padding_top, 0.0f, grid_padding_bottom), m_window);
@@ -102,10 +102,17 @@ void MainScreen::update(float deltaTime){
 
 	switch (m_interface.getState()){
 	case GAMEPLAY:
+	case FLEET:
 		m_addShipsButton.update(m_game->inputManager, m_camera);
 		m_readyButton.update(m_game->inputManager, m_camera);
-		if (!m_turnsFinished){
-			m_turnsFinished = m_playerFleet.update(deltaTime, &m_grid) && m_ai.update(deltaTime, &m_grid);
+		if (!m_PturnsFinished){
+			m_PturnsFinished = m_playerFleet.update(deltaTime, &m_grid);
+		}
+		if (!m_EturnsFinished && m_PturnsFinished){
+			m_EturnsFinished = m_ai.update(deltaTime, &m_grid);
+		}
+		if (m_EturnsFinished){
+			m_ai.resetUpdates();
 		}
 		if (m_placingShips){
 			m_shipToPlace.update(&m_grid, mouseCoords);
@@ -115,12 +122,6 @@ void MainScreen::update(float deltaTime){
 	case OPTIONSmain:
 
 		break;
-	case FLEET:
-		if (!m_turnsFinished){
-			m_turnsFinished = m_playerFleet.update(deltaTime, &m_grid) && m_ai.update(deltaTime, &m_grid);
-		}
-		m_addShipsButton.update(m_game->inputManager, m_camera);
-		m_readyButton.update(m_game->inputManager, m_camera);
 		break;
 	default:
 		break;
@@ -128,7 +129,7 @@ void MainScreen::update(float deltaTime){
 	
 	if (m_ai.getFleet().getFleetSize() == 0){
 		/* Spawn new enemy fleet */
-		if (m_timer >= 60.0f * 5.0f){
+		if (m_timer >= (60.0f * deltaTime) * 5.0f){
 			m_interface.addScore(500);
 			m_ai.loadNextWave(&m_grid, m_resourceManager);
 			m_timer = 0.0f;
@@ -138,7 +139,7 @@ void MainScreen::update(float deltaTime){
 
 	m_camera.update();
 	m_interface.update(m_game->inputManager);
-	m_interface.updateIcons(m_game->inputManager, mouseCoords, &m_playerFleet);
+	m_interface.updateIcons(m_game->inputManager, mouseCoords, &m_playerFleet, m_placingShips);
 	m_shipToPlace.setShipType(m_playerFleet.getAddedShip(), m_resourceManager, m_playerFleet.getTeam(), &m_grid);
 	m_interface.setSelectedShipType(m_playerFleet.getAddedShip());
 	/* Finish Updates */
@@ -272,7 +273,9 @@ void MainScreen::checkInput() {
 
 	/* Ready Up */
 	if (m_game->inputManager.isKeyPressed(KeyID::SPACE)){
-		m_placingShips = false; m_turnsFinished = false;
+		m_placingShips = false; 
+		m_PturnsFinished = false;
+		m_EturnsFinished = false;
 	}
 
 	//Mouse
@@ -295,7 +298,7 @@ void MainScreen::checkInput() {
 		if (m_playerFleet.getSelectedShip()){
 			Ship* enemyShip = m_ai.enemyShipAtPosition(mouseCoords);
 			if (enemyShip && !m_placingShips){
-				m_playerFleet.getSelectedShip()->queueAttack(enemyShip, true);
+				m_playerFleet.getSelectedShip()->queueAttack(enemyShip);
 			}
 		}
 	}

@@ -25,7 +25,11 @@ public:
 
 	int update(float deltaTime, Grid* grid) override;
 
+	void damageOther(Ship* otherShip) override;
+
 	void draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover) override;
+
+	int callUnique(void* data) override;
 
 private:
 	int m_cloakTimer = 0;

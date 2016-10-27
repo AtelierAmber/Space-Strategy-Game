@@ -117,7 +117,7 @@ bool Ship::updateMove(float deltaTime, Grid* grid){
 
 void Ship::updateAttack(){
 	if (m_queuedAttack){
-		damageOther(m_queuedAttack, m_queuedAttackShield);
+		damageOther(m_queuedAttack);
 	}
 }
 
@@ -219,7 +219,20 @@ int Ship::calculateBadEffects(){
 
 void Ship::move(const glm::ivec2& newPosition, Grid* grid, Fleet* enemyFleet){
 	if (!m_fleet->shipAtPosition(glm::vec2(grid->getScreenPos(newPosition) + (grid->getTileDims() / 2.0f))) && !enemyFleet->shipAtPosition(glm::vec2(grid->getScreenPos(newPosition) + (grid->getTileDims() / 2.0f)))){
-		m_newPosition = newPosition;
+		
+		m_newPosition = newPosition; 
+		if (m_newPosition.x > grid->getDims().x-1){
+			m_newPosition.x = grid->getDims().x-1;
+		}
+		if (m_newPosition.y > grid->getDims().x-1){
+			m_newPosition.y = grid->getDims().x-1;
+		}
+		if (m_newPosition.x < 0){
+			m_newPosition.x = 0;
+		}
+		if (m_newPosition.y < 0){
+			m_newPosition.y = 0;
+		}
 		m_moveFinished = false;
 	}
 }
@@ -366,7 +379,7 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 	if (m_position != m_newPosition && !m_enemy){
 		drawTravelTrail(spriteBatch, grid);
 	}
-	if (m_queuedAttack  && !m_enemy){
+	if (m_queuedAttack && !m_enemy){
 		drawAttackTrail(spriteBatch, grid);
 	}
 }
@@ -385,7 +398,7 @@ void Ship::drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	int numMarkers = (int)travelLength / (m_trailMarkers.texture.width + 5);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1 + (m_bounds.width / 2), m_bounds.y2 + (m_bounds.height / 2), m_trailMarkers.texture.width, m_trailMarkers.texture.height*2);
 	int uv = 0;
-	for (int i = 0; i < numMarkers - 1; ++i){
+	for (int i = 0; i < numMarkers; ++i){
 		destRect.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
 		uv = (i < m_speed * 2.5 - 2) ? 0 : 1;
@@ -445,11 +458,12 @@ void Ship::ApplyEffect(DamageEffect statusEffect){
 	}
 }
 
-void Ship::damageOther(Ship* otherShip, bool shieldDamage){
-	if (shieldDamage){
-		otherShip->Damage(0, m_shieldDamage, m_damageEffect);
-	}
-	else {
-		otherShip->Damage(m_hullDamage, 0, m_damageEffect);
+void Ship::damageOther(Ship* otherShip){
+	int distanceTo = (int)glm::length(glm::vec2(m_position - otherShip->getPosition()));
+	if (distanceTo < m_range){
+		if (otherShip){
+			otherShip->Damage(m_hullDamage, m_shieldDamage, m_damageEffect);
+		}
+		m_queuedAttack = nullptr;
 	}
 }

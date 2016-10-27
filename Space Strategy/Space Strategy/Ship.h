@@ -83,7 +83,7 @@ public:
 
 	void ApplyEffect(DamageEffect statusEffect);
 
-	void damageOther(Ship* otherShip, bool shieldDamage /* If false, deal hull damage, else deal shield damage */);
+	virtual void damageOther(Ship* otherShip);
 
 	/* returns true if move is finished, false if the move still needs to be updated */
 	virtual int update(float deltaTime, Grid* grid);
@@ -109,20 +109,39 @@ public:
 	bool isSelected(){ return m_isSelected; }
 
 	bool isMoveFinished(){ return m_moveFinished; }
-	void queueAttack(Ship* ship, bool attackShield){ m_queuedAttack = ship; m_queuedAttackShield = attackShield; }
+	void queueAttack(Ship* ship){ m_queuedAttack = ship;}
 
 	bool collidesPoint(const glm::vec2& pointPos){ return m_bounds.pointIntersection(pointPos.x, pointPos.y); }
 	bool collidesRect(Sakura::Rect& rect){ return m_bounds.intersect(rect); }
 	ShipType getShipType() const { return m_shipType; }
 	void setShipType(ShipType shipType) { m_shipType = shipType; }
+	const int& getAttackRange() { return m_range; }
+	const int& getSpeed() { return m_speed; }
 
 	float getShipThreat(){ return m_threatLevel; }
 	int getShipHull(){ return m_hull; }
 	int getShipShield(){ return m_shield; }
 	void scaleStrength(float healthScaler, float damageScaler);
 
-	void markForAttack(){ m_beingAttacked = true; }
-	void removeAttackMark(){ m_beingAttacked = false; }
+	//Use void* to reference anytype of data such as, 
+	// to turn on cloaking, (interceptor)
+	// the position of the ship to spawn, (Carriers)
+	// or how many ships to add to group (Cutters)
+	// Effectively a callback function for data modifications in unique ships
+	// Returns arbitrary negetive int so no conflicts with the callback return
+	// <3 Callbacks
+	virtual int callUnique(void* data) { return -32; }
+
+	friend bool operator>(Ship& s1, Ship& s2){
+		return s1.getShipThreat() > s2.getShipThreat();
+	}
+	friend bool operator<(Ship& s1, Ship& s2){
+		return s1.getShipThreat() < s2.getShipThreat();
+	}
+	friend bool operator<=(Ship& s1, Ship& s2){
+		return !operator>(s1,s2);
+	}
+
 protected:
 	// Damage based in integers (hearts)
 	int m_shieldDamage = 0;
@@ -135,7 +154,6 @@ protected:
 	bool m_enemy = false;
 	CP m_CPcost = 0;
 	bool m_canAttack = true;
-	bool m_beingAttacked = false;
 
 	int m_shieldMax= 5;
 	int m_hullMax= 5;
@@ -156,7 +174,6 @@ protected:
 	glm::ivec2 m_newPosition;
 	glm::ivec2 m_newPositionClamped;
 	Ship* m_queuedAttack = nullptr;
-	bool m_queuedAttackShield = false;
 	Sakura::Rect m_bounds;
 	Sakura::TileSheet m_texture;
 	Sakura::TileSheet m_hearts;
