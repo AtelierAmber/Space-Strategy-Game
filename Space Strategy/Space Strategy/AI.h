@@ -36,7 +36,7 @@ public:
 	bool update(float deltaTime, Grid* grid);
 	void resetUpdates(){ m_hasUpdatedOnce = false; }
 
-	int* getWave(){ return &m_currentWave; }
+	int* getWavePtr(){ return &m_currentWave; }
 
 	void loadNextWave(Grid* grid, Sakura::ResourceManager& resourceManager);
 

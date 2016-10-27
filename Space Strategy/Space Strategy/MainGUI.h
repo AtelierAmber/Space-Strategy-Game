@@ -43,6 +43,7 @@ public:
 	void initComponents() override;
 
 	void initShipIcons(Sakura::Window* window);
+	void initWaves(int* wavesRef);
 	void initButtons(Sakura::Window* window);
 	void initCommandship(Ship* commandship){ m_commandship = commandship; }
 
@@ -72,10 +73,12 @@ private:
 	ShipType m_selectedShipType = ShipType::CUTTER;
 
 	Sakura::TileSheet m_CPIcon;
+	Sakura::TileSheet m_hearts;
 	CP m_CP = 50;
 	CP m_usedCP = 0;
 
 	Ship* m_commandship;
+	int* m_currentWave = nullptr;
 	int m_score;
 
 	Sakura::Window* m_parentWindow;

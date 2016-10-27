@@ -3,8 +3,8 @@
 #include "Ship.h"
 
 #define screen_scale_level 1.0f
-#define grid_padding_top 75.0f
-#define grid_padding_bottom 50.0f
+#define grid_padding_top 100.0f
+#define grid_padding_bottom 55.0f
 
 /************************************************************************/
 /* SCREEN                                                               */
@@ -78,6 +78,8 @@ void MainScreen::onEntry(){
 	m_ai.init(&m_playerFleet, "Red", &m_interface);
 	m_playerFleet.init(m_ai.FleetPtr(), "Gray", &m_interface, false);
 	m_playerFleet.addShip(&m_grid, m_resourceManager, ShipType::COMMANDSHIP, m_grid.getScreenPos(glm::ivec2(0, 10)), glm::ivec2(0, 10), 0, false);
+	m_interface.initCommandship(m_playerFleet[0]);
+	m_interface.initWaves(m_ai.getWavePtr());
 	m_ai.loadNextWave(&m_grid, m_resourceManager);
 }
 

@@ -120,7 +120,9 @@ public:
 
 	float getShipThreat(){ return m_threatLevel; }
 	int getShipHull(){ return m_hull; }
+	int getShipHullMax(){ return m_hullMax; }
 	int getShipShield(){ return m_shield; }
+	int getShipShieldMax(){ return m_shieldMax; }
 	void scaleStrength(float healthScaler, float damageScaler);
 
 	//Use void* to reference anytype of data such as, 

@@ -54,6 +54,7 @@ bool MainGUI::updateIcons(Sakura::InputManager& inputManager, const glm::vec2& m
 void MainGUI::IDraw(float fps){
 	switch (state){
 	case GAMEPLAY:
+	{
 		for (int i = 0; i < 10; ++i){
 			m_GUISpritebatch.draw(glm::vec4(m_shipIcons[i].rect.x1, m_shipIcons[i].rect.y2, m_shipIcons[i].rect.width, m_shipIcons[i].rect.height), m_shipIconTextures.getUVs(i + (10 * (int)!m_shipIcons[i].unlocked)), m_shipIconTextures.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 			m_GUISpritefont.draw(m_GUISpritebatch, std::to_string(m_shipIcons[i].cost).c_str(), glm::vec2(m_shipIcons[i].rect.x1 + m_shipIcons[i].rect.width / 2, m_shipIcons[i].rect.y2 + 2.0f),
@@ -65,11 +66,28 @@ void MainGUI::IDraw(float fps){
 			m_shipSelector.texture.width * 0.5f, m_shipSelector.texture.height * 1.5f), m_shipSelector.getUVs(1), m_shipSelector.texture.id, 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 #define cp_icon_scale 1.96f
 		for (int cp = 0; cp < m_CP; ++cp){
-			int uv = (cp <  (m_usedCP + m_shipIcons[(int)m_selectedShipType].cost)) ? 1 : 2;
+			int uv = (cp < (m_usedCP + m_shipIcons[(int)m_selectedShipType].cost)) ? 1 : 2;
 			uv = (cp < m_usedCP) ? 0 : uv;
 			m_GUISpritebatch.draw(glm::vec4(10.0f + (cp * (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale), m_parentWindow->getScreenHeight() - 5.0f - (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale, (m_CPIcon.texture.width / m_CPIcon.dims.x) * cp_icon_scale, (m_CPIcon.texture.height / m_CPIcon.dims.y) * cp_icon_scale),
 				m_CPIcon.getUVs(uv), m_CPIcon.texture.id, 50.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		}
+#define health_scale 2.0f
+		m_GUISpritefont.draw(m_GUISpritebatch, "Command Ship Health: ", glm::vec2(240.0f, m_hearts.texture.height * health_scale * 2), glm::vec2(0.2f), 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+
+		glm::vec4 destRect = glm::vec4(210.0f, m_hearts.texture.height * health_scale, m_hearts.texture.width / 3.0f * health_scale, m_hearts.texture.height * health_scale);
+		for (int i = 0; i < m_commandship->getShipHullMax(); ++i){
+			int uv = (i < m_commandship->getShipHull()) ? 1 : 2;
+			destRect.x = 210.0f + i * (m_hearts.texture.width / 3.0f * health_scale);
+			m_GUISpritebatch.draw(destRect, m_hearts.getUVs(uv), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		}
+		destRect.x = 210.0f;
+		for (int i = 0; i < m_commandship->getShipShield(); ++i){
+			destRect.x = 210.0f + i * (m_hearts.texture.width / 3.0f * health_scale);
+			m_GUISpritebatch.draw(destRect, m_hearts.getUVs(0), m_hearts.texture.id, 10.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		}
+		std::string waves = "Wave: " + std::to_string(*m_currentWave);
+		m_GUISpritefont.draw(m_GUISpritebatch, waves.c_str(), glm::vec2(475.0f, 15.0f), glm::vec2(0.2f), 100.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	}
 		break;
 	case MENU:
 		m_resumeButton.draw(m_GUISpritebatch, m_GUICamera, true);
@@ -92,6 +110,7 @@ void MainGUI::initComponents(){
 	m_GUISpritefont.initTTF("Assets/Fonts/destructobeambb_reg.ttf", 96, MIPMAP | LINEAR | TRANS_BORDER);
 	m_shipIconTextures = m_resourceManager->getTileSheet("Assets/Sprites/UI/ship_icons.png", glm::ivec2(10, 2), MIPMAP | PIXELATED | EDGE_CLAMP);
 	m_CPIcon = m_resourceManager->getTileSheet("Assets/Sprites/UI/cp_icon.png", glm::ivec2(3, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_hearts = m_resourceManager->getTileSheet("Assets/Sprites/UI/ship_health.png", glm::ivec2(3, 1), MIPMAP | PIXELATED | EDGE_CLAMP);;
 }
 
 void MainGUI::initShipIcons(Sakura::Window* window){
@@ -103,6 +122,10 @@ void MainGUI::initShipIcons(Sakura::Window* window){
 		m_shipIcons[i].cost = Ship::getTypeCost(m_shipIcons[i].shipType);
 	}
 	m_shipSelector = m_resourceManager->getTileSheet("Assets/Sprites/UI/ship_selector.png", glm::ivec2(2, 1), MIPMAP | PIXELATED | EDGE_CLAMP);
+}
+
+void MainGUI::initWaves(int* wavesRef){
+	m_currentWave = wavesRef;
 }
 
 #define BUTTON_SCALE 2.0f

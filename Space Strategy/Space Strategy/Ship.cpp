@@ -464,6 +464,6 @@ void Ship::damageOther(Ship* otherShip){
 		if (otherShip){
 			otherShip->Damage(m_hullDamage, m_shieldDamage, m_damageEffect);
 		}
-		m_queuedAttack = nullptr;
 	}
+	m_queuedAttack = nullptr;
 }
