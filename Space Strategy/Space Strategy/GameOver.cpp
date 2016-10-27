@@ -118,21 +118,21 @@ void GameOver::draw(){
 
 		m_spriteBatch.draw(glm::vec4(m_window->getScreenWidth() / 2.0f - 75.0f, m_window->getScreenHeight() / 2 + 50.0f, m_nameArrow.width*2.0f, m_nameArrow.height*2.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_nameArrow.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		m_spriteBatch.draw(glm::vec4(m_window->getScreenWidth() / 2.0f - 75.0f, m_window->getScreenHeight() / 2 - 50.0f, m_nameArrow.width*2.0f, m_nameArrow.height*2.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_nameArrow.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255), 3.141592);
-		m_debugRenderer.drawBox(glm::vec4(m_window->getScreenWidth() / 2.0f - 75.0f, m_window->getScreenHeight() / 2 - 40.0f, m_nameArrow.width*2.0f, 80.0f), Sakura::ColorRGBA8(255, 255, 255, 255), 0.0f);
+		m_debugRenderer.drawBox(glm::vec4(m_window->getScreenWidth() / 2.0f - 75.0f, m_window->getScreenHeight() / 2 - 40.0f, m_nameArrow.width*2.0f, 80.0f), Sakura::ColorRGBA8(255, 255, 0, 255), 0.0f);
 		std::string nameChar = m_chosenNameChar1;
-		m_font.draw(m_spriteBatch, nameChar.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f - 75.0f, m_window->getScreenHeight() / 2 + 75.0f + m_nameArrow.height*2.0f), glm::vec2(0.2f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		m_font.draw(m_spriteBatch, nameChar.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f - 75.0f, m_window->getScreenHeight() / 2 + m_nameArrow.height*2.0f), glm::vec2(0.2f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 
 		m_spriteBatch.draw(glm::vec4(m_window->getScreenWidth() / 2.0f + m_nameArrow.width, m_window->getScreenHeight() / 2 + 50.0f, m_nameArrow.width*2.0f, m_nameArrow.height*2.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_nameArrow.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		m_spriteBatch.draw(glm::vec4(m_window->getScreenWidth() / 2.0f + m_nameArrow.width, m_window->getScreenHeight() / 2 - 50.0f, m_nameArrow.width*2.0f, m_nameArrow.height*2.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_nameArrow.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255), 3.141592);
-		m_debugRenderer.drawBox(glm::vec4(m_window->getScreenWidth() / 2.0f + m_nameArrow.width, m_window->getScreenHeight() / 2 - 40.0f, m_nameArrow.width*2.0f, 80.0f), Sakura::ColorRGBA8(255, 255, 255, 255), 0.0f);
+		m_debugRenderer.drawBox(glm::vec4(m_window->getScreenWidth() / 2.0f + 20.0f, m_window->getScreenHeight() / 2 - 40.0f, m_nameArrow.width*2.0f, 80.0f), Sakura::ColorRGBA8(255, 0, 255, 255), 0.0f);
 		nameChar = m_chosenNameChar2;
-		m_font.draw(m_spriteBatch, nameChar.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f + m_nameArrow.width, m_window->getScreenHeight() / 2 + 75.0f + m_nameArrow.height*2.0f), glm::vec2(0.2f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		m_font.draw(m_spriteBatch, nameChar.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f + 20.0f, m_window->getScreenHeight() / 2 + m_nameArrow.height*2.0f), glm::vec2(0.2f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 
 		m_spriteBatch.draw(glm::vec4(m_window->getScreenWidth() / 2.0f + 75.0f, m_window->getScreenHeight() / 2 + 50.0f, m_nameArrow.width*2.0f, m_nameArrow.height*2.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_nameArrow.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		m_spriteBatch.draw(glm::vec4(m_window->getScreenWidth() / 2.0f + 75.0f, m_window->getScreenHeight() / 2 - 50.0f, m_nameArrow.width*2.0f, m_nameArrow.height*2.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_nameArrow.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255), 3.141592);
-		m_debugRenderer.drawBox(glm::vec4(m_window->getScreenWidth() / 2.0f - 50.0f, m_window->getScreenHeight() / 2 - 40.0f, m_nameArrow.width*2.0f, 80.0f), Sakura::ColorRGBA8(255, 255, 255, 255), 0.0f);
+		m_debugRenderer.drawBox(glm::vec4(m_window->getScreenWidth() / 2.0f - 50.0f - m_nameArrow.width*2.0f, m_window->getScreenHeight() / 2 - 40.0f, m_nameArrow.width*2.0f, 80.0f), Sakura::ColorRGBA8(0, 255, 255, 255), 0.0f);
 		nameChar = m_chosenNameChar3;
-		m_font.draw(m_spriteBatch, nameChar.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f + 75.0f, m_window->getScreenHeight() / 2 + 75.0f + m_nameArrow.height*2.0f), glm::vec2(0.2f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+		m_font.draw(m_spriteBatch, nameChar.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f + 75.0f, m_window->getScreenHeight() / 2 + m_nameArrow.height*2.0f), glm::vec2(0.2f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
 		break;
 	}
 	default:
@@ -140,7 +140,6 @@ void GameOver::draw(){
 	}
 	std::string finalScore = "Final Score: " + std::to_string((*m_finalScore));
 	m_font.draw(m_spriteBatch, finalScore.c_str(), glm::vec2(m_window->getScreenWidth() / 2.0f, m_window->getScreenHeight() / 2 + 150.0f), glm::vec2(0.25f), 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::MIDDLE);
-
 }
 
 void GameOver::specificDraw(){
@@ -167,35 +166,9 @@ void GameOver::checkInput(){
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::LEFT)){
 		if (m_nameCharIndex > 0) --m_nameCharIndex;
-		switch (m_nameCharIndex){
-		case 0:
-			m_chosenNameChar1[0] = (m_letterIndex + 17) + '0';
-			break;
-		case 1:
-			m_chosenNameChar2[0] = (m_letterIndex + 17) + '0';
-			break;
-		case 2:
-			m_chosenNameChar3[0] = (m_letterIndex + 17) + '0';
-			break;
-		default:
-			break;
-		}
 	}
 	if (m_game->inputManager.isKeyPressed(KeyID::RIGHT)){
 		if (m_nameCharIndex < 2) ++m_nameCharIndex;
-		switch (m_nameCharIndex){
-		case 0:
-			m_chosenNameChar1[0] = (m_letterIndex + 17) + '0';
-			break;
-		case 1:
-			m_chosenNameChar2[0] = (m_letterIndex + 17) + '0';
-			break;
-		case 2:
-			m_chosenNameChar3[0] = (m_letterIndex + 17) + '0';
-			break;
-		default:
-			break;
-		}
 	}
 
 }

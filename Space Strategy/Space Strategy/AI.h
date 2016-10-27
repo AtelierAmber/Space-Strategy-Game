@@ -47,7 +47,7 @@ private:
 	std::mt19937 gen;
 	Fleet m_fleet;
 	bool m_hasUpdatedOnce = false;
-	int m_currentWave = 1000;
+	int m_currentWave = 0;
 	Fleet* m_playerFleet = nullptr;
 };
 

@@ -99,7 +99,7 @@ bool AI::update(float deltaTime, Grid* grid){
 			float distanceTo = 0.0f;
 			for (int i = 0; i < m_playerFleet->getFleetSize(); ++i){
 				distanceTo = glm::length(glm::vec2(ship->getPosition() - ((*m_playerFleet)[i]->getPosition() + ((*m_playerFleet)[i]->getTileSpan()/2))));
-				if (distanceTo < ship.get()->getAttackRange() + 1){
+				if (distanceTo < ship.get()->getAttackRange() + ship.get()->getSpeed()){
 					ship.get()->queueAttack(m_playerFleet->getShips()[i].get());
 					break;
 				}
