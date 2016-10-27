@@ -22,8 +22,7 @@ void BaseGame::addScreens(){
 	m_screenList->addScreen(m_mainMenu.get());
 	m_screenList->addScreen(m_screen.get());
 	m_screenList->addScreen(m_gameOverMenu.get());
-	std::printf("%i", m_gameOverMenu->getScreenIndex());
-	m_screenList->setScreen(m_mainMenu->getScreenIndex());
+	m_screenList->setScreen(m_gameOverMenu->getScreenIndex());
 }
 
 void BaseGame::onExit(){

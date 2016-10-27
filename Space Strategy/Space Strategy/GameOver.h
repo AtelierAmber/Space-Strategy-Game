@@ -9,22 +9,15 @@
 #include <Sakura/GUIInterface.h>
 #include <Sakura/Window.h>
 
-class GameOverGUI :
-	public Sakura::GUIInterface
-{
+enum DisplayState{
+	MAIN,
+	SAVE_NAME
+};
 
-public:
-	virtual void destroyComponents() override;
-
-	virtual void update(Sakura::InputManager& inputManager) override;
-
-	virtual void IDraw(float fps) override;
-
-	virtual void initComponents() override;
-
-private:
-
-
+struct ScoreStruct{
+	int score = -1;
+	char name[3];
+	int ranking = -1;
 };
 
 class GameOver :
@@ -53,7 +46,22 @@ public:
 	void specificDraw() override;
 
 private:
-	GameOverGUI m_interface;
+	Sakura::GUIButton m_saveScore;
+	Sakura::GUIButton m_retryButton;
+	Sakura::GUIButton m_quitButton;
+	Sakura::GLTexture m_nameArrow;
+
+	int m_nameCharIndex = 0;
+	int m_letterIndex = 0;
+	std::string m_chosenNameChar1 = "A  ";
+	std::string m_chosenNameChar2 = "A  ";
+	std::string m_chosenNameChar3 = "A  ";
+
+	Sakura::SpriteFont m_font;
+
+	std::vector<ScoreStruct> m_scores;
+
+	DisplayState m_displayState = MAIN;
 
 	Sakura::Window* m_window = nullptr;
 	int* m_finalScore;

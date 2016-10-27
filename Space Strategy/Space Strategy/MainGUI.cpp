@@ -154,15 +154,15 @@ void MainGUI::initWaves(int* wavesRef, int* score){
 #define BUTTON_SCALE 2.0f
 void MainGUI::initButtons(Sakura::Window* window){
 	m_parentWindow = window;
-	m_resumeButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Resume", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_resumeButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Resume", glm::vec4((float)window->getScreenWidth() / 2.0f - (46.0f * BUTTON_SCALE), ((float)window->getScreenHeight() / 3.0f) * 2.0f, 92.0f * BUTTON_SCALE, 25.0f * BUTTON_SCALE),
 		[this](){ state = GAMEPLAY; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_optionsButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Options", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_optionsButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Options", glm::vec4((float)window->getScreenWidth() / 2.0f - (46.0f * BUTTON_SCALE), (float)window->getScreenHeight() / 2.0f, 92.0f * BUTTON_SCALE, 25.0f * BUTTON_SCALE),
 		[this](){ state = OPTIONSmain; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 3, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4((float)window->getScreenWidth() / 2.0f - (46.0f * BUTTON_SCALE), (float)window->getScreenHeight() / 3.0f, 92.0f * BUTTON_SCALE, 25.0f * BUTTON_SCALE),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::EXIT_APPLICATION); },
 		MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_backButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Back", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), window->getScreenHeight() / 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_backButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Back", glm::vec4((float)window->getScreenWidth() / 2.0f - (46.0f * BUTTON_SCALE), (float)window->getScreenHeight() / 2.0f, 92.0f * BUTTON_SCALE, 25.0f * BUTTON_SCALE),
 		[this](){ state = MENU; }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_musicButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Toggle Music", glm::vec4(window->getScreenWidth() / 2 - (46 * BUTTON_SCALE), ((float)window->getScreenHeight() / 3) * 2, 92 * BUTTON_SCALE, 25 * BUTTON_SCALE),
+	m_musicButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Toggle Music", glm::vec4((float)window->getScreenWidth() / 2.0f - (46.0f * BUTTON_SCALE), ((float)window->getScreenHeight() / 3.0f) * 2.0f, 92.0f * BUTTON_SCALE, 25.0f * BUTTON_SCALE),
 		[this](){ m_toggleMusic = true; }, MIPMAP | PIXELATED | EDGE_CLAMP);
 }

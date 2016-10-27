@@ -17,6 +17,11 @@ void AI::init(Fleet* playerFleet, std::string team, MainGUI* gui, Sakura::Resour
 	gen = std::mt19937(rd());
 }
 
+void AI::destroy(){
+	m_fleet.destroy();
+	m_currentWave = 0;
+}
+
 void AI::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, glm::vec2 mouseCoords){
 	m_fleet.draw(spriteBatch, grid, mouseCoords);
 }

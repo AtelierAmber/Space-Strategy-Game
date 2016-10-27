@@ -61,6 +61,7 @@ private:
 	Sakura::Window* m_window;
 	MenuGUI m_interface;
 	Sakura::GLTexture m_background;
+	Sakura::SpriteFont m_font;
 
 	float m_deltaTime;
 };

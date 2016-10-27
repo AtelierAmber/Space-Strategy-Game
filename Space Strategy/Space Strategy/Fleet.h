@@ -15,6 +15,7 @@ public:
 	~Fleet();
 
 	void init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool isEnemy, Sakura::ResourceManager* resourceManager, Grid* grid);
+	void destroy();
 	
 	int addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP = true);
 	int removeShip(unsigned int shipIndex);

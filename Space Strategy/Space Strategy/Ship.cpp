@@ -459,7 +459,7 @@ void Ship::ApplyEffect(DamageEffect statusEffect){
 }
 
 void Ship::damageOther(Ship* otherShip){
-	int distanceTo = (int)glm::length(glm::vec2(m_position - otherShip->getPosition()));
+	int distanceTo = (float)std::ceil(glm::length(glm::vec2(m_position - otherShip->getPosition())));
 	if (distanceTo < m_range){
 		if (otherShip){
 			otherShip->Damage(m_hullDamage, m_shieldDamage, m_damageEffect);

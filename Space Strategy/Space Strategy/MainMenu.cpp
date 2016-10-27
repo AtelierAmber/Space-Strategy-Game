@@ -3,9 +3,6 @@
 
 #define screen_scale_level 1.0f
 
-#define grid_padding_top 100.0f
-#define grid_padding_bottom 55.0f
-
 MainMenu::MainMenu(Sakura::Window* window) : m_window(window){
 	/* Empty */
 }
@@ -47,6 +44,7 @@ void MainMenu::onEntry(){
 
 	// Background
 	m_background = m_resourceManager.getTexture("Assets/Sprites/UI/Grid.png", MIPMAP | PIXELATED | EDGE_CLAMP);
+	m_font.initTTF("Assets/Fonts/destructobeambb_reg.ttf", 144, MIPMAP | LINEAR | TRANS_BORDER);
 
 	m_camera.init(m_window->getScreenWidth(), m_window->getScreenHeight());
 	m_camera.setScale(screen_scale_level);
@@ -63,6 +61,7 @@ void MainMenu::onExit(){
 	m_resourceManager.destroyResources();
 	m_spriteBatch.dispose();
 	m_interface.destroy();
+	m_font.dispose();
 }
 
 void MainMenu::update(float deltaTime){
@@ -83,8 +82,8 @@ void MainMenu::checkInput(){
 
 void MainMenu::draw(){
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec2 mouseCoords = m_camera.convertScreenToWorld(m_game->inputManager.getMouseCoords());
-	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f + grid_padding_bottom, m_window->getScreenWidth(), m_window->getScreenHeight() - (grid_padding_top + grid_padding_bottom)), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	m_font.draw(m_spriteBatch, "Celestia Defense", glm::vec2((float)m_window->getScreenWidth() / 2.0f, (float)m_window->getScreenHeight() / 2.0f + 50.0f), glm::vec2(0.5f), 0.0f, Sakura::ColorRGBA8(255,255,255,255), Sakura::Justification::MIDDLE);
 }
 
 void MainMenu::specificDraw(){

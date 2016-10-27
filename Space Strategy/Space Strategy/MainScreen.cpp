@@ -34,6 +34,7 @@ void MainScreen::destroy(){
 }
 
 void MainScreen::onEntry(){
+	(*m_playerScore) = 0;
 	m_GLSLSamplerName = "mySampler";
 	m_GLSLPUniformName = "P";
 	m_spriteBatch.init();
@@ -98,6 +99,8 @@ void MainScreen::onExit(){
 	m_debugFont.dispose();
 	m_addShipsButton.destroy();
 	m_readyButton.destroy();
+	m_playerFleet.destroy();
+	m_ai.destroy();
 }
 
 void MainScreen::update(float deltaTime){
@@ -123,11 +126,6 @@ void MainScreen::update(float deltaTime){
 			m_shipToPlace.update(&m_grid, mouseCoords);
 		}
 		break;
-	case MENU:
-	case OPTIONSmain:
-
-		break;
-		break;
 	default:
 		break;
 	}
@@ -137,7 +135,6 @@ void MainScreen::update(float deltaTime){
 		m_interface.addScore(500);
 		m_interface.addMaxCP(((*m_interface.getScore()) / 125 > (100 - m_interface.getMaxCP())) ? 100 - m_interface.getMaxCP() : ((*m_interface.getScore()) / 125));
 		m_ai.loadNextWave(&m_grid, m_resourceManager);
-		m_timer = 0.0f;
 	}
 
 	if (!m_playerFleet.hasCommand()){
@@ -225,15 +222,15 @@ void MainScreen::checkInput() {
 	SDL_Event evnt;
 	while (SDL_PollEvent(&evnt)) {
 		m_game->onSDLEvent(evnt);
-	}
-	/* Enable DEBUG mode */
-	if (m_game->inputManager.isKeyPressed(KeyID::BACKQUOTE)){
-		debug_game_events = !debug_game_events;
-	}
-
-	if (m_game->inputManager.isKeyPressed(KeyID::F1)){
-		show_boxes = true;
-	}
+ 	}
+// 	/* Enable DEBUG mode */
+// 	if (m_game->inputManager.isKeyPressed(KeyID::BACKQUOTE)){
+// 		debug_game_events = !debug_game_events;
+// 	}
+// 
+// 	if (m_game->inputManager.isKeyPressed(KeyID::F1)){
+// 		show_boxes = true;
+// 	}
 
 	/* Ship selection */
 	if (m_game->inputManager.isKeyPressed(KeyID::NUM0)){

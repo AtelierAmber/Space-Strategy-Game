@@ -25,6 +25,17 @@ void Fleet::init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool i
 	m_grid_ref = grid;
 }
 
+void Fleet::destroy(){
+	m_ships.clear();
+	m_selectedShip = nullptr;
+	m_gui = nullptr;
+	m_enemyFleet = nullptr;
+	m_explosions.clear();
+	m_turnFinished = false;
+	m_moving = false;
+	m_addedShip = ShipType::CUTTER;
+}
+
 int Fleet::addShip(Grid* grid, Sakura::ResourceManager &resourceManager, ShipType shipType, glm::vec2 absPosition, glm::ivec2 position /* Position on GRID */, int additionalData, bool costsCP){
 	if (position.x > grid->getDims().x - 1 || position.y > grid->getDims().y - 1 || position.x < 0 || position.y < 0){
 		return -1;

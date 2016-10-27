@@ -25,6 +25,7 @@ public:
 	~AI();
 
 	void init(Fleet* playerFleet, std::string team, MainGUI* gui, Sakura::ResourceManager* resourceManager, Grid* grid);
+	void destroy();
 
 	const Fleet& getFleet() const{ return m_fleet; }
 	Ship* enemyShipAtPosition(glm::vec2 position){ return m_fleet.shipAtPosition(position); }
