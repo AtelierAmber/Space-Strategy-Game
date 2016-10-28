@@ -18,6 +18,9 @@ Interceptor::~Interceptor(){
 }
 
 int Interceptor::update(float deltaTime, Grid* grid){
+	if (m_shield < 0){
+		m_shield = 0;
+	}
 	if (!m_hasUpdatedOnce){
 		calculateFriendlyEffects();
 		if (calculateBadEffects()){
@@ -34,14 +37,20 @@ int Interceptor::update(float deltaTime, Grid* grid){
 		}
 		m_hasUpdatedOnce = true;
 	}
-	m_position = grid->getGridPosClamped(glm::vec2(m_bounds.x1, m_bounds.y2));
+	m_position = grid->getGridPosClamped(glm::vec2(m_bounds.x1 + (grid->getTileDims().x / 2), m_bounds.y1 - (grid->getTileDims().y / 2)));
 	return 0;
 }
 
 void Interceptor::damageOther(Ship* otherShip){
-	if (otherShip){
-		otherShip->Damage(0, m_shieldDamage, m_damageEffect);
-		uncloak();
+	int distanceTo = (int)std::ceil(glm::length(glm::vec2(m_position - otherShip->getPosition())));
+	if (distanceTo <= m_range){
+		if (otherShip){
+			otherShip->Damage(m_hullDamage, m_shieldDamage, m_damageEffect);
+
+			if (!m_isVisible){
+				uncloak();
+			}
+		}
 	}
 	m_queuedAttack = nullptr;
 }
@@ -68,7 +77,7 @@ void Interceptor::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover)
 		m_selectedSin += 0.05f;
 	}
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
-	if (m_shield){
+	if (m_shield > 0){
 		spriteBatch.draw(destRect, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_shieldTex.id, 0.1f, Sakura::ColorRGBA8(255, 255, 255, 255));
 	}
 	if (hover && m_shipType != ShipType::COMMANDSHIP){

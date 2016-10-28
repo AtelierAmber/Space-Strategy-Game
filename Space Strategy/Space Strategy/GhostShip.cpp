@@ -16,7 +16,8 @@ void GhostShip::update(Grid* grid, glm::vec2 mouseCoords){
 }
 
 void GhostShip::draw(Sakura::SpriteBatch& spriteBatch, Fleet& playerFleet, Fleet& enemyFleet){
-	glm::vec4 uvRect = m_texture.getUVs(0);
+	int uv = (m_shipType == ShipType::CUTTER) ? 1 : 0;
+	glm::vec4 uvRect = m_texture.getUVs(uv);
 	float shipScale = std::min(m_bounds.width / m_tileSpan.x / (m_texture.texture.width / m_texture.dims.x), m_bounds.height / m_tileSpan.x / (m_texture.texture.height / m_texture.dims.y));
 	glm::vec2 shipSize = glm::vec2((m_texture.texture.width / m_texture.dims.x) * shipScale * m_tileSpan.x, (m_texture.texture.height / m_texture.dims.y) * shipScale * m_tileSpan.y + 8.0f);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1 + ((m_bounds.width / 2.0f) - (shipSize.x / 2.0f)), m_bounds.y2 + ((m_bounds.height / 2.0f) - (shipSize.y / 2.0f)), shipSize.x, shipSize.y);

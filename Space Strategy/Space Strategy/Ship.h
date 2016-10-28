@@ -169,7 +169,7 @@ protected:
 	ShipType m_shipType;
 	unsigned int m_id;
 	bool m_hasUpdatedOnce = false;
-	int m_moveCounter;
+	float m_moveCounter;
 	bool m_moveFinished = false;
 
 	Fleet* m_fleet;

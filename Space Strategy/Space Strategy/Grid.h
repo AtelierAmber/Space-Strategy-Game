@@ -3,6 +3,8 @@
 #include <Sakura/Window.h>
 #include <Sakura/DebugRenderer.h>
 
+#include <algorithm>
+
 struct Grid
 {
 public:
@@ -22,8 +24,9 @@ public:
 	}
 
 	const glm::ivec2 getDims() const{ return glm::ivec2((float)m_gridDims.x, (float)m_gridDims.y); }
-	const glm::vec2 getScreenPos(const glm::ivec2& tilePos) const{ return glm::vec2(((float)tilePos.x * m_tileDims.x) + m_borderOffset.x,
-																((float)tilePos.y * m_tileDims.y) + m_borderOffset.w); }
+	const glm::vec2 getScreenPos(const glm::ivec2& tilePos) const{ return glm::vec2(std::round(((float)tilePos.x * m_tileDims.x) + m_borderOffset.x),
+																			std::round(((float)tilePos.y * m_tileDims.y) + m_borderOffset.w));
+	}
 	const glm::ivec2 getGridPos(const glm::vec2& absolutePos) const{
 		if (absolutePos.x < (m_borderOffset.x)){
 			return glm::ivec2(-1);
@@ -31,10 +34,10 @@ public:
 		if (absolutePos.y < (m_borderOffset.w)){
 			return glm::ivec2(-1);
 		}
-		if (absolutePos.x > (m_tileDims.x * m_gridDims.x)){
+		if (absolutePos.x - m_borderOffset.x > (m_tileDims.x * m_gridDims.x)){
 			return glm::ivec2(-1);
 		}
-		if (absolutePos.y >(m_tileDims.y * m_gridDims.y)){
+		if (absolutePos.y - m_borderOffset.w > (m_tileDims.y * m_gridDims.y)){
 			return glm::ivec2(-1);
 		}
 		return glm::ivec2((int)((absolutePos.x - this->m_borderOffset.x) / this->m_tileDims.x),

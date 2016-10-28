@@ -65,6 +65,9 @@ int Ship::destroy(){
 }
 
 int Ship::update(float deltaTime, Grid* grid){
+	if (m_shield < 0){
+		m_shield = 0;
+	}
 	if (!m_hasUpdatedOnce){
 		calculateFriendlyEffects();
 		if (calculateBadEffects()){
@@ -72,7 +75,7 @@ int Ship::update(float deltaTime, Grid* grid){
 		}
 		m_hasUpdatedOnce = true;
 	}
-	m_position = grid->getGridPosClamped(glm::vec2(m_bounds.x1, m_bounds.y2));
+	m_position = grid->getGridPosClamped(glm::vec2(m_bounds.x1 + (grid->getTileDims().x / 2), m_bounds.y1 - (grid->getTileDims().y / 2)));
 	return 0;
 }
 
@@ -82,11 +85,12 @@ int signOf(int f){
 
 /* returns true if move is finished, false if the move needs to be updated still */
 bool Ship::updateMove(float deltaTime, Grid* grid){
-	if (m_position != m_newPosition){
-		if (m_moveCounter == 0){
-			m_moveCounter = (int)m_speed;
-			if (m_moveCounter == 0){
+	if (m_position != m_newPosition && !m_moveFinished){
+		if (m_moveCounter <= 0.0f){
+			m_moveCounter = (float)m_speed;
+			if (m_moveCounter <= 0.0f){
 				return true;
+				m_moveFinished = true;
 			}
 			m_moveFinished = false;
 		}
@@ -100,15 +104,16 @@ bool Ship::updateMove(float deltaTime, Grid* grid){
 		}
 		else {
 			m_bounds.move(grid->getTileDims().x * signOf(distToNew.x), grid->getTileDims().y * signOf(distToNew.y));
+			m_moveCounter -= 0.5f;
 		}
 		--m_moveCounter;
 	}
 	else {
-		m_moveCounter = 0;
+		m_moveCounter = 0.0f;
 		m_moveFinished = true;
 		return true;
 	}
-	if (m_moveCounter == 0){
+	if (m_moveCounter <= 0.0f){
 		m_moveFinished = true;
 		return true;
 	}
@@ -351,7 +356,7 @@ void Ship::draw(Sakura::SpriteBatch& spriteBatch, Grid* grid, bool hover){
 		m_selectedSin += 0.05f;
 	}
 	spriteBatch.draw(destRect, uvRect, m_texture.texture.id, 0.0f, Sakura::ColorRGBA8(255,255,255,255));
-	if (m_shield){
+	if (m_shield > 0){
 		spriteBatch.draw(destRect, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_shieldTex.id, 0.1f, Sakura::ColorRGBA8(255, 255, 255, 255));
 	}
 	if (hover && m_shipType != ShipType::COMMANDSHIP){
@@ -398,10 +403,13 @@ void Ship::drawTravelTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	int numMarkers = (int)travelLength / (m_trailMarkers.texture.width + 5);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1 + (m_bounds.width / 2), m_bounds.y2 + (m_bounds.height / 2), m_trailMarkers.texture.width, m_trailMarkers.texture.height*2);
 	int uv = 0;
-	for (int i = 0; i < numMarkers; ++i){
+	glm::vec2 distTraveled = glm::vec2();
+	for (int i = 0; i < numMarkers - 1; ++i){
 		destRect.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < m_speed * 2.5 - 2) ? 0 : 1;
+		distTraveled.x += (m_trailMarkers.texture.width + 5.0f) * travelDir.x;
+		distTraveled.y += (m_trailMarkers.texture.height * 2 + 5.0f) * travelDir.y;
+		uv = (glm::length(distTraveled / grid->getTileDims()) < m_speed) ? 0 : 1;
 		spriteBatch.draw(destRect, m_trailMarkers.getUVs(uv), m_trailMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }
@@ -420,11 +428,14 @@ void Ship::drawAttackTrail(Sakura::SpriteBatch& spriteBatch, Grid* grid){
 	int numMarkers = (int)travelLength / (m_attackMarkers.texture.width + 5);
 	glm::vec4 destRect = glm::vec4(m_bounds.x1 + (m_bounds.width / 2), m_bounds.y2 + (m_bounds.height / 2), m_attackMarkers.texture.width, m_attackMarkers.texture.height * 2);
 	int uv = 0;
+	glm::vec2 distTraveled = glm::vec2();
 	for (int i = 0; i < numMarkers - 1; ++i){
 		destRect.x += (m_attackMarkers.texture.width + 5.0f) * travelDir.x;
 		destRect.y += (m_attackMarkers.texture.height * 2 + 5.0f) * travelDir.y;
-		uv = (i < m_range * 3 - 2) ? 0 : 1;
-		spriteBatch.draw(destRect, m_attackMarkers.getUVs(uv), m_attackMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
+		distTraveled.x += (m_attackMarkers.texture.width + 5.0f) * travelDir.x;
+		distTraveled.y += (m_attackMarkers.texture.height * 2 + 5.0f) * travelDir.y;
+		uv = (glm::length(distTraveled / grid->getTileDims()) < m_range) ? 0 : 1;
+		spriteBatch.draw(destRect, m_trailMarkers.getUVs(uv), m_attackMarkers.texture.id, -0.5f, Sakura::ColorRGBA8(255, 255, 255, 255), travelDir);
 	}
 }
 
@@ -459,8 +470,8 @@ void Ship::ApplyEffect(DamageEffect statusEffect){
 }
 
 void Ship::damageOther(Ship* otherShip){
-	int distanceTo = (float)std::ceil(glm::length(glm::vec2(m_position - otherShip->getPosition())));
-	if (distanceTo < m_range){
+	int distanceTo = (int)std::ceil(glm::length(glm::vec2(m_position - otherShip->getPosition())));
+	if (distanceTo <= m_range){
 		if (otherShip){
 			otherShip->Damage(m_hullDamage, m_shieldDamage, m_damageEffect);
 		}

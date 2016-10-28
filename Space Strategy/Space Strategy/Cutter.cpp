@@ -4,7 +4,7 @@
 Cutter::Cutter(Grid* grid, Fleet* fleet, Sakura::ResourceManager &resourceManager, std::string team,
 	ShipType shipType, glm::ivec2 position /* Position on GRID */, bool enemy, bool costsCP){
 	init(grid, fleet, resourceManager, team, shipType, position, enemy, 10, 1, 1, 1, 1, 1, 1 * (int)costsCP, DamageEffect());
-	m_numShips = 1;
+	m_numShips = 3;
 }
 
 Cutter::~Cutter(){
@@ -39,7 +39,6 @@ int Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect){
 		if (statusEffect.effect != FIRE){
 			ApplyEffect(statusEffect);
 		}
-		m_shield -= shieldDamage;
 		if (m_shield <= 0){
 			m_shield = 0;
 			m_hull -= hullDamage;
@@ -50,8 +49,10 @@ int Cutter::Damage(int hullDamage, int shieldDamage, DamageEffect statusEffect){
 				ApplyEffect(statusEffect);
 			}
 		}
+		m_shield -= shieldDamage;
+		return -1;
 	}
-	return 0;
+	return -1;
 }
 
 #define heart_spacing 2

@@ -57,6 +57,7 @@ public:
 private:
 	std::vector<std::shared_ptr<Ship>> m_ships;
 	std::vector<Explosion> m_explosions;
+	Sakura::SoundEffect m_explosionsSFX;
 	ShipType m_addedShip = ShipType::CUTTER;
 	bool m_moving = false;
 	bool m_turnFinished = false;

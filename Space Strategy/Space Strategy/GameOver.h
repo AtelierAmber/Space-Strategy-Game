@@ -9,15 +9,17 @@
 #include <Sakura/GUIInterface.h>
 #include <Sakura/Window.h>
 
+#include <fstream>
+
 enum DisplayState{
 	MAIN,
 	SAVE_NAME
 };
 
 struct ScoreStruct{
-	int score = -1;
-	char name[3];
 	int ranking = -1;
+	char name[3];
+	int score = -1;
 };
 
 class GameOver :
@@ -45,20 +47,27 @@ public:
 	void draw() override;
 	void specificDraw() override;
 
+	void sortScores(int left, int right);
+	int partition(int left, int right);
+	void saveScore();
+
 private:
 	Sakura::GUIButton m_saveScore;
 	Sakura::GUIButton m_retryButton;
 	Sakura::GUIButton m_quitButton;
+	Sakura::GUIButton m_continueButton;
 	Sakura::GLTexture m_nameArrow;
+	Sakura::SoundEffect m_blip;
+
+	std::fstream m_scoreFile;
 
 	int m_nameCharIndex = 0;
 	int m_letterIndex = 0;
-	std::string m_chosenNameChar1 = "A  ";
-	std::string m_chosenNameChar2 = "A  ";
-	std::string m_chosenNameChar3 = "A  ";
+	std::string m_chosenNameChar[3];
 
 	Sakura::SpriteFont m_font;
 
+	ScoreStruct m_currentScore;
 	std::vector<ScoreStruct> m_scores;
 
 	DisplayState m_displayState = MAIN;

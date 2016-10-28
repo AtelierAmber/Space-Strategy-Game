@@ -23,6 +23,7 @@ void Fleet::init(Fleet* enemyFleet, std::string fleetColor, MainGUI* gui, bool i
 	m_isEnemy = isEnemy;
 	m_resourceManager_ref = resourceManager;
 	m_grid_ref = grid;
+	m_explosionsSFX = resourceManager->loadSoundEffect("Assets/Audio/SFX/explosion.wav");
 }
 
 void Fleet::destroy(){
@@ -146,6 +147,7 @@ int Fleet::removeShip(unsigned int shipIndex){
 			m_gui->addUsedCP(-1 * m_ships[shipIndex]->getCost());
 		}
 		m_explosions.emplace_back(Explosion(glm::vec2(m_grid_ref->getScreenPos(m_ships[shipIndex]->getPosition())), *m_resourceManager_ref));
+		m_explosionsSFX.play();
 		m_ships[shipIndex] = m_ships.back();
 		m_ships[shipIndex]->setID(shipIndex);
 		m_ships.pop_back();

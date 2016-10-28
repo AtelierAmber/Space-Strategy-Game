@@ -330,5 +330,10 @@ void MainScreen::checkInput() {
 				}
 			}
 		}
+// 		glm::vec2 mouseCoords = m_camera.convertScreenToWorld(glm::vec2(m_game->inputManager.getMouseCoords().x, m_game->inputManager.getMouseCoords().y));
+// 		glm::ivec2 gridPos = m_grid.getGridPos(mouseCoords);
+// 		glm::vec2 absGridPos = m_grid.getScreenPos(gridPos);
+// 		printf("Mouse Coords (x, y): %.2f, %.2f\n Grid Pos (x, y): %i, %i\nGrid Abs Pos (x, y): %.2f, %.2f\n", mouseCoords.x, mouseCoords.y, gridPos.x, gridPos.y, absGridPos.x, absGridPos.y);
+// 		m_previousMouseLocation = mouseCoords;
 	}
 }
