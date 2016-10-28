@@ -2,6 +2,10 @@
 # Assignment was late due to a game breaking bug I needed to fix and
 # I needed to complete this README.md and take screenshots 
 # of "It running" (Didn't have time to elaborate the screenshots)
+# As well as me being unable to upload it because it was "Too big" 
+# and I needed to re-compress it a few times
+
+#.exe for the game is in the Space-Strategy-Game\Space Strategy\Release\ directory
 Space Strategy Game
 
 The objective of this game is to protect your command ship from the endless waves 
