@@ -9,6 +9,15 @@
 #include <Sakura/GUIInterface.h>
 #include <Sakura/Window.h>
 
+#include <fstream>
+
+
+struct HighScore{
+	int ranking = -1;
+	char name[3];
+	int score = -1;
+};
+
 class MenuGUI :
 	public Sakura::GUIInterface
 {
@@ -27,6 +36,10 @@ public:
 	void initButtons(Sakura::Window* window);
 
 private:
+
+	std::fstream m_scoreFile;
+
+	std::vector<HighScore> m_scores;
 
 	Sakura::GUIButton m_startGame;
 	Sakura::GUIButton m_quitButton;

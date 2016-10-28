@@ -16,6 +16,8 @@ public:
 
 	int draw(Sakura::SpriteBatch& spriteBatch);
 
+	Sakura::TileSheet& getTexture(){ return m_sheet; }
+
 private:
 	glm::vec2 m_position;
 	Sakura::TileSheet m_sheet;

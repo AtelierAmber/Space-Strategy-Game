@@ -53,6 +53,11 @@ private:
 
 	float m_deltaTime = 1.0f;
 
+	Explosion m_endingExplosion;
+	Sakura::SoundEffect m_explosionSFX;
+	float m_explosionIndex;
+	bool m_isEnd = false;
+
 	bool m_placingShips = false;
 	GhostShip m_shipToPlace;
 	bool m_PturnsFinished = true;

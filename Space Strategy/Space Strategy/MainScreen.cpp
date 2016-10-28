@@ -85,6 +85,8 @@ void MainScreen::onEntry(){
 	m_interface.initPointerToSelected(&m_playerFleet.getSelectedShip());
 	m_interface.initWaves(m_ai.getWavePtr(), m_playerScore);
 	m_ai.loadNextWave(&m_grid, m_resourceManager);
+	m_explosionSFX = m_resourceManager.loadSoundEffect("Assets/Audio/SFX/explosion.wav");
+	m_endingExplosion.init(glm::vec2(0.0f), m_resourceManager);
 }
 
 void MainScreen::onExit(){
@@ -139,7 +141,8 @@ void MainScreen::update(float deltaTime){
 
 	if (!m_playerFleet.hasCommand()){
 		/* Move to the game over screen */
-		setState(Sakura::ScreenState::CHANGE_NEXT);
+		m_isEnd = true;
+		m_explosionSFX.play(2);
 	}
 
 	m_camera.update();
@@ -173,6 +176,15 @@ void MainScreen::draw(){
 
 	// Background
 	m_spriteBatch.draw(glm::vec4(0.0f, 0.0f + grid_padding_bottom, m_window->getScreenWidth(), m_window->getScreenHeight() - (grid_padding_top + grid_padding_bottom)), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), m_background.id, -500.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+
+	// Ending explosion
+	if (m_isEnd){
+		m_explosionIndex += .05f;
+		if (m_explosionIndex >= 6.0f){
+			setState(Sakura::ScreenState::CHANGE_NEXT);
+		}
+		m_spriteBatch.draw(glm::vec4(0.0f, 0.0f, m_window->getScreenWidth(), m_window->getScreenHeight()), m_endingExplosion.getTexture().getUVs((int)m_explosionIndex), m_endingExplosion.getTexture().texture.id, 0.0f, Sakura::ColorRGBA8(255, 255, 255, 255));
+	}
 
 	if (m_placingShips){
 		m_shipToPlace.draw(m_spriteBatch, m_playerFleet, *m_ai.FleetPtr());

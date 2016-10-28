@@ -93,8 +93,11 @@ void MainMenu::specificDraw(){
 //////////////////////////////////////////////////////////////////////////
 
 void MenuGUI::destroyComponents(){
+	m_GUISpritefont.dispose();
+	m_GUISpritebatch.dispose();
 	m_startGame.destroy();
 	m_quitButton.destroy();
+	m_scores.clear();
 }
 
 void MenuGUI::update(Sakura::InputManager& inputManager){
@@ -106,16 +109,36 @@ void MenuGUI::update(Sakura::InputManager& inputManager){
 void MenuGUI::IDraw(float fps){
 	m_startGame.draw(m_GUISpritebatch, m_GUICamera, true);
 	m_quitButton.draw(m_GUISpritebatch, m_GUICamera, true);
+	m_GUISpritefont.draw(m_GUISpritebatch, "High Scores", glm::vec2(500.0f, 200.0f), glm::vec2(0.15f), 1.0f, Sakura::ColorRGBA8(255,255,255,255), Sakura::Justification::MIDDLE);
+	m_GUISpritefont.draw(m_GUISpritebatch, "-------------", glm::vec2(500.0f, 190.0f), glm::vec2(0.15f), 1.0f, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::MIDDLE);
+	std::string scoreString = "";
+	for (std::size_t i = 0; i < m_scores.size(); ++i){
+		scoreString = " " + std::to_string(m_scores[i].ranking) + ".  " + m_scores[i].name[0] + m_scores[i].name[1] + m_scores[i].name[2] + " - " + std::to_string(m_scores[i].score);
+		m_GUISpritefont.draw(m_GUISpritebatch, scoreString.c_str(), glm::vec2(400.0f, 175.0f - (25.0f * (float)i)), glm::vec2(0.15f), 1.0f, Sakura::ColorRGBA8(255, 255, 255, 255), Sakura::Justification::LEFT);
+	}
 }
 
 void MenuGUI::initComponents(){
-
+	m_GUISpritefont.initTTF("Assets/Fonts/destructobeambb_bold.ttf", 128, MIPMAP | PIXELATED | TRANS_BORDER);
+	m_scoreFile.open("Scores/scores.goml", std::ios::in | std::ios::binary);
+	if (!m_scoreFile.fail()){
+		HighScore tmpScore;
+		while (m_scoreFile.read((char*)&tmpScore, sizeof(HighScore))){
+			m_scores.push_back(tmpScore);
+		}
+	}
+	else std::printf("Opening scores file failed!!!");
+	for (std::size_t i = 0; i < m_scores.size(); ++i){
+		std::printf("%i : %c%c%c - %i\n", m_scores[i].ranking, m_scores[i].name[0], m_scores[i].name[1], m_scores[i].name[2], m_scores[i].score);
+	}
+	std::printf("\n");
+	m_scoreFile.close();
 }
 
 void MenuGUI::initButtons(Sakura::Window* window){
-	m_startGame = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Start Game", glm::vec4(window->getScreenWidth() / 2 - (46 * 2.0f), window->getScreenHeight() / 2, 92 * 2.0f, 25 * 2.0f),
+	m_startGame = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Start Game", glm::vec4(window->getScreenWidth() / 2.0f - (46 * 2.0f), window->getScreenHeight() / 2.0f - (46), 92.0f * 2.0f, 25 * 2.0f),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::CHANGE_NEXT); }, MIPMAP | PIXELATED | EDGE_CLAMP);
-	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2 - (46 * 2.0f), window->getScreenHeight() / 3, 92 * 2.0f, 25 * 2.0f),
+	m_quitButton = createButton("Assets/Sprites/UI/menu_button.png", "Assets/Fonts/destructobeambb_reg.ttf", 96, glm::vec2(0.25f), MIPMAP | LINEAR | TRANS_BORDER, "Quit", glm::vec4(window->getScreenWidth() / 2.0f - (46 * 2.0f), window->getScreenHeight() / 3.0f, 92 * 2.0f, 25 * 2.0f),
 		[this](){ m_parentScreen->setState(Sakura::ScreenState::EXIT_APPLICATION); },
 		MIPMAP | PIXELATED | EDGE_CLAMP);
 }

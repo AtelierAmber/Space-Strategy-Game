@@ -165,8 +165,8 @@ int GameOver::partition(int left, int right){
 	int pivot = m_scores[mid].score;
 	// Move the mid point value to the front.
 	std::swap(m_scores[mid], m_scores[left]);
-	m_scores[mid].ranking = mid;
-	m_scores[left].ranking = left;
+	m_scores[mid].ranking = mid+1;
+	m_scores[left].ranking = left+1;
 	int i = left + 1;
 	int j = right;
 
@@ -179,13 +179,13 @@ int GameOver::partition(int left, int right){
 		}
 		if (i < j) {
 			std::swap(m_scores[i], m_scores[j]);
-			m_scores[j].ranking = j;
-			m_scores[i].ranking = i;
+			m_scores[j].ranking = j+1;
+			m_scores[i].ranking = i+1;
 		}
 	};
 	std::swap(m_scores[i - 1], m_scores[left]);
-	m_scores[i - 1].ranking = (i - 1);
-	m_scores[left].ranking = left;
+	m_scores[i - 1].ranking = (i);
+	m_scores[left].ranking = left+1;
 	return i - 1;
 }
 
@@ -196,6 +196,10 @@ void GameOver::saveScore(){
 	m_scores.push_back(m_currentScore);
 	m_scores.back().ranking = m_scores.size();
 	sortScores(0, m_scores.size() - 1);
+	std::reverse(m_scores.begin(), m_scores.end());
+	for (std::size_t i = 0; i < m_scores.size(); ++i){
+		m_scores[i].ranking = i + 1;
+	}
 	m_scoreFile.open("Scores/scores.goml", std::ios::binary | std::ios::trunc | std::ios::out);
 	if (!m_scoreFile.fail()){
 		m_scoreFile.seekg(0);
